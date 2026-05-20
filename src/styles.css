@@ -155,7 +155,7 @@
     border: 1px solid oklch(1 0 0 / 0.5);
   }
   .glass-dark {
-    background: oklch(0.22 0.05 290 / 0.6);
+    background: oklch(0.22 0.05 312 / 0.6);
     backdrop-filter: blur(16px);
     border: 1px solid oklch(1 0 0 / 0.1);
   }
