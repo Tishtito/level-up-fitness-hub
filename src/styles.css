@@ -93,11 +93,12 @@
   --sidebar-border: #1B2740;
   --sidebar-ring: #7B2EFF;
 
-  /* Gradients collapsed to flat colors — no gradient color blends. */
-  --gradient-hero: #111C30;
-  --gradient-soft: #F8FAFC;
-  --gradient-primary: #7B2EFF;
-  --gradient-card: #FFFFFF;
+  /* "Gradients" collapsed to flat colors — kept as linear-gradient() so they
+     remain valid <image> values for bg-[image:var(--gradient-*)] utilities. */
+  --gradient-hero: linear-gradient(#111C30, #111C30);
+  --gradient-soft: linear-gradient(#F8FAFC, #F8FAFC);
+  --gradient-primary: linear-gradient(#7B2EFF, #7B2EFF);
+  --gradient-card: linear-gradient(#FFFFFF, #FFFFFF);
 
   --shadow-soft: 0 1px 2px 0 rgb(17 28 48 / 0.04), 0 1px 3px 0 rgb(17 28 48 / 0.06);
   --shadow-elegant: 0 10px 30px -12px rgb(17 28 48 / 0.18);
@@ -135,10 +136,10 @@
   --sidebar-accent-foreground: #F8FAFC;
   --sidebar-border: #1B2740;
   --sidebar-ring: #7B2EFF;
-  --gradient-hero: #111C30;
-  --gradient-soft: #111C30;
-  --gradient-primary: #7B2EFF;
-  --gradient-card: #1B2740;
+  --gradient-hero: linear-gradient(#111C30, #111C30);
+  --gradient-soft: linear-gradient(#111C30, #111C30);
+  --gradient-primary: linear-gradient(#7B2EFF, #7B2EFF);
+  --gradient-card: linear-gradient(#1B2740, #1B2740);
 }
 
 @layer base {
