@@ -11,10 +11,12 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TrainerRouteImport } from './routes/trainer'
 import { Route as ShopRouteImport } from './routes/shop'
+import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ProgramsRouteImport } from './routes/programs'
 import { Route as PlansRouteImport } from './routes/plans'
 import { Route as PhysiotherapyRouteImport } from './routes/physiotherapy'
 import { Route as NutritionRouteImport } from './routes/nutrition'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as IndexRouteImport } from './routes/index'
@@ -27,6 +29,11 @@ const TrainerRoute = TrainerRouteImport.update({
 const ShopRoute = ShopRouteImport.update({
   id: '/shop',
   path: '/shop',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProgramsRoute = ProgramsRouteImport.update({
@@ -49,6 +56,11 @@ const NutritionRoute = NutritionRouteImport.update({
   path: '/nutrition',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -69,10 +81,12 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/cart': typeof CartRoute
   '/dashboard': typeof DashboardRoute
+  '/login': typeof LoginRoute
   '/nutrition': typeof NutritionRoute
   '/physiotherapy': typeof PhysiotherapyRoute
   '/plans': typeof PlansRoute
   '/programs': typeof ProgramsRoute
+  '/register': typeof RegisterRoute
   '/shop': typeof ShopRoute
   '/trainer': typeof TrainerRoute
 }
@@ -80,10 +94,12 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/cart': typeof CartRoute
   '/dashboard': typeof DashboardRoute
+  '/login': typeof LoginRoute
   '/nutrition': typeof NutritionRoute
   '/physiotherapy': typeof PhysiotherapyRoute
   '/plans': typeof PlansRoute
   '/programs': typeof ProgramsRoute
+  '/register': typeof RegisterRoute
   '/shop': typeof ShopRoute
   '/trainer': typeof TrainerRoute
 }
@@ -92,10 +108,12 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/cart': typeof CartRoute
   '/dashboard': typeof DashboardRoute
+  '/login': typeof LoginRoute
   '/nutrition': typeof NutritionRoute
   '/physiotherapy': typeof PhysiotherapyRoute
   '/plans': typeof PlansRoute
   '/programs': typeof ProgramsRoute
+  '/register': typeof RegisterRoute
   '/shop': typeof ShopRoute
   '/trainer': typeof TrainerRoute
 }
@@ -105,10 +123,12 @@ export interface FileRouteTypes {
     | '/'
     | '/cart'
     | '/dashboard'
+    | '/login'
     | '/nutrition'
     | '/physiotherapy'
     | '/plans'
     | '/programs'
+    | '/register'
     | '/shop'
     | '/trainer'
   fileRoutesByTo: FileRoutesByTo
@@ -116,10 +136,12 @@ export interface FileRouteTypes {
     | '/'
     | '/cart'
     | '/dashboard'
+    | '/login'
     | '/nutrition'
     | '/physiotherapy'
     | '/plans'
     | '/programs'
+    | '/register'
     | '/shop'
     | '/trainer'
   id:
@@ -127,10 +149,12 @@ export interface FileRouteTypes {
     | '/'
     | '/cart'
     | '/dashboard'
+    | '/login'
     | '/nutrition'
     | '/physiotherapy'
     | '/plans'
     | '/programs'
+    | '/register'
     | '/shop'
     | '/trainer'
   fileRoutesById: FileRoutesById
@@ -139,10 +163,12 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CartRoute: typeof CartRoute
   DashboardRoute: typeof DashboardRoute
+  LoginRoute: typeof LoginRoute
   NutritionRoute: typeof NutritionRoute
   PhysiotherapyRoute: typeof PhysiotherapyRoute
   PlansRoute: typeof PlansRoute
   ProgramsRoute: typeof ProgramsRoute
+  RegisterRoute: typeof RegisterRoute
   ShopRoute: typeof ShopRoute
   TrainerRoute: typeof TrainerRoute
 }
@@ -161,6 +187,13 @@ declare module '@tanstack/react-router' {
       path: '/shop'
       fullPath: '/shop'
       preLoaderRoute: typeof ShopRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/programs': {
@@ -191,6 +224,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NutritionRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
@@ -219,13 +259,25 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CartRoute: CartRoute,
   DashboardRoute: DashboardRoute,
+  LoginRoute: LoginRoute,
   NutritionRoute: NutritionRoute,
   PhysiotherapyRoute: PhysiotherapyRoute,
   PlansRoute: PlansRoute,
   ProgramsRoute: ProgramsRoute,
+  RegisterRoute: RegisterRoute,
   ShopRoute: ShopRoute,
   TrainerRoute: TrainerRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

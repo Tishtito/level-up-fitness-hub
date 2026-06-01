@@ -2,6 +2,8 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
 import { Menu, X, Dumbbell, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { authApi } from "@/lib/api";
+import { useAuthSession } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
 const links = [
@@ -17,6 +19,12 @@ const links = [
 export function Navbar() {
   const [open, setOpen] = useState(false);
   const path = useRouterState({ select: (s) => s.location.pathname });
+  const session = useAuthSession();
+
+  async function logout() {
+    await authApi.logout();
+    window.location.assign("/");
+  }
 
   return (
     <header className="sticky top-0 z-50">
@@ -54,7 +62,17 @@ export function Navbar() {
             <Link to="/cart" aria-label="Cart">
               <Button variant="ghost" size="icon"><ShoppingBag className="h-5 w-5" /></Button>
             </Link>
-            <Link to="/plans"><Button variant="hero" size="default">Join Now</Button></Link>
+            {session ? (
+              <>
+                <Link to="/dashboard"><Button variant="soft" size="default">{session.user.name.split(" ")[0]}</Button></Link>
+                <Button variant="ghost" size="default" onClick={logout}>Logout</Button>
+              </>
+            ) : (
+              <>
+                <Link to="/login"><Button variant="ghost" size="default">Login</Button></Link>
+                <Link to="/plans"><Button variant="hero" size="default">Join Now</Button></Link>
+              </>
+            )}
           </div>
 
           <button
@@ -84,9 +102,13 @@ export function Navbar() {
                 <Link to="/cart" className="flex-1" onClick={() => setOpen(false)}>
                   <Button variant="soft" className="w-full">Cart</Button>
                 </Link>
-                <Link to="/plans" className="flex-1" onClick={() => setOpen(false)}>
-                  <Button variant="hero" className="w-full">Join</Button>
-                </Link>
+                {session ? (
+                  <Button variant="hero" className="flex-1" onClick={logout}>Logout</Button>
+                ) : (
+                  <Link to="/login" className="flex-1" onClick={() => setOpen(false)}>
+                    <Button variant="hero" className="w-full">Login</Button>
+                  </Link>
+                )}
               </li>
             </ul>
           </div>

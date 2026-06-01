@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Activity, Calendar, Heart, Flame, TrendingUp, ShoppingBag, Award, ArrowRight, Check, Lock, Crown, Sparkles, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuthSession } from "@/lib/auth";
+import { loginUrlFor } from "@/lib/auth-continuation";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
@@ -16,12 +18,29 @@ const weekData = [40, 65, 50, 80, 70, 90, 75];
 const days = ["M","T","W","T","F","S","S"];
 
 function Dashboard() {
+  const session = useAuthSession();
+
+  if (!session) {
+    return (
+      <div className="mx-auto grid min-h-[65vh] max-w-7xl place-items-center px-4 pt-10 sm:px-6">
+        <div className="card-elevated max-w-md rounded-3xl p-8 text-center">
+          <Lock className="mx-auto h-10 w-10 text-primary" />
+          <h1 className="mt-4 font-display text-3xl font-bold">Login to view your dashboard</h1>
+          <p className="mt-2 text-sm text-muted-foreground">Your subscriptions, appointments, and activity are available after login.</p>
+          <a href={loginUrlFor({ redirect: "/dashboard" })} className="mt-6 inline-block">
+            <Button variant="hero">Login to continue</Button>
+          </a>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 pt-10 space-y-8">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Welcome back</p>
-          <h1 className="mt-2 font-display text-4xl font-bold">Hey, Alex 👋</h1>
+          <h1 className="mt-2 font-display text-4xl font-bold">Hey, {session.user.name}</h1>
           <p className="text-muted-foreground">You're 2 workouts away from your weekly goal. Keep going!</p>
         </div>
         <div className="flex gap-2">
