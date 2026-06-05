@@ -268,22 +268,7 @@ function LoginPage() {
       </div>
 
       {/* Right — Dark Panel (Desktop) */}
-      <div className="relative hidden w-[42%] items-center justify-center overflow-hidden bg-[#111C30] lg:flex">
-        {/* Decorative circles */}
-        <div className="absolute -right-20 -top-20 h-72 w-72 rounded-full border border-[#7B2EFF]/20" />
-        <div className="absolute -bottom-16 -left-16 h-64 w-64 rounded-full border border-[#7B2EFF]/20" />
-        <div className="absolute right-1/4 top-1/3 h-40 w-40 rounded-full border border-[#7B2EFF]/10" />
-
-        {/* Dot grid pattern */}
-        <div
-          className="absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle, #ffffff 1px, transparent 1px)",
-            backgroundSize: "28px 28px",
-          }}
-        />
-
+      <div className="relative hidden w-[42%] items-center justify-center bg-[#111C30] lg:flex">
         {/* Center content */}
         <div className="relative z-10 px-12 text-center">
           <div className="mx-auto mb-8 grid h-20 w-20 place-items-center rounded-3xl border-2 border-[#7B2EFF]">
