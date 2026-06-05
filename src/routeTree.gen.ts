@@ -15,6 +15,7 @@ import { Route as ProgramsRouteImport } from './routes/programs'
 import { Route as PlansRouteImport } from './routes/plans'
 import { Route as PhysiotherapyRouteImport } from './routes/physiotherapy'
 import { Route as NutritionRouteImport } from './routes/nutrition'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as IndexRouteImport } from './routes/index'
@@ -49,6 +50,11 @@ const NutritionRoute = NutritionRouteImport.update({
   path: '/nutrition',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -69,6 +75,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/cart': typeof CartRoute
   '/dashboard': typeof DashboardRoute
+  '/login': typeof LoginRoute
   '/nutrition': typeof NutritionRoute
   '/physiotherapy': typeof PhysiotherapyRoute
   '/plans': typeof PlansRoute
@@ -80,6 +87,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/cart': typeof CartRoute
   '/dashboard': typeof DashboardRoute
+  '/login': typeof LoginRoute
   '/nutrition': typeof NutritionRoute
   '/physiotherapy': typeof PhysiotherapyRoute
   '/plans': typeof PlansRoute
@@ -92,6 +100,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/cart': typeof CartRoute
   '/dashboard': typeof DashboardRoute
+  '/login': typeof LoginRoute
   '/nutrition': typeof NutritionRoute
   '/physiotherapy': typeof PhysiotherapyRoute
   '/plans': typeof PlansRoute
@@ -105,6 +114,7 @@ export interface FileRouteTypes {
     | '/'
     | '/cart'
     | '/dashboard'
+    | '/login'
     | '/nutrition'
     | '/physiotherapy'
     | '/plans'
@@ -116,6 +126,7 @@ export interface FileRouteTypes {
     | '/'
     | '/cart'
     | '/dashboard'
+    | '/login'
     | '/nutrition'
     | '/physiotherapy'
     | '/plans'
@@ -127,6 +138,7 @@ export interface FileRouteTypes {
     | '/'
     | '/cart'
     | '/dashboard'
+    | '/login'
     | '/nutrition'
     | '/physiotherapy'
     | '/plans'
@@ -139,6 +151,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CartRoute: typeof CartRoute
   DashboardRoute: typeof DashboardRoute
+  LoginRoute: typeof LoginRoute
   NutritionRoute: typeof NutritionRoute
   PhysiotherapyRoute: typeof PhysiotherapyRoute
   PlansRoute: typeof PlansRoute
@@ -191,6 +204,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NutritionRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
@@ -219,6 +239,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CartRoute: CartRoute,
   DashboardRoute: DashboardRoute,
+  LoginRoute: LoginRoute,
   NutritionRoute: NutritionRoute,
   PhysiotherapyRoute: PhysiotherapyRoute,
   PlansRoute: PlansRoute,
