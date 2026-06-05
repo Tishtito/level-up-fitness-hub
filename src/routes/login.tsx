@@ -189,7 +189,7 @@ function LoginPage() {
                 </div>
                 <Link
                   to="/login"
-                  className="text-sm font-medium text-[#7B2EFF] transition-colors hover:text-[#7B2EFF]/80"
+                  className="text-sm font-medium text-[#7B2EFF] hover:underline"
                 >
                   Forgot password?
                 </Link>
