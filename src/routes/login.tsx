@@ -199,7 +199,7 @@ function LoginPage() {
               <Button
                 type="submit"
                 disabled={isFormEmpty || isLoading}
-                className="h-12 w-full rounded-xl bg-[#7B2EFF] text-base font-medium text-white transition-shadow hover:shadow-[0_10px_30px_-12px_rgba(123,46,255,0.35)] disabled:opacity-50"
+                className="h-12 w-full rounded-xl bg-[#7B2EFF] text-base font-medium text-white transition-shadow hover:shadow-[var(--shadow-elegant)] disabled:opacity-50"
               >
                 {isLoading ? (
                   <span className="flex items-center gap-2">
