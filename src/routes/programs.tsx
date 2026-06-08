@@ -18,6 +18,7 @@ export const Route = createFileRoute("/programs")({
 const programs = [
   {
     title: "Body Transformation",
+    slug: "body-transformation",
     img: transform,
     level: "All Levels",
     duration: "12 weeks",
@@ -29,6 +30,7 @@ const programs = [
   },
   {
     title: "Lose Weight",
+    slug: "lose-weight",
     img: weightLoss,
     level: "Beginner → Advanced",
     duration: "8 weeks",
@@ -40,6 +42,7 @@ const programs = [
   },
   {
     title: "Muscle Building",
+    slug: "muscle-building",
     img: muscle,
     level: "Intermediate",
     duration: "10 weeks",
@@ -92,7 +95,7 @@ function ProgramsPage() {
                 <div className="mt-5 flex items-center justify-between">
                   <span className="font-display text-2xl font-bold gradient-text">{p.price}</span>
                   <div className="flex gap-2">
-                    <Button variant="soft" size="sm">View Details</Button>
+                    <Link to="/programs/$slug" params={{ slug: p.slug }}><Button variant="soft" size="sm">View Details</Button></Link>
                     <Link to="/plans"><Button variant="hero" size="sm">Subscribe <ArrowRight className="h-4 w-4" /></Button></Link>
                   </div>
                 </div>
