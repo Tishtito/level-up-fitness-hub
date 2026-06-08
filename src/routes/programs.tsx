@@ -95,8 +95,12 @@ function ProgramsPage() {
                 <div className="mt-5 flex items-center justify-between">
                   <span className="font-display text-2xl font-bold gradient-text">{p.price}</span>
                   <div className="flex gap-2">
-                    <Link to="/programs/$slug" params={{ slug: p.slug }}><Button variant="soft" size="sm">View Details</Button></Link>
-                    <Link to="/plans"><Button variant="hero" size="sm">Subscribe <ArrowRight className="h-4 w-4" /></Button></Link>
+                    <Button asChild variant="soft" size="sm">
+                      <Link to="/programs/$slug" params={{ slug: p.slug }}>View Details</Link>
+                    </Button>
+                    <Button asChild variant="hero" size="sm">
+                      <Link to="/plans">Subscribe <ArrowRight className="h-4 w-4" /></Link>
+                    </Button>
                   </div>
                 </div>
               </div>
