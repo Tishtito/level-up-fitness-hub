@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TrainerRouteImport } from './routes/trainer'
+import { Route as SignupRouteImport } from './routes/signup'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as ProgramsRouteImport } from './routes/programs'
 import { Route as PlansRouteImport } from './routes/plans'
@@ -23,6 +24,11 @@ import { Route as AdminLoginRouteImport } from './routes/admin.login'
 const TrainerRoute = TrainerRouteImport.update({
   id: '/trainer',
   path: '/trainer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ShopRoute = ShopRouteImport.update({
@@ -80,6 +86,7 @@ export interface FileRoutesByFullPath {
   '/plans': typeof PlansRoute
   '/programs': typeof ProgramsRoute
   '/shop': typeof ShopRoute
+  '/signup': typeof SignupRoute
   '/trainer': typeof TrainerRoute
   '/admin/login': typeof AdminLoginRoute
 }
@@ -92,6 +99,7 @@ export interface FileRoutesByTo {
   '/plans': typeof PlansRoute
   '/programs': typeof ProgramsRoute
   '/shop': typeof ShopRoute
+  '/signup': typeof SignupRoute
   '/trainer': typeof TrainerRoute
   '/admin/login': typeof AdminLoginRoute
 }
@@ -105,6 +113,7 @@ export interface FileRoutesById {
   '/plans': typeof PlansRoute
   '/programs': typeof ProgramsRoute
   '/shop': typeof ShopRoute
+  '/signup': typeof SignupRoute
   '/trainer': typeof TrainerRoute
   '/admin/login': typeof AdminLoginRoute
 }
@@ -119,6 +128,7 @@ export interface FileRouteTypes {
     | '/plans'
     | '/programs'
     | '/shop'
+    | '/signup'
     | '/trainer'
     | '/admin/login'
   fileRoutesByTo: FileRoutesByTo
@@ -131,6 +141,7 @@ export interface FileRouteTypes {
     | '/plans'
     | '/programs'
     | '/shop'
+    | '/signup'
     | '/trainer'
     | '/admin/login'
   id:
@@ -143,6 +154,7 @@ export interface FileRouteTypes {
     | '/plans'
     | '/programs'
     | '/shop'
+    | '/signup'
     | '/trainer'
     | '/admin/login'
   fileRoutesById: FileRoutesById
@@ -156,6 +168,7 @@ export interface RootRouteChildren {
   PlansRoute: typeof PlansRoute
   ProgramsRoute: typeof ProgramsRoute
   ShopRoute: typeof ShopRoute
+  SignupRoute: typeof SignupRoute
   TrainerRoute: typeof TrainerRoute
   AdminLoginRoute: typeof AdminLoginRoute
 }
@@ -167,6 +180,13 @@ declare module '@tanstack/react-router' {
       path: '/trainer'
       fullPath: '/trainer'
       preLoaderRoute: typeof TrainerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/shop': {
@@ -244,9 +264,20 @@ const rootRouteChildren: RootRouteChildren = {
   PlansRoute: PlansRoute,
   ProgramsRoute: ProgramsRoute,
   ShopRoute: ShopRoute,
+  SignupRoute: SignupRoute,
   TrainerRoute: TrainerRoute,
   AdminLoginRoute: AdminLoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
