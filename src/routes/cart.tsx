@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { cartApi, ordersApi, paymentsApi, type ApiCart } from "@/lib/api";
 import { useAuthSession } from "@/lib/auth";
 import { loginUrlFor } from "@/lib/auth-continuation";
+import { apiAssetUrl } from "@/lib/env";
 
 export const Route = createFileRoute("/cart")({
   head: () => ({
@@ -29,6 +30,7 @@ function CartPage() {
   const [promo, setPromo] = useState("");
   const [method, setMethod] = useState<"card" | "mpesa" | "paypal">("mpesa");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [checkoutResult, setCheckoutResult] = useState<{ orderRef: string; paymentRef: string; mode: "pay_now" | "pay_on_delivery" } | null>(null);
 
   const cartQuery = useQuery({
     queryKey: ["cart"],
@@ -66,19 +68,29 @@ function CartPage() {
   });
 
   const checkoutMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (mode: "pay_now" | "pay_on_delivery") => {
       const cart = cartQuery.data;
       if (!cart || cart.items.length === 0) throw new Error("Your cart is empty");
       const order = await ordersApi.create({});
-      return paymentsApi.initiate({
-        orderRef: order.orderRef,
-        amount: order.total,
-        method,
-        phoneNumber: method === "mpesa" ? phoneNumber || undefined : undefined,
-      });
+      const payment = mode === "pay_on_delivery"
+        ? await paymentsApi.initiate({
+            orderRef: order.orderRef,
+            amount: order.total,
+            method: "cash_on_delivery",
+          })
+        : await paymentsApi.bypassComplete({
+            orderRef: order.orderRef,
+            amount: order.total,
+            method,
+            phoneNumber: method === "mpesa" ? phoneNumber || undefined : undefined,
+          });
+      return { order, payment, mode };
     },
-    onSuccess: (payment) => {
-      toast.success("Payment initiated", { description: `Reference: ${payment.paymentRef}` });
+    onSuccess: ({ order, payment, mode }) => {
+      setCheckoutResult({ orderRef: order.orderRef, paymentRef: payment.paymentRef, mode });
+      toast.success(mode === "pay_on_delivery" ? "Order placed for payment on delivery" : "Payment completed", {
+        description: `Order: ${order.orderRef}`,
+      });
       void queryClient.invalidateQueries({ queryKey: ["cart"] });
     },
     onError: (error) => toast.error(error instanceof Error ? error.message : "Checkout failed"),
@@ -130,9 +142,17 @@ function CartPage() {
           <div className="space-y-4">
             {items.map((item) => (
               <div key={item.productRef} className="card-elevated flex flex-wrap items-center gap-4 rounded-2xl p-4">
-                <div className="grid h-20 w-20 place-items-center rounded-2xl bg-surface text-muted-foreground">
-                  <Package className="h-8 w-8" />
-                </div>
+                {item.image ? (
+                  <img
+                    src={apiAssetUrl(item.image)}
+                    alt={item.name}
+                    className="h-20 w-20 rounded-2xl object-cover"
+                  />
+                ) : (
+                  <div className="grid h-20 w-20 place-items-center rounded-2xl bg-surface text-muted-foreground">
+                    <Package className="h-8 w-8" />
+                  </div>
+                )}
                 <div className="min-w-[180px] flex-1">
                   <h3 className="font-display font-semibold">{item.name}</h3>
                   <p className="text-sm text-muted-foreground">{KSh(item.unitPrice)}</p>
@@ -194,7 +214,7 @@ function CartPage() {
             </div>
 
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Payment Method</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Pay now method</p>
               <div className="mt-2 grid grid-cols-3 gap-2">
                 {[
                   { key: "card", icon: CreditCard, label: "Card" },
@@ -218,17 +238,41 @@ function CartPage() {
               )}
             </div>
 
-            <Button
-              variant="hero"
-              size="lg"
-              className="w-full"
-              onClick={() => checkoutMutation.mutate()}
-              disabled={items.length === 0 || checkoutMutation.isPending}
-            >
-              {checkoutMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Lock className="h-4 w-4" />}
-              Pay Securely {KSh(cart?.totals.total ?? 0)}
-            </Button>
-            <p className="text-center text-xs text-muted-foreground">Payments are processed through the backend payment provider.</p>
+            {checkoutResult && (
+              <div className="rounded-2xl border border-success/30 bg-success/10 p-4 text-sm">
+                <p className="font-semibold text-success">
+                  {checkoutResult.mode === "pay_on_delivery" ? "Order placed" : "Payment completed"}
+                </p>
+                <p className="mt-1 text-muted-foreground">Order: {checkoutResult.orderRef}</p>
+                <p className="text-muted-foreground">Payment: {checkoutResult.paymentRef}</p>
+              </div>
+            )}
+
+            <div className="space-y-3">
+              <Button
+                variant="hero"
+                size="lg"
+                className="w-full"
+                onClick={() => checkoutMutation.mutate("pay_now")}
+                disabled={items.length === 0 || checkoutMutation.isPending}
+              >
+                {checkoutMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Lock className="h-4 w-4" />}
+                Pay now {KSh(cart?.totals.total ?? 0)}
+              </Button>
+              <Button
+                variant="soft"
+                size="lg"
+                className="w-full"
+                onClick={() => checkoutMutation.mutate("pay_on_delivery")}
+                disabled={items.length === 0 || checkoutMutation.isPending}
+              >
+                {checkoutMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wallet className="h-4 w-4" />}
+                Pay on delivery
+              </Button>
+            </div>
+            <p className="text-center text-xs text-muted-foreground">
+              Pay now uses a temporary backend completion bypass until live providers are configured.
+            </p>
           </aside>
         </div>
       )}

@@ -84,6 +84,7 @@ export type ApiCartItem = {
   quantity: number;
   unitPrice: number;
   name: string;
+  image?: string | null;
 };
 
 export type ApiCart = {
@@ -117,7 +118,7 @@ export type ApiPayment = {
   subscriptionRef?: string | null;
   appointmentRef?: string | null;
   amount: number;
-  method: "mpesa" | "card" | "paypal";
+  method: "mpesa" | "card" | "paypal" | "cash_on_delivery";
   status: "pending" | "processing" | "succeeded" | "failed" | "refunded";
   transactionReference?: string | null;
 };
@@ -168,6 +169,15 @@ export const authApi = {
     const response = await apiRequest<AuthSession>("/auth/login", {
       method: "POST",
       body: { email, password },
+    });
+    saveAuthSession(response.data);
+    return response.data;
+  },
+
+  async googleCustomerLogin(credential: string) {
+    const response = await apiRequest<AuthSession>("/auth/google/customer", {
+      method: "POST",
+      body: { credential },
     });
     saveAuthSession(response.data);
     return response.data;
@@ -278,6 +288,14 @@ export const ordersApi = {
 export const paymentsApi = {
   async initiate(input: { orderRef?: string; subscriptionRef?: string; amount: number; method: ApiPayment["method"]; phoneNumber?: string }) {
     const response = await apiRequest<{ payment: ApiPayment }>("/payments/initiate", {
+      method: "POST",
+      body: input,
+    });
+    return response.data.payment;
+  },
+
+  async bypassComplete(input: { orderRef: string; amount: number; method: Exclude<ApiPayment["method"], "cash_on_delivery">; phoneNumber?: string }) {
+    const response = await apiRequest<{ payment: ApiPayment }>("/payments/bypass-complete", {
       method: "POST",
       body: input,
     });

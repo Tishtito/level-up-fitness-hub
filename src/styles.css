@@ -156,6 +156,7 @@
 @layer components {
   .glass {
     background: #FFFFFF;
+    color: var(--card-foreground);
     border: 1px solid var(--border);
   }
   .glass-dark {
@@ -165,9 +166,13 @@
   .gradient-text {
     color: var(--primary);
   }
-  .hero-bg { background: var(--gradient-hero); }
+  .hero-bg {
+    background: var(--gradient-hero);
+    color: var(--primary-foreground);
+  }
   .card-elevated {
     background: var(--card);
+    color: var(--card-foreground);
     box-shadow: var(--shadow-soft);
     border: 1px solid var(--border);
     transition: var(--transition-smooth);

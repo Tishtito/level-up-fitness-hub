@@ -57,15 +57,15 @@ function Home() {
           <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-white/20 blur-3xl" />
           <div className="absolute -bottom-32 -left-20 h-96 w-96 rounded-full bg-primary/30 blur-3xl" />
           <div className="relative grid items-center gap-10 lg:grid-cols-2">
-            <div className="text-surface-foreground">
-              <span className="inline-flex items-center gap-2 rounded-full bg-white/40 px-3 py-1 text-xs font-medium backdrop-blur">
+            <div className="text-primary-foreground">
+              <span className="inline-flex items-center gap-2 rounded-full bg-white/20 px-3 py-1 text-xs font-medium text-primary-foreground backdrop-blur">
                 <Sparkles className="h-3.5 w-3.5" /> Premium Fitness Platform
               </span>
               <h1 className="mt-5 font-display text-4xl font-bold leading-[1.05] sm:text-5xl lg:text-6xl">
                 Transform Your Body.<br />
                 <span className="gradient-text">Elevate</span> Your Life.
               </h1>
-              <p className="mt-5 max-w-md text-base text-surface-foreground/80 sm:text-lg">
+              <p className="mt-5 max-w-md text-base text-primary-foreground/85 sm:text-lg">
                 Subscriptions, expert coaching, nutrition, physiotherapy and curated gear — all in one beautifully simple platform.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
@@ -78,7 +78,7 @@ function Home() {
                     <div key={i} className="h-9 w-9 rounded-full border-2 border-white bg-[image:var(--gradient-primary)]" />
                   ))}
                 </div>
-                <p className="text-sm text-surface-foreground/80">Join 12,400+ members already leveling up.</p>
+                <p className="text-sm text-primary-foreground/85">Join 12,400+ members already leveling up.</p>
               </div>
             </div>
             <div className="relative">
@@ -101,7 +101,7 @@ function Home() {
               <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-[image:var(--gradient-primary)] text-primary-foreground">
                 <s.icon className="h-5 w-5" />
               </div>
-              <p className="mt-4 font-display text-3xl font-bold">{s.value}</p>
+              <p className="mt-4 font-display text-3xl font-bold text-primary">{s.value}</p>
               <p className="mt-1 text-sm text-muted-foreground">{s.label}</p>
             </div>
           ))}
@@ -119,10 +119,10 @@ function Home() {
               </div>
               <div className="p-6">
                 <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span className="rounded-full bg-surface px-2.5 py-1 text-surface-foreground">{p.level}</span>
+                  <span className="rounded-full bg-secondary px-2.5 py-1 text-secondary-foreground">{p.level}</span>
                   <span>{p.weeks}</span>
                 </div>
-                <h3 className="mt-3 font-display text-xl font-bold">{p.title}</h3>
+                <h3 className="mt-3 font-display text-xl font-bold text-card-foreground">{p.title}</h3>
                 <div className="mt-5 flex items-center justify-between">
                   <span className="font-display text-lg font-bold gradient-text">{p.price}</span>
                   <Link to="/programs"><Button size="sm" variant="hero">Subscribe</Button></Link>
@@ -140,9 +140,9 @@ function Home() {
           {plans.map((p) => (
             <div key={p.name} className={`relative rounded-3xl p-7 ${p.featured ? "bg-[image:var(--gradient-primary)] text-primary-foreground shadow-[var(--shadow-elegant)]" : "card-elevated"}`}>
               {p.featured && <span className="absolute -top-3 right-6 rounded-full bg-white px-3 py-1 text-xs font-semibold text-primary">Most Popular</span>}
-              <h3 className="font-display text-xl font-bold">{p.name}</h3>
-              <p className="mt-3 font-display text-4xl font-bold">{p.price}<span className={`text-sm font-normal ${p.featured ? "text-primary-foreground/80" : "text-muted-foreground"}`}>/mo</span></p>
-              <ul className={`mt-6 space-y-2 text-sm ${p.featured ? "text-primary-foreground/90" : "text-muted-foreground"}`}>
+              <h3 className={`font-display text-xl font-bold ${p.featured ? "text-primary-foreground" : "text-card-foreground"}`}>{p.name}</h3>
+              <p className={`mt-3 font-display text-4xl font-bold ${p.featured ? "text-primary-foreground" : "text-primary"}`}>{p.price}<span className={`text-sm font-normal ${p.featured ? "text-primary-foreground/80" : "text-secondary-foreground"}`}>/mo</span></p>
+              <ul className={`mt-6 space-y-2 text-sm ${p.featured ? "text-primary-foreground/90" : "text-secondary-foreground"}`}>
                 {p.features.map((f) => <li key={f}>✓ {f}</li>)}
               </ul>
               <Link to="/plans" className="mt-7 block"><Button variant={p.featured ? "soft" : "hero"} className="w-full">Get {p.name}</Button></Link>
@@ -158,11 +158,11 @@ function Home() {
           {testimonials.map((t) => (
             <div key={t.name} className="card-elevated rounded-3xl p-6">
               <Quote className="h-8 w-8 text-primary/40" />
-              <p className="mt-3 text-sm leading-relaxed">{t.text}</p>
+              <p className="mt-3 text-sm leading-relaxed text-card-foreground">{t.text}</p>
               <div className="mt-6 flex items-center gap-3">
                 <div className="h-10 w-10 rounded-full bg-[image:var(--gradient-primary)]" />
                 <div>
-                  <p className="text-sm font-semibold">{t.name}</p>
+                  <p className="text-sm font-semibold text-card-foreground">{t.name}</p>
                   <p className="text-xs text-muted-foreground">{t.role}</p>
                 </div>
               </div>
@@ -180,7 +180,7 @@ function Home() {
               <div className="mx-auto grid aspect-square w-full place-items-center rounded-2xl bg-surface text-6xl">
                 {p.emoji}
               </div>
-              <h4 className="mt-4 font-display font-semibold">{p.name}</h4>
+              <h4 className="mt-4 font-display font-semibold text-card-foreground">{p.name}</h4>
               <p className="text-sm gradient-text font-bold">{p.price}</p>
               <Button variant="ghost" size="sm" className="mt-2"><ShoppingBag className="h-4 w-4" /> Add</Button>
             </Link>
@@ -193,7 +193,7 @@ function Home() {
         <div className="hero-bg relative overflow-hidden rounded-[2rem] p-10 text-center sm:p-16">
           <div className="absolute -right-10 top-0 h-64 w-64 rounded-full bg-white/20 blur-3xl" />
           <h2 className="font-display text-3xl font-bold sm:text-5xl">Ready to level up?</h2>
-          <p className="mx-auto mt-4 max-w-xl text-surface-foreground/80">Join today and get your first week free. No commitments.</p>
+          <p className="mx-auto mt-4 max-w-xl text-primary-foreground/85">Join today and get your first week free. No commitments.</p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link to="/plans"><Button variant="hero" size="xl">Start Free Week</Button></Link>
             <Link to="/programs"><Button variant="soft" size="xl">Browse Programs</Button></Link>
@@ -209,7 +209,7 @@ function SectionHeader({ eyebrow, title, subtitle, link, linkLabel = "View all" 
     <div className="flex flex-wrap items-end justify-between gap-4">
       <div>
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">{eyebrow}</p>
-        <h2 className="mt-2 font-display text-3xl font-bold sm:text-4xl">{title}</h2>
+        <h2 className="mt-2 font-display text-3xl font-bold text-foreground sm:text-4xl">{title}</h2>
         {subtitle && <p className="mt-2 text-muted-foreground">{subtitle}</p>}
       </div>
       {link && <Link to={link} className="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:gap-2 transition-all">{linkLabel} <ArrowRight className="h-4 w-4" /></Link>}
