@@ -162,8 +162,8 @@ export const Route = createFileRoute("/programs/$slug")({
 });
 
 function ProgramDetailPage() {
-  const { program } = Route.useLoaderData();
-  const totalVideos = program.modules.reduce((n, m) => n + m.videos.length, 0);
+  const { program } = Route.useLoaderData() as { program: ProgramDetail };
+  const totalVideos = program.modules.reduce((n: number, m) => n + m.videos.length, 0);
 
   return (
     <div className="mx-auto max-w-6xl px-4 sm:px-6 pt-8 pb-16 space-y-10">
