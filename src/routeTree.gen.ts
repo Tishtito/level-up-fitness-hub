@@ -19,6 +19,7 @@ import { Route as NutritionRouteImport } from './routes/nutrition'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ProgramsIndexRouteImport } from './routes/programs.index'
 import { Route as ProgramsSlugRouteImport } from './routes/programs.$slug'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 
@@ -72,6 +73,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProgramsIndexRoute = ProgramsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ProgramsRoute,
+} as any)
 const ProgramsSlugRoute = ProgramsSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
@@ -96,6 +102,7 @@ export interface FileRoutesByFullPath {
   '/trainer': typeof TrainerRoute
   '/admin/login': typeof AdminLoginRoute
   '/programs/$slug': typeof ProgramsSlugRoute
+  '/programs/': typeof ProgramsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -104,12 +111,12 @@ export interface FileRoutesByTo {
   '/nutrition': typeof NutritionRoute
   '/physiotherapy': typeof PhysiotherapyRoute
   '/plans': typeof PlansRoute
-  '/programs': typeof ProgramsRouteWithChildren
   '/shop': typeof ShopRoute
   '/signup': typeof SignupRoute
   '/trainer': typeof TrainerRoute
   '/admin/login': typeof AdminLoginRoute
   '/programs/$slug': typeof ProgramsSlugRoute
+  '/programs': typeof ProgramsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -125,6 +132,7 @@ export interface FileRoutesById {
   '/trainer': typeof TrainerRoute
   '/admin/login': typeof AdminLoginRoute
   '/programs/$slug': typeof ProgramsSlugRoute
+  '/programs/': typeof ProgramsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -141,6 +149,7 @@ export interface FileRouteTypes {
     | '/trainer'
     | '/admin/login'
     | '/programs/$slug'
+    | '/programs/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -149,12 +158,12 @@ export interface FileRouteTypes {
     | '/nutrition'
     | '/physiotherapy'
     | '/plans'
-    | '/programs'
     | '/shop'
     | '/signup'
     | '/trainer'
     | '/admin/login'
     | '/programs/$slug'
+    | '/programs'
   id:
     | '__root__'
     | '/'
@@ -169,6 +178,7 @@ export interface FileRouteTypes {
     | '/trainer'
     | '/admin/login'
     | '/programs/$slug'
+    | '/programs/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -257,6 +267,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/programs/': {
+      id: '/programs/'
+      path: '/'
+      fullPath: '/programs/'
+      preLoaderRoute: typeof ProgramsIndexRouteImport
+      parentRoute: typeof ProgramsRoute
+    }
     '/programs/$slug': {
       id: '/programs/$slug'
       path: '/$slug'
@@ -276,10 +293,12 @@ declare module '@tanstack/react-router' {
 
 interface ProgramsRouteChildren {
   ProgramsSlugRoute: typeof ProgramsSlugRoute
+  ProgramsIndexRoute: typeof ProgramsIndexRoute
 }
 
 const ProgramsRouteChildren: ProgramsRouteChildren = {
   ProgramsSlugRoute: ProgramsSlugRoute,
+  ProgramsIndexRoute: ProgramsIndexRoute,
 }
 
 const ProgramsRouteWithChildren = ProgramsRoute._addFileChildren(
