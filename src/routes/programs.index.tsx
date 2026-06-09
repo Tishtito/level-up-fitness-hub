@@ -5,7 +5,7 @@ import muscle from "@/assets/program-muscle.jpg";
 import weightLoss from "@/assets/program-weight-loss.jpg";
 import transform from "@/assets/program-transform.jpg";
 
-export const Route = createFileRoute("/programs")({
+export const Route = createFileRoute("/programs/")({
   head: () => ({
     meta: [
       { title: "Training Programs — Level Up Fitness" },
