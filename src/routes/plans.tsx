@@ -70,9 +70,9 @@ function PlansPage() {
                 );
               })}
             </ul>
-            <Link to="/dashboard" className="mt-8 block">
-              <Button variant={p.featured ? "soft" : "hero"} className="w-full" size="lg">Choose {p.name}</Button>
-            </Link>
+            <Button asChild variant={p.featured ? "soft" : "hero"} className="mt-8 w-full" size="lg">
+              <Link to="/checkout" search={{ plan: p.name, cycle: yearly ? "yearly" : "monthly" }}>Choose {p.name}</Link>
+            </Button>
           </div>
         ))}
       </div>
