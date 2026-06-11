@@ -42,8 +42,8 @@ function NutritionPage() {
           <h1 className="mt-2 font-display text-4xl font-bold sm:text-5xl">Nutrition that works for your body</h1>
           <p className="mt-4 text-muted-foreground">Sit down with a certified nutritionist, get a tailored plan and finally enjoy food that fuels your goals.</p>
           <div className="mt-6 flex flex-wrap gap-3">
-            <Button variant="hero" size="lg">Book Appointment</Button>
-            <Button variant="soft" size="lg">Meet the Team</Button>
+            <Button variant="hero" size="lg" onClick={() => document.getElementById("booking")?.scrollIntoView({ behavior: "smooth" })}>Book Appointment</Button>
+            <Button variant="soft" size="lg" onClick={() => document.getElementById("team")?.scrollIntoView({ behavior: "smooth" })}>Meet the Team</Button>
           </div>
         </div>
         <img src={nutritionImg} alt="Healthy meal" className="rounded-[2rem] shadow-[var(--shadow-elegant)] w-full" loading="lazy" width={1024} height={768} />
@@ -65,7 +65,7 @@ function NutritionPage() {
         </div>
       </section>
 
-      <section className="grid gap-8 lg:grid-cols-3">
+      <section id="booking" className="grid gap-8 lg:grid-cols-3 scroll-mt-24">
         <div className="card-elevated rounded-3xl p-6 lg:col-span-2">
           <h2 className="font-display text-2xl font-bold inline-flex items-center gap-2"><CalendarIcon className="h-6 w-6 text-primary" /> Book your session</h2>
           <p className="mt-1 text-sm text-muted-foreground">Pick a day & time that works for you.</p>
@@ -101,7 +101,7 @@ function NutritionPage() {
         </div>
       </section>
 
-      <section>
+      <section id="team" className="scroll-mt-24">
         <h2 className="font-display text-3xl font-bold">Meet our nutritionists</h2>
         <div className="mt-6 grid gap-5 md:grid-cols-3">
           {nutritionists.map((n) => (
