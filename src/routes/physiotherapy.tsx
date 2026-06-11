@@ -42,8 +42,8 @@ function PhysioPage() {
           <h1 className="mt-2 font-display text-4xl font-bold sm:text-5xl">Move better. Recover faster.</h1>
           <p className="mt-4 text-muted-foreground">Hands-on physiotherapy with certified therapists at our Nairobi clinic — built around you.</p>
           <div className="mt-6 flex flex-wrap gap-3">
-            <Button variant="hero" size="lg">Book Session</Button>
-            <Button variant="soft" size="lg">View Therapists</Button>
+            <Button variant="hero" size="lg" onClick={() => document.getElementById("booking")?.scrollIntoView({ behavior: "smooth" })}>Book Session</Button>
+            <Button variant="soft" size="lg" onClick={() => document.getElementById("therapists")?.scrollIntoView({ behavior: "smooth" })}>View Therapists</Button>
           </div>
         </div>
         <img src={physioImg} alt="Physiotherapy session" className="rounded-[2rem] shadow-[var(--shadow-elegant)] w-full" loading="lazy" width={1024} height={768} />
@@ -64,7 +64,7 @@ function PhysioPage() {
         </div>
       </section>
 
-      <section className="grid gap-8 lg:grid-cols-3">
+      <section id="booking" className="grid gap-8 lg:grid-cols-3 scroll-mt-24">
         <div className="card-elevated rounded-3xl p-6 lg:col-span-2">
           <h2 className="font-display text-2xl font-bold inline-flex items-center gap-2"><CalendarIcon className="h-6 w-6 text-primary" /> Schedule appointment</h2>
           <div className="mt-5 space-y-4">
@@ -98,7 +98,7 @@ function PhysioPage() {
         </div>
       </section>
 
-      <section>
+      <section id="therapists" className="scroll-mt-24">
         <h2 className="font-display text-3xl font-bold">Our therapists</h2>
         <div className="mt-6 grid gap-5 md:grid-cols-3">
           {therapists.map((t) => (

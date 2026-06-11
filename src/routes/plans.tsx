@@ -99,71 +99,104 @@ function PlansPage() {
         </div>
       ) : (
         <div className="grid items-stretch gap-6 lg:grid-cols-3">
-          {plans.map((plan, index) => {
-            const featured = index === 1 || /pro|elite/i.test(plan.name);
-            const amount = planAmount(plan);
-
-            return (
-              <div
-                key={plan.planRef}
-                className={`relative flex flex-col rounded-3xl p-8 ${
-                  featured ? "bg-[image:var(--gradient-primary)] text-primary-foreground shadow-[var(--shadow-elegant)] lg:-translate-y-3" : "card-elevated"
-                }`}
-              >
-                {featured && (
-                  <span className="absolute -top-3 left-1/2 inline-flex -translate-x-1/2 items-center gap-1 rounded-full bg-white px-3 py-1 text-xs font-semibold text-primary">
-                    <Sparkles className="h-3 w-3" /> Recommended
-                  </span>
-                )}
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <h3 className="font-display text-2xl font-bold">{plan.name}</h3>
-                    <p className={`mt-2 text-sm ${featured ? "text-primary-foreground/85" : "text-muted-foreground"}`}>{plan.description}</p>
-                  </div>
-                  <Badge variant={featured ? "secondary" : "outline"}>{cycleLabels[plan.billingCycle]}</Badge>
-                </div>
-
-                <p className="mt-6 font-display text-4xl font-bold">
-                  {KSh(amount)}
-                  <span className={`text-base font-normal ${featured ? "text-primary-foreground/80" : "text-muted-foreground"}`}>/{plan.billingCycle}</span>
-                </p>
-                {plan.discount > 0 && <p className={`mt-1 text-xs ${featured ? "text-primary-foreground/80" : "text-muted-foreground"}`}>{KSh(plan.discount)} discount applied</p>}
-                {plan.trialDays > 0 && <p className={`mt-1 text-xs ${featured ? "text-primary-foreground/80" : "text-muted-foreground"}`}>{plan.trialDays} trial days included</p>}
-
-                <ul className="mt-6 flex-1 space-y-3 text-sm">
-                  {(plan.features.length ? plan.features : ["Program access", "Workout guidance", "Customer support"]).map((feature) => (
-                    <li key={feature} className="flex items-center gap-2">
-                      <span className={`grid h-5 w-5 place-items-center rounded-full ${featured ? "bg-white/20" : "bg-primary/15 text-primary"}`}>
-                        <Check className="h-3 w-3" />
-                      </span>
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-
-                {plan.programAccess.length > 0 && (
-                  <p className={`mt-4 text-xs ${featured ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
-                    Includes {plan.programAccess.length} program access {plan.programAccess.length === 1 ? "slot" : "slots"}.
-                  </p>
-                )}
-
-                <Button
-                  variant={featured ? "soft" : "hero"}
-                  className="mt-8 w-full"
-                  size="lg"
-                  onClick={() => choosePlan(plan)}
-                  disabled={subscribeMutation.isPending}
-                >
-                  {subscribeMutation.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-                  Choose {plan.name}
-                </Button>
-              </div>
-            );
-          })}
-          {plans.length === 0 && (
-            <div className="card-elevated rounded-3xl p-10 text-center lg:col-span-3">
-              <p className="text-muted-foreground">No active plans match this billing cycle.</p>
+          {plans.length === 0 ? (
+            <div className="card-elevated rounded-3xl p-10 text-center text-muted-foreground lg:col-span-3">
+              <p className="text-sm font-medium">No active plans are available for this billing cycle.</p>
             </div>
+          ) : (
+            plans.map((plan, index) => {
+              const featured = index === 1 || /pro|elite/i.test(plan.name);
+              const amount = planAmount(plan);
+              const isSubmitting = subscribeMutation.isPending && subscribeMutation.variables === plan.planRef;
+
+              return (
+                <div
+                  key={plan.planRef}
+                  className={`relative flex min-h-full flex-col rounded-3xl p-7 ${
+                    featured
+                      ? "bg-[image:var(--gradient-primary)] text-primary-foreground shadow-[var(--shadow-elegant)]"
+                      : "card-elevated"
+                  }`}
+                >
+                  {featured && (
+                    <span className="absolute -top-3 right-6 rounded-full bg-white px-3 py-1 text-xs font-semibold text-primary">
+                      Most Popular
+                    </span>
+                  )}
+
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge variant={featured ? "secondary" : "outline"}>{cycleLabels[plan.billingCycle]}</Badge>
+                    {plan.trialDays > 0 && (
+                      <Badge variant={featured ? "secondary" : "outline"}>{plan.trialDays} day trial</Badge>
+                    )}
+                  </div>
+
+                  <h2 className="mt-5 font-display text-2xl font-bold">{plan.name}</h2>
+                  <p className={`mt-2 text-sm leading-relaxed ${featured ? "text-primary-foreground/85" : "text-muted-foreground"}`}>
+                    {plan.description}
+                  </p>
+
+                  <div className="mt-6">
+                    {plan.discount > 0 && (
+                      <p className={`text-sm line-through ${featured ? "text-primary-foreground/65" : "text-muted-foreground"}`}>
+                        {KSh(plan.price)}
+                      </p>
+                    )}
+                    <p className="font-display text-4xl font-bold">
+                      {KSh(amount)}
+                      <span className={`text-sm font-normal ${featured ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
+                        /{plan.billingCycle}
+                      </span>
+                    </p>
+                  </div>
+
+                  <ul className="mt-6 flex-1 space-y-3 text-sm">
+                    {plan.features.length > 0 ? (
+                      plan.features.map((feature) => (
+                        <li key={feature} className="flex items-start gap-2">
+                          <span
+                            className={`mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full ${
+                              featured ? "bg-white/20" : "bg-primary/15 text-primary"
+                            }`}
+                          >
+                            <Check className="h-3 w-3" />
+                          </span>
+                          <span>{feature}</span>
+                        </li>
+                      ))
+                    ) : (
+                      <li className={featured ? "text-primary-foreground/80" : "text-muted-foreground"}>
+                        Features will be shared soon.
+                      </li>
+                    )}
+                  </ul>
+
+                  {plan.programAccess.length > 0 && (
+                    <p className={`mt-5 text-xs ${featured ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
+                      Includes access to {plan.programAccess.length} program{plan.programAccess.length === 1 ? "" : "s"}.
+                    </p>
+                  )}
+
+                  <Button
+                    variant={featured ? "soft" : "hero"}
+                    className="mt-8 w-full"
+                    size="lg"
+                    onClick={() => choosePlan(plan)}
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" /> Choosing plan...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="h-4 w-4" /> Choose {plan.name}
+                      </>
+                    )}
+                  </Button>
+                </div>
+              );
+            })
           )}
         </div>
       )}

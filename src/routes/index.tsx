@@ -75,7 +75,7 @@ function Home() {
               <div className="mt-8 flex items-center gap-4">
                 <div className="flex -space-x-2">
                   {[1,2,3,4].map((i) => (
-                    <div key={i} className="h-9 w-9 rounded-full border-2 border-white bg-[image:var(--gradient-primary)]" />
+                    <div key={i} className="h-9 w-9 rounded-full border-2 border-white bg-primary" />
                   ))}
                 </div>
                 <p className="text-sm text-primary-foreground/85">Join 12,400+ members already leveling up.</p>
@@ -86,7 +86,7 @@ function Home() {
               <img src={hero} alt="Athletic woman stretching" className="relative w-full rounded-[2rem] object-cover shadow-[var(--shadow-elegant)]" width={1024} height={1280} />
               <div className="glass absolute -bottom-5 left-5 hidden rounded-2xl p-4 sm:block">
                 <p className="text-xs text-muted-foreground">Today's burn</p>
-                <p className="font-display text-xl font-bold gradient-text">642 kcal 🔥</p>
+                <p className="font-display text-xl font-bold text-primary">642 kcal 🔥</p>
               </div>
             </div>
           </div>
@@ -97,11 +97,11 @@ function Home() {
       <section className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {stats.map((s) => (
-            <div key={s.label} className="card-elevated rounded-2xl p-6 text-center">
-              <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-[image:var(--gradient-primary)] text-primary-foreground">
+            <div key={s.label} className="card-elevated rounded-2xl p-6 text-center text-card-foreground">
+              <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-primary text-primary-foreground">
                 <s.icon className="h-5 w-5" />
               </div>
-              <p className="mt-4 font-display text-3xl font-bold text-primary">{s.value}</p>
+              <p className="mt-4 font-display text-3xl font-bold text-card-foreground">{s.value}</p>
               <p className="mt-1 text-sm text-muted-foreground">{s.label}</p>
             </div>
           ))}
@@ -113,7 +113,7 @@ function Home() {
         <SectionHeader eyebrow="Programs" title="Train with intention" subtitle="Hand-crafted programs led by certified coaches." link="/programs" />
         <div className="mt-10 grid gap-6 md:grid-cols-3">
           {featuredPrograms.map((p) => (
-            <article key={p.title} className="card-elevated overflow-hidden rounded-3xl">
+            <article key={p.title} className="card-elevated overflow-hidden rounded-3xl text-card-foreground">
               <div className="aspect-[4/3] overflow-hidden">
                 <img src={p.img} alt={p.title} className="h-full w-full object-cover transition-transform hover:scale-105" loading="lazy" width={1024} height={768} />
               </div>
@@ -124,7 +124,7 @@ function Home() {
                 </div>
                 <h3 className="mt-3 font-display text-xl font-bold text-card-foreground">{p.title}</h3>
                 <div className="mt-5 flex items-center justify-between">
-                  <span className="font-display text-lg font-bold gradient-text">{p.price}</span>
+                  <span className="font-display text-lg font-bold text-primary">{p.price}</span>
                   <Link to="/programs"><Button size="sm" variant="hero">Subscribe</Button></Link>
                 </div>
               </div>
@@ -138,7 +138,7 @@ function Home() {
         <SectionHeader eyebrow="Membership" title="Plans for every athlete" subtitle="Cancel anytime. Upgrade as you grow." link="/plans" linkLabel="Compare all plans" />
         <div className="mt-10 grid gap-6 md:grid-cols-3">
           {plans.map((p) => (
-            <div key={p.name} className={`relative rounded-3xl p-7 ${p.featured ? "bg-[image:var(--gradient-primary)] text-primary-foreground shadow-[var(--shadow-elegant)]" : "card-elevated"}`}>
+            <div key={p.name} className={`relative rounded-3xl p-7 ${p.featured ? "bg-primary text-primary-foreground shadow-[var(--shadow-elegant)]" : "card-elevated text-card-foreground"}`}>
               {p.featured && <span className="absolute -top-3 right-6 rounded-full bg-white px-3 py-1 text-xs font-semibold text-primary">Most Popular</span>}
               <h3 className={`font-display text-xl font-bold ${p.featured ? "text-primary-foreground" : "text-card-foreground"}`}>{p.name}</h3>
               <p className={`mt-3 font-display text-4xl font-bold ${p.featured ? "text-primary-foreground" : "text-primary"}`}>{p.price}<span className={`text-sm font-normal ${p.featured ? "text-primary-foreground/80" : "text-secondary-foreground"}`}>/mo</span></p>
@@ -156,11 +156,11 @@ function Home() {
         <SectionHeader eyebrow="Loved by members" title="Real transformations" />
         <div className="mt-10 grid gap-6 md:grid-cols-3">
           {testimonials.map((t) => (
-            <div key={t.name} className="card-elevated rounded-3xl p-6">
+            <div key={t.name} className="card-elevated rounded-3xl p-6 text-card-foreground">
               <Quote className="h-8 w-8 text-primary/40" />
               <p className="mt-3 text-sm leading-relaxed text-card-foreground">{t.text}</p>
               <div className="mt-6 flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-[image:var(--gradient-primary)]" />
+                <div className="h-10 w-10 rounded-full bg-primary" />
                 <div>
                   <p className="text-sm font-semibold text-card-foreground">{t.name}</p>
                   <p className="text-xs text-muted-foreground">{t.role}</p>
@@ -176,12 +176,12 @@ function Home() {
         <SectionHeader eyebrow="Shop" title="Gear up in style" link="/shop" linkLabel="Visit shop" />
         <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {products.map((p) => (
-            <Link key={p.name} to="/shop" className="card-elevated group rounded-3xl p-6 text-center">
+            <Link key={p.name} to="/shop" className="card-elevated group rounded-3xl p-6 text-center text-card-foreground">
               <div className="mx-auto grid aspect-square w-full place-items-center rounded-2xl bg-surface text-6xl">
                 {p.emoji}
               </div>
               <h4 className="mt-4 font-display font-semibold text-card-foreground">{p.name}</h4>
-              <p className="text-sm gradient-text font-bold">{p.price}</p>
+              <p className="text-sm text-primary font-bold">{p.price}</p>
               <Button variant="ghost" size="sm" className="mt-2"><ShoppingBag className="h-4 w-4" /> Add</Button>
             </Link>
           ))}
