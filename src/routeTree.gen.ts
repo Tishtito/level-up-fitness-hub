@@ -17,6 +17,7 @@ import { Route as PlansRouteImport } from './routes/plans'
 import { Route as PhysiotherapyRouteImport } from './routes/physiotherapy'
 import { Route as NutritionRouteImport } from './routes/nutrition'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProgramsIndexRouteImport } from './routes/programs.index'
@@ -63,6 +64,11 @@ const DashboardRoute = DashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CheckoutRoute = CheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CartRoute = CartRouteImport.update({
   id: '/cart',
   path: '/cart',
@@ -92,6 +98,7 @@ const AdminLoginRoute = AdminLoginRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/cart': typeof CartRoute
+  '/checkout': typeof CheckoutRoute
   '/dashboard': typeof DashboardRoute
   '/nutrition': typeof NutritionRoute
   '/physiotherapy': typeof PhysiotherapyRoute
@@ -107,6 +114,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/cart': typeof CartRoute
+  '/checkout': typeof CheckoutRoute
   '/dashboard': typeof DashboardRoute
   '/nutrition': typeof NutritionRoute
   '/physiotherapy': typeof PhysiotherapyRoute
@@ -122,6 +130,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/cart': typeof CartRoute
+  '/checkout': typeof CheckoutRoute
   '/dashboard': typeof DashboardRoute
   '/nutrition': typeof NutritionRoute
   '/physiotherapy': typeof PhysiotherapyRoute
@@ -139,6 +148,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/cart'
+    | '/checkout'
     | '/dashboard'
     | '/nutrition'
     | '/physiotherapy'
@@ -154,6 +164,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/cart'
+    | '/checkout'
     | '/dashboard'
     | '/nutrition'
     | '/physiotherapy'
@@ -168,6 +179,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/cart'
+    | '/checkout'
     | '/dashboard'
     | '/nutrition'
     | '/physiotherapy'
@@ -184,6 +196,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CartRoute: typeof CartRoute
+  CheckoutRoute: typeof CheckoutRoute
   DashboardRoute: typeof DashboardRoute
   NutritionRoute: typeof NutritionRoute
   PhysiotherapyRoute: typeof PhysiotherapyRoute
@@ -253,6 +266,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/checkout': {
+      id: '/checkout'
+      path: '/checkout'
+      fullPath: '/checkout'
+      preLoaderRoute: typeof CheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/cart': {
       id: '/cart'
       path: '/cart'
@@ -308,6 +328,7 @@ const ProgramsRouteWithChildren = ProgramsRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CartRoute: CartRoute,
+  CheckoutRoute: CheckoutRoute,
   DashboardRoute: DashboardRoute,
   NutritionRoute: NutritionRoute,
   PhysiotherapyRoute: PhysiotherapyRoute,
