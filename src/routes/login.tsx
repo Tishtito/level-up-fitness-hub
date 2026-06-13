@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { authApi } from "@/lib/api";
-import { completeAuthContinuation, registerUrlFor, type AuthContinuation } from "@/lib/auth-continuation";
+import { completeAuthContinuation, parseAuthContinuation, registerUrlFor } from "@/lib/auth-continuation";
 import { GOOGLE_CLIENT_ID } from "@/lib/env";
 
 type GoogleCredentialResponse = {
@@ -31,11 +31,7 @@ declare global {
 }
 
 export const Route = createFileRoute("/login")({
-  validateSearch: (search): AuthContinuation => ({
-    redirect: typeof search.redirect === "string" ? search.redirect : undefined,
-    addProductRef: typeof search.addProductRef === "string" ? search.addProductRef : undefined,
-    planRef: typeof search.planRef === "string" ? search.planRef : undefined,
-  }),
+  validateSearch: parseAuthContinuation,
   head: () => ({
     meta: [
       { title: "Login — Level Up Fitness" },
@@ -66,8 +62,16 @@ function LoginPage() {
   const pwdError = touched.password && !passwordValid ? "Password must be at least 8 characters." : null;
 
   const finishLogin = useCallback(async () => {
-    const next = await completeAuthContinuation(search);
-    window.location.assign(next);
+    try {
+      const next = await completeAuthContinuation(search);
+      window.location.replace(next);
+    } catch (continuationError) {
+      setError(
+        continuationError instanceof Error
+          ? `You are signed in, but we could not complete your previous action: ${continuationError.message}`
+          : "You are signed in, but we could not complete your previous action. Please try it again.",
+      );
+    }
   }, [search]);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -78,9 +82,14 @@ function LoginPage() {
     setLoading(true);
     try {
       await authApi.login(email.trim(), password);
-      await finishLogin();
     } catch (loginError) {
       setError(loginError instanceof Error ? loginError.message : "Login failed. Please try again.");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      await finishLogin();
     } finally {
       setLoading(false);
     }
@@ -97,9 +106,14 @@ function LoginPage() {
       setLoading(true);
       try {
         await authApi.googleCustomerLogin(response.credential);
-        await finishLogin();
       } catch (googleError) {
         setError(googleError instanceof Error ? googleError.message : "Google login failed. Please try again.");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        await finishLogin();
       } finally {
         setLoading(false);
       }

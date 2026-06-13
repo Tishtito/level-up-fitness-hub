@@ -1,9 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Check, Loader2, Sparkles } from "lucide-react";
-import { toast } from "sonner";
-
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { subscriptionsApi, type ApiSubscriptionPlan } from "@/lib/api";
@@ -35,6 +33,7 @@ function planAmount(plan: ApiSubscriptionPlan) {
 
 function PlansPage() {
   const session = useAuthSession();
+  const navigate = useNavigate();
   const [cycle, setCycle] = useState<"all" | ApiSubscriptionPlan["billingCycle"]>("all");
 
   const plansQuery = useQuery({
@@ -42,23 +41,14 @@ function PlansPage() {
     queryFn: () => subscriptionsApi.plans({ status: "active", limit: 50 }),
   });
 
-  const subscribeMutation = useMutation({
-    mutationFn: (planRef: string) => subscriptionsApi.subscribe(planRef),
-    onSuccess: () => {
-      toast.success("Subscription activated");
-      window.location.assign("/dashboard");
-    },
-    onError: (error) => toast.error(error instanceof Error ? error.message : "Subscription failed"),
-  });
-
   const plans = (plansQuery.data?.data.plans ?? []).filter((plan) => cycle === "all" || plan.billingCycle === cycle);
 
   function choosePlan(plan: ApiSubscriptionPlan) {
     if (!session) {
-      window.location.assign(loginUrlFor({ redirect: "/plans", planRef: plan.planRef }));
+      window.location.assign(loginUrlFor({ redirect: "/checkout", planRef: plan.planRef }));
       return;
     }
-    subscribeMutation.mutate(plan.planRef);
+    navigate({ to: "/checkout", search: { planRef: plan.planRef } });
   }
 
   return (
@@ -107,7 +97,6 @@ function PlansPage() {
             plans.map((plan, index) => {
               const featured = index === 1 || /pro|elite/i.test(plan.name);
               const amount = planAmount(plan);
-              const isSubmitting = subscribeMutation.isPending && subscribeMutation.variables === plan.planRef;
 
               return (
                 <div
@@ -182,17 +171,8 @@ function PlansPage() {
                     className="mt-8 w-full"
                     size="lg"
                     onClick={() => choosePlan(plan)}
-                    disabled={isSubmitting}
                   >
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin" /> Choosing plan...
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="h-4 w-4" /> Choose {plan.name}
-                      </>
-                    )}
+                    <Sparkles className="h-4 w-4" /> Choose {plan.name}
                   </Button>
                 </div>
               );

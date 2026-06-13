@@ -123,6 +123,32 @@ export type ApiPayment = {
   transactionReference?: string | null;
 };
 
+export type ApiWellnessService = {
+  serviceRef: string;
+  name: string;
+  description: string;
+  type: "nutritionist" | "physiotherapy";
+  specialist: string;
+  location: string;
+  price: number;
+  duration: number;
+  availableDays: string[];
+  availableTimeSlots: string[];
+  status: "active" | "inactive";
+};
+
+export type ApiAppointment = {
+  appointmentRef: string;
+  userRef: string;
+  serviceRef: string;
+  specialist: string;
+  scheduledAt: string;
+  status: "pending" | "approved" | "rejected" | "cancelled" | "attended" | "no_show";
+  notes?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
 type ApiRequestOptions = Omit<RequestInit, "body"> & {
   body?: unknown;
 };
@@ -214,11 +240,47 @@ export const programsApi = {
   publicList(params: Record<string, string | number | undefined> = {}) {
     return apiRequest<{ programs: ApiProgram[] }>(`/programs/public${queryString(params)}`);
   },
+
+  get(programRef: string) {
+    return apiRequest<{ program: ApiProgram }>(`/programs/${encodeURIComponent(programRef)}`);
+  },
+};
+
+export const servicesApi = {
+  publicList(params: Record<string, string | number | undefined> = {}) {
+    return apiRequest<{ services: ApiWellnessService[] }>(`/services/public${queryString(params)}`);
+  },
+};
+
+export const appointmentsApi = {
+  async book(input: { serviceRef: string; scheduledAt: string; specialist?: string; notes?: string }) {
+    const response = await apiRequest<{ appointment: ApiAppointment }>("/appointments", {
+      method: "POST",
+      body: input,
+    });
+    return response.data.appointment;
+  },
+
+  upcoming(params: Record<string, string | number | undefined> = {}) {
+    return apiRequest<{ appointments: ApiAppointment[] }>(`/appointments/upcoming${queryString(params)}`);
+  },
+
+  async cancel(appointmentRef: string) {
+    const response = await apiRequest<{ appointment: ApiAppointment }>(`/appointments/${encodeURIComponent(appointmentRef)}/cancel`, { method: "PATCH" });
+    return response.data.appointment;
+  },
 };
 
 export const subscriptionsApi = {
   plans(params: Record<string, string | number | undefined> = {}) {
     return apiRequest<{ plans: ApiSubscriptionPlan[] }>(`/subscriptions/plans${queryString(params)}`);
+  },
+
+  async getPlan(planRef: string) {
+    const response = await apiRequest<{ plans: ApiSubscriptionPlan[] }>(`/subscriptions/plans${queryString({ status: "active", limit: 100 })}`);
+    const plan = response.data.plans.find((item) => item.planRef === planRef);
+    if (!plan) throw new Error("Subscription plan not found");
+    return plan;
   },
 
   list(params: Record<string, string | number | undefined> = {}) {

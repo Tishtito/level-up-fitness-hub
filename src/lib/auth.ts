@@ -1,4 +1,4 @@
-import { useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 
 const AUTH_STORAGE_KEY = "level-up-fitness-user-auth";
 
@@ -36,6 +36,11 @@ function emit() {
   listeners.forEach((listener) => listener());
 }
 
+function subscribe(listener: () => void) {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
+
 export function getAuthSession() {
   return currentSession;
 }
@@ -57,14 +62,20 @@ export function clearAuthSession() {
 }
 
 export function useAuthSession() {
-  return useSyncExternalStore(
-    (listener) => {
-      listeners.add(listener);
-      return () => listeners.delete(listener);
-    },
-    () => currentSession,
-    () => null,
-  );
+  return useSyncExternalStore(subscribe, () => currentSession, () => null);
+}
+
+export function useAuthState() {
+  const session = useAuthSession();
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  useEffect(() => {
+    currentSession = readStoredSession();
+    setIsHydrated(true);
+    emit();
+  }, []);
+
+  return { session, isHydrated };
 }
 
 if (typeof window !== "undefined") {

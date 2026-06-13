@@ -1,5 +1,11 @@
 import { Link } from "@tanstack/react-router";
-import { Dumbbell, Instagram, Twitter, Facebook, Youtube, Mail, MapPin, Phone } from "lucide-react";
+import { Dumbbell, Music2, Facebook, Linkedin, Mail, MapPin, Phone } from "lucide-react";
+
+const socialLinks = [
+  { label: "TikTok", href: "https://vm.tiktok.com/ZS92f16NoxntV-017g5/", icon: Music2 },
+  { label: "Facebook", href: "https://www.facebook.com/levelupFitnessKE", icon: Facebook },
+  { label: "LinkedIn", href: "https://www.linkedin.com/in/levelup-functional-strength-coach-bab8361a3", icon: Linkedin },
+] as const;
 
 export function Footer() {
   return (
@@ -18,8 +24,16 @@ export function Footer() {
                 Transform your body. Elevate your life. The premium fitness platform for every goal.
               </p>
               <div className="mt-5 flex gap-2">
-                {[Instagram, Twitter, Facebook, Youtube].map((Icon, i) => (
-                  <a key={i} href="#" className="grid h-9 w-9 place-items-center rounded-xl bg-surface/60 text-surface-foreground hover:bg-primary hover:text-primary-foreground transition-colors">
+                {socialLinks.map(({ label, href, icon: Icon }) => (
+                  <a
+                    key={label}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={"Visit Level Up Fitness on " + label}
+                    title={label}
+                    className="grid h-9 w-9 place-items-center rounded-xl bg-surface/60 text-surface-foreground transition-colors hover:bg-primary hover:text-primary-foreground"
+                  >
                     <Icon className="h-4 w-4" />
                   </a>
                 ))}

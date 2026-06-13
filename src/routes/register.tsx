@@ -7,14 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authApi } from "@/lib/api";
-import { completeAuthContinuation, loginUrlFor, type AuthContinuation } from "@/lib/auth-continuation";
+import { completeAuthContinuation, loginUrlFor, parseAuthContinuation } from "@/lib/auth-continuation";
 
 export const Route = createFileRoute("/register")({
-  validateSearch: (search): AuthContinuation => ({
-    redirect: typeof search.redirect === "string" ? search.redirect : undefined,
-    addProductRef: typeof search.addProductRef === "string" ? search.addProductRef : undefined,
-    planRef: typeof search.planRef === "string" ? search.planRef : undefined,
-  }),
+  validateSearch: parseAuthContinuation,
   head: () => ({
     meta: [
       { title: "Create Account - Level Up Fitness" },
@@ -37,11 +33,22 @@ function RegisterPage() {
     setLoading(true);
     try {
       await authApi.register({ name, email, phone: phone || undefined, password });
-      const next = await completeAuthContinuation(search);
-      toast.success("Account created");
-      window.location.assign(next);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Registration failed");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const next = await completeAuthContinuation(search);
+      toast.success("Account created");
+      window.location.replace(next);
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? `Account created, but the previous action failed: ${error.message}`
+          : "Account created, but the previous action could not be completed.",
+      );
     } finally {
       setLoading(false);
     }
