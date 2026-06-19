@@ -108,6 +108,13 @@ export function registerUrlFor(continuation: AuthContinuation) {
   return `/register${suffix ? `?${suffix}` : ""}`;
 }
 
+export function verifyEmailUrlFor(email: string, continuation: AuthContinuation) {
+  const normalized = resolvedContinuation(continuation);
+  const suffix = continuationSearch(normalized);
+  const separator = suffix ? "&" : "";
+  return `/verify-email?${suffix}${separator}email=${encodeURIComponent(email)}`;
+}
+
 export async function completeAuthContinuation(continuation: AuthContinuation) {
   const normalized = resolvedContinuation(continuation);
 

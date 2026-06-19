@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { authApi } from "@/lib/api";
-import { completeAuthContinuation, parseAuthContinuation, registerUrlFor } from "@/lib/auth-continuation";
+import { ApiError, authApi } from "@/lib/api";
+import { completeAuthContinuation, parseAuthContinuation, registerUrlFor, verifyEmailUrlFor } from "@/lib/auth-continuation";
 import { GOOGLE_CLIENT_ID } from "@/lib/env";
 
 type GoogleCredentialResponse = {
@@ -52,6 +52,7 @@ function LoginPage() {
   const [touched, setTouched] = useState<{ email?: boolean; password?: boolean }>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null);
   const googleButtonRef = useRef<HTMLDivElement | null>(null);
 
   const emailValid = emailRegex.test(email);
@@ -79,10 +80,15 @@ function LoginPage() {
     setTouched({ email: true, password: true });
     if (!emailValid || !passwordValid) return;
     setError(null);
+    setUnverifiedEmail(null);
     setLoading(true);
     try {
       await authApi.login(email.trim(), password);
     } catch (loginError) {
+      if (loginError instanceof ApiError && loginError.code === "EMAIL_NOT_VERIFIED") {
+        const details = loginError.details as { email?: string } | undefined;
+        setUnverifiedEmail(details?.email ?? email.trim());
+      }
       setError(loginError instanceof Error ? loginError.message : "Login failed. Please try again.");
       setLoading(false);
       return;
@@ -103,6 +109,7 @@ function LoginPage() {
       }
 
       setError(null);
+      setUnverifiedEmail(null);
       setLoading(true);
       try {
         await authApi.googleCustomerLogin(response.credential);
@@ -120,6 +127,19 @@ function LoginPage() {
     },
     [finishLogin],
   );
+
+  async function resendVerification() {
+    if (!unverifiedEmail) return;
+    setLoading(true);
+    try {
+      await authApi.resendVerificationCode(unverifiedEmail);
+      setError("A fresh verification code has been sent to your email.");
+    } catch (resendError) {
+      setError(resendError instanceof Error ? resendError.message : "Could not resend the verification code.");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
     if (!GOOGLE_CLIENT_ID || !googleButtonRef.current) return;
@@ -202,6 +222,26 @@ function LoginPage() {
                   className="mt-5 rounded-xl border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive"
                 >
                   {error}
+                  {unverifiedEmail && (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        className="h-8 border-destructive/30 bg-white text-destructive hover:bg-destructive/10"
+                        onClick={resendVerification}
+                        disabled={loading}
+                      >
+                        Resend code
+                      </Button>
+                      <a
+                        href={verifyEmailUrlFor(unverifiedEmail, search)}
+                        className="inline-flex h-8 items-center rounded-md px-2 text-xs font-semibold text-destructive underline-offset-4 hover:underline"
+                      >
+                        Enter code
+                      </a>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -228,12 +268,12 @@ function LoginPage() {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label htmlFor="password" className="text-[#111C30]">Password</Label>
-                    <button
-                      type="button"
+                    <Link
+                      to="/forgot-password"
                       className="text-xs font-medium text-[#7B2EFF] hover:underline"
                     >
                       Forgot password?
-                    </button>
+                    </Link>
                   </div>
                   <div className="relative">
                     <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />

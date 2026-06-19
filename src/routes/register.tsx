@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authApi } from "@/lib/api";
-import { completeAuthContinuation, loginUrlFor, parseAuthContinuation } from "@/lib/auth-continuation";
+import { completeAuthContinuation, loginUrlFor, parseAuthContinuation, verifyEmailUrlFor } from "@/lib/auth-continuation";
 
 export const Route = createFileRoute("/register")({
   validateSearch: parseAuthContinuation,
@@ -31,11 +31,18 @@ function RegisterPage() {
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setLoading(true);
+    let result: Awaited<ReturnType<typeof authApi.register>>;
     try {
-      await authApi.register({ name, email, phone: phone || undefined, password });
+      result = await authApi.register({ name, email, phone: phone || undefined, password });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Registration failed");
       setLoading(false);
+      return;
+    }
+
+    if ("verificationRequired" in result) {
+      toast.success("Verification code sent");
+      window.location.replace(verifyEmailUrlFor(result.user.email, search));
       return;
     }
 

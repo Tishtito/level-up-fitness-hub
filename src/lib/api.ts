@@ -15,6 +15,33 @@ export type ApiResponse<T> = {
   pagination?: Pagination;
 };
 
+type ApiErrorPayload = {
+  success?: false;
+  error?: {
+    code?: string;
+    message?: string;
+    details?: unknown;
+  };
+  message?: string;
+};
+
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    public readonly status: number,
+    public readonly code?: string,
+    public readonly details?: unknown,
+  ) {
+    super(message);
+    this.name = "ApiError";
+  }
+}
+
+export type RegisterPendingVerification = {
+  user: AuthSession["user"];
+  verificationRequired: true;
+};
+
 export type ApiProduct = {
   productRef: string;
   name: string;
@@ -180,11 +207,17 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
     body: options.body === undefined || isFormData ? (options.body as BodyInit | undefined) : JSON.stringify(options.body),
   });
 
-  const payload = await response.json().catch(() => null) as ApiResponse<T> | { message?: string } | null;
+  const payload = await response.json().catch(() => null) as ApiResponse<T> | ApiErrorPayload | null;
 
   if (!response.ok || !payload || ("success" in payload && payload.success === false)) {
     if (response.status === 401) clearAuthSession();
-    throw new Error(payload?.message || `Request failed with status ${response.status}`);
+    const errorPayload = payload as ApiErrorPayload | null;
+    throw new ApiError(
+      errorPayload?.error?.message || errorPayload?.message || `Request failed with status ${response.status}`,
+      response.status,
+      errorPayload?.error?.code,
+      errorPayload?.error?.details,
+    );
   }
 
   return payload as ApiResponse<T>;
@@ -210,11 +243,44 @@ export const authApi = {
   },
 
   async register(input: { name: string; email: string; password: string; phone?: string }) {
-    const response = await apiRequest<AuthSession>("/auth/register", {
+    const response = await apiRequest<AuthSession | RegisterPendingVerification>("/auth/register", {
+      method: "POST",
+      body: input,
+    });
+    if ("accessToken" in response.data) saveAuthSession(response.data);
+    return response.data;
+  },
+
+  async verifyEmail(input: { email: string; code: string }) {
+    const response = await apiRequest<AuthSession>("/auth/verify-email", {
       method: "POST",
       body: input,
     });
     saveAuthSession(response.data);
+    return response.data;
+  },
+
+  async resendVerificationCode(email: string) {
+    const response = await apiRequest<{ verificationCodeSent: boolean }>("/auth/resend-verification-code", {
+      method: "POST",
+      body: { email },
+    });
+    return response.data;
+  },
+
+  async forgotPassword(email: string) {
+    const response = await apiRequest<{ resetInstructionsSent: boolean }>("/auth/forgot-password", {
+      method: "POST",
+      body: { email },
+    });
+    return response.data;
+  },
+
+  async resetPassword(input: { email: string; code: string; password: string }) {
+    const response = await apiRequest<{ reset: boolean }>("/auth/reset-password", {
+      method: "POST",
+      body: input,
+    });
     return response.data;
   },
 
