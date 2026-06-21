@@ -1,13 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Eye, EyeOff, Lock, Mail, Dumbbell, ShieldCheck, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Lock, Mail, ShieldCheck, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ApiError, authApi } from "@/lib/api";
-import { completeAuthContinuation, parseAuthContinuation, registerUrlFor, verifyEmailUrlFor } from "@/lib/auth-continuation";
+import { completeAuthContinuation, parseAuthContinuation, signupUrlFor, verifyEmailUrlFor } from "@/lib/auth-continuation";
 import { GOOGLE_CLIENT_ID } from "@/lib/env";
+import levelUpLogo from "@/assets/level-up-logo.jpeg";
 
 type GoogleCredentialResponse = {
   credential?: string;
@@ -62,9 +63,9 @@ function LoginPage() {
   const emailError = touched.email && !emailValid ? "Enter a valid email address." : null;
   const pwdError = touched.password && !passwordValid ? "Password must be at least 8 characters." : null;
 
-  const finishLogin = useCallback(async () => {
+  const finishLogin = useCallback(async (role: string) => {
     try {
-      const next = await completeAuthContinuation(search);
+      const next = await completeAuthContinuation(search, role === "TRAINER" ? "/trainer" : "/dashboard");
       window.location.replace(next);
     } catch (continuationError) {
       setError(
@@ -83,7 +84,8 @@ function LoginPage() {
     setUnverifiedEmail(null);
     setLoading(true);
     try {
-      await authApi.login(email.trim(), password);
+      const session = await authApi.login(email.trim(), password);
+      await finishLogin(session.user.role);
     } catch (loginError) {
       if (loginError instanceof ApiError && loginError.code === "EMAIL_NOT_VERIFIED") {
         const details = loginError.details as { email?: string } | undefined;
@@ -94,11 +96,7 @@ function LoginPage() {
       return;
     }
 
-    try {
-      await finishLogin();
-    } finally {
-      setLoading(false);
-    }
+    setLoading(false);
   }
 
   const handleGoogleCredential = useCallback(
@@ -112,18 +110,15 @@ function LoginPage() {
       setUnverifiedEmail(null);
       setLoading(true);
       try {
-        await authApi.googleCustomerLogin(response.credential);
+        const session = await authApi.googleCustomerLogin(response.credential);
+        await finishLogin(session.user.role);
       } catch (googleError) {
         setError(googleError instanceof Error ? googleError.message : "Google login failed. Please try again.");
         setLoading(false);
         return;
       }
 
-      try {
-        await finishLogin();
-      } finally {
-        setLoading(false);
-      }
+      setLoading(false);
     },
     [finishLogin],
   );
@@ -204,9 +199,7 @@ function LoginPage() {
         <div className="flex items-center justify-center px-4 py-12 sm:px-8">
           <div className="w-full max-w-md">
             <Link to="/" className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-[#111C30]">
-              <span className="grid h-9 w-9 place-items-center rounded-xl bg-[#111C30] text-white">
-                <Dumbbell className="h-5 w-5" />
-              </span>
+              <img src={levelUpLogo} alt="Level Up Fitness" className="h-11 w-11 rounded-full object-cover shadow-sm" />
               Level Up Fitness
             </Link>
 
@@ -364,7 +357,7 @@ function LoginPage() {
 
             <p className="mt-6 text-center text-xs text-muted-foreground">
               New here?{" "}
-              <a href={registerUrlFor(search)} className="font-semibold text-[#7B2EFF] hover:underline">
+              <a href={signupUrlFor(search)} className="font-semibold text-[#7B2EFF] hover:underline">
                 Create an account
               </a>
             </p>

@@ -1,12 +1,27 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
-import { Eye, EyeOff, Lock, Mail, User, Dumbbell, ShieldCheck, Loader2 } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Eye, EyeOff, Lock, Mail, User, ShieldCheck, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { authApi } from "@/lib/api";
+import {
+  completeAuthContinuation,
+  loginUrlFor,
+  parseAuthContinuation,
+  verifyEmailUrlFor,
+} from "@/lib/auth-continuation";
+import { GOOGLE_CLIENT_ID } from "@/lib/env";
+import levelUpLogo from "@/assets/level-up-logo.jpeg";
+
+type GoogleCredentialResponse = {
+  credential?: string;
+};
 
 export const Route = createFileRoute("/signup")({
+  validateSearch: parseAuthContinuation,
   head: () => ({
     meta: [
       { title: "Sign Up — Level Up Fitness" },
@@ -19,6 +34,7 @@ export const Route = createFileRoute("/signup")({
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function SignUpPage() {
+  const search = Route.useSearch();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -35,6 +51,7 @@ function SignUpPage() {
   }>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const googleButtonRef = useRef<HTMLDivElement | null>(null);
 
   const nameValid = name.trim().length >= 2;
   const emailValid = emailRegex.test(email);
@@ -48,19 +65,122 @@ function SignUpPage() {
   const confirmError = touched.confirm && !confirmValid ? "Passwords do not match." : null;
   const agreeError = touched.agree && !agree ? "You must agree to the terms." : null;
 
+  const finishAuthentication = useCallback(async () => {
+    try {
+      const next = await completeAuthContinuation(search);
+      window.location.replace(next);
+    } catch (continuationError) {
+      setError(
+        continuationError instanceof Error
+          ? `Your account is ready, but the previous action failed: ${continuationError.message}`
+          : "Your account is ready, but the previous action could not be completed.",
+      );
+    }
+  }, [search]);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setTouched({ name: true, email: true, password: true, confirm: true, agree: true });
     if (!nameValid || !emailValid || !passwordValid || !confirmValid || !agree) return;
     setError(null);
     setLoading(true);
+    let result: Awaited<ReturnType<typeof authApi.register>>;
     try {
-      await new Promise((r) => setTimeout(r, 1200));
-      setError("Something went wrong. Please try again.");
+      result = await authApi.register({ name: name.trim(), email: email.trim(), password });
+    } catch (registrationError) {
+      setError(registrationError instanceof Error ? registrationError.message : "Registration failed. Please try again.");
+      setLoading(false);
+      return;
+    }
+
+    if ("verificationRequired" in result) {
+      toast.success("Verification code sent");
+      window.location.replace(verifyEmailUrlFor(result.user.email, search));
+      return;
+    }
+
+    try {
+      toast.success("Account created");
+      await finishAuthentication();
     } finally {
       setLoading(false);
     }
   }
+
+  const handleGoogleCredential = useCallback(async (response: GoogleCredentialResponse) => {
+    if (!response.credential) {
+      setError("Google did not return a usable credential. Please try again.");
+      return;
+    }
+
+    setError(null);
+    setLoading(true);
+    try {
+      await authApi.googleCustomerLogin(response.credential);
+      toast.success("Account ready");
+      await finishAuthentication();
+    } catch (googleError) {
+      setError(googleError instanceof Error ? googleError.message : "Google sign up failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }, [finishAuthentication]);
+
+  useEffect(() => {
+    if (!GOOGLE_CLIENT_ID || !googleButtonRef.current) return;
+
+    let cancelled = false;
+    const renderGoogleButton = () => {
+      if (cancelled || !window.google || !googleButtonRef.current) return;
+      window.google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: handleGoogleCredential,
+      });
+      googleButtonRef.current.innerHTML = "";
+      window.google.accounts.id.renderButton(googleButtonRef.current, {
+        theme: "outline",
+        size: "large",
+        type: "standard",
+        text: "continue_with",
+        shape: "pill",
+        width: 360,
+      });
+    };
+
+    if (window.google) {
+      renderGoogleButton();
+      return () => {
+        cancelled = true;
+        window.google?.accounts.id.cancel();
+      };
+    }
+
+    const existingScript = document.getElementById("google-identity-services");
+    if (existingScript) {
+      existingScript.addEventListener("load", renderGoogleButton, { once: true });
+      return () => {
+        cancelled = true;
+        existingScript.removeEventListener("load", renderGoogleButton);
+      };
+    }
+
+    const script = document.createElement("script");
+    script.id = "google-identity-services";
+    script.src = "https://accounts.google.com/gsi/client";
+    script.async = true;
+    script.defer = true;
+    script.addEventListener("load", renderGoogleButton, { once: true });
+    script.addEventListener("error", () => {
+      if (!cancelled) setError("Google sign up could not load. Please use email and password.");
+    });
+    document.head.appendChild(script);
+
+    return () => {
+      cancelled = true;
+      script.removeEventListener("load", renderGoogleButton);
+      window.google?.accounts.id.cancel();
+    };
+  }, [handleGoogleCredential]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -69,9 +189,7 @@ function SignUpPage() {
         <div className="flex items-center justify-center px-4 py-12 sm:px-8">
           <div className="w-full max-w-md">
             <Link to="/" className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-[#111C30]">
-              <span className="grid h-9 w-9 place-items-center rounded-xl bg-[#111C30] text-white">
-                <Dumbbell className="h-5 w-5" />
-              </span>
+              <img src={levelUpLogo} alt="Level Up Fitness" className="h-11 w-11 rounded-full object-cover shadow-sm" />
               Level Up Fitness
             </Link>
 
@@ -229,21 +347,28 @@ function SignUpPage() {
                   </div>
                 </div>
 
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="h-11 w-full rounded-xl border-border text-[#111C30] hover:border-[#7B2EFF] hover:bg-transparent hover:text-[#7B2EFF]"
-                >
-                  <GoogleIcon className="h-4 w-4" />
-                  Continue with Google
-                </Button>
+                {GOOGLE_CLIENT_ID ? (
+                  <div className={`flex min-h-11 w-full justify-center overflow-hidden rounded-xl border border-border ${!agree ? "pointer-events-none opacity-50" : ""}`}>
+                    <div ref={googleButtonRef} className="flex w-full justify-center" />
+                  </div>
+                ) : (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled
+                    className="h-11 w-full rounded-xl border-border text-[#111C30]"
+                  >
+                    <GoogleIcon className="h-4 w-4" />
+                    Continue with Google
+                  </Button>
+                )}
               </form>
 
               <p className="mt-6 text-center text-sm text-muted-foreground">
                 Already have an account?{" "}
-                <Link to="/login" className="font-medium text-[#7B2EFF] hover:underline">
+                <a href={loginUrlFor(search)} className="font-medium text-[#7B2EFF] hover:underline">
                   Sign in
-                </Link>
+                </a>
               </p>
             </div>
           </div>

@@ -102,10 +102,10 @@ export function loginUrlFor(continuation: AuthContinuation) {
   return `/login${suffix ? `?${suffix}` : ""}`;
 }
 
-export function registerUrlFor(continuation: AuthContinuation) {
+export function signupUrlFor(continuation: AuthContinuation) {
   const normalized = resolvedContinuation(continuation);
   const suffix = continuationSearch(normalized);
-  return `/register${suffix ? `?${suffix}` : ""}`;
+  return `/signup${suffix ? `?${suffix}` : ""}`;
 }
 
 export function verifyEmailUrlFor(email: string, continuation: AuthContinuation) {
@@ -115,7 +115,7 @@ export function verifyEmailUrlFor(email: string, continuation: AuthContinuation)
   return `/verify-email?${suffix}${separator}email=${encodeURIComponent(email)}`;
 }
 
-export async function completeAuthContinuation(continuation: AuthContinuation) {
+export async function completeAuthContinuation(continuation: AuthContinuation, fallback = "/dashboard") {
   const normalized = resolvedContinuation(continuation);
 
   if (normalized.planRef) {
@@ -129,7 +129,7 @@ export async function completeAuthContinuation(continuation: AuthContinuation) {
     return "/cart";
   }
 
-  const redirect = safeInternalRedirect(normalized.redirect);
+  const redirect = safeInternalRedirect(normalized.redirect, fallback);
   clearStoredContinuation();
   return redirect;
 }

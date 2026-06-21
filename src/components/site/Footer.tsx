@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import { Dumbbell, Music2, Facebook, Linkedin, Mail, MapPin, Phone } from "lucide-react";
+import { Music2, Facebook, Linkedin, Mail, MapPin, Phone } from "lucide-react";
+import levelUpLogo from "@/assets/level-up-logo.jpeg";
 
 const socialLinks = [
   { label: "TikTok", href: "https://vm.tiktok.com/ZS92f16NoxntV-017g5/", icon: Music2 },
@@ -15,9 +16,7 @@ export function Footer() {
           <div className="grid gap-10 lg:grid-cols-4">
             <div>
               <Link to="/" className="flex items-center gap-2 font-display text-xl font-bold">
-                <span className="grid h-10 w-10 place-items-center rounded-xl bg-[image:var(--gradient-primary)] text-primary-foreground">
-                  <Dumbbell className="h-5 w-5" />
-                </span>
+                <img src={levelUpLogo} alt="Level Up Fitness" className="h-11 w-11 rounded-full object-cover shadow-sm" />
                 Level<span className="gradient-text">Up</span>
               </Link>
               <p className="mt-3 text-sm text-muted-foreground max-w-xs">

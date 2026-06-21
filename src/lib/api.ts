@@ -82,6 +82,47 @@ export type ApiProgram = {
   enrolledUsers?: string[];
 };
 
+export type ApiTrainerProfile = {
+  trainerRef: string;
+  userRef: string;
+  name: string | null;
+  email: string | null;
+  phone?: string | null;
+  avatarUrl?: string | null;
+  userRole?: string | null;
+  userStatus?: "active" | "inactive" | "suspended" | null;
+  bio?: string | null;
+  specialties: string[];
+  certifications: string[];
+  hourlyRate: number;
+  status: "pending" | "verified" | "inactive";
+  assignedPrograms: string[];
+  assignedClients: string[];
+  earningsTotal: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type ApiTrainerClient = {
+  userRef: string;
+  name: string;
+  email: string;
+  programRefs: string[];
+};
+
+export type ApiTrainerDashboard = {
+  trainer: ApiTrainerProfile;
+  programs: ApiProgram[];
+  clients: ApiTrainerClient[];
+  summary: {
+    assignedPrograms: number;
+    activePrograms: number;
+    assignedClients: number;
+    earningsTotal: number;
+    hourlyRate: number;
+  };
+};
+
 export type ApiSubscriptionPlan = {
   planRef: string;
   name: string;
@@ -174,6 +215,88 @@ export type ApiAppointment = {
   notes?: string | null;
   createdAt?: string;
   updatedAt?: string;
+};
+
+export type ApiHomeOverview = {
+  stats: {
+    activeMembers: number;
+    activePrograms: number;
+    verifiedTrainers: number;
+    activeServices: number;
+  };
+  programs: Array<ApiProgram & { enrollmentCount: number }>;
+  plans: Array<ApiSubscriptionPlan & { subscriberCount: number }>;
+  products: ApiProduct[];
+  services: ApiWellnessService[];
+};
+
+export type ApiCustomerDashboard = {
+  profile: {
+    name: string;
+    email: string;
+    phone: string | null;
+    avatarUrl: string | null;
+    status: string;
+    emailVerified: boolean;
+  };
+  summary: {
+    activePlans: number;
+    accessiblePrograms: number;
+    upcomingBookings: number;
+    recentOrders: number;
+    unreadNotifications: number;
+  };
+  primarySubscription: ApiDashboardSubscription | null;
+  subscriptions: ApiDashboardSubscription[];
+  programs: ApiDashboardProgram[];
+  appointments: ApiDashboardAppointment[];
+  orders: ApiDashboardOrder[];
+  notifications: ApiDashboardNotification[];
+};
+
+export type ApiDashboardSubscription = {
+  subscriptionRef: string;
+  status: ApiUserSubscription["status"];
+  startedAt: string;
+  currentPeriodEnd: string;
+  amountPaid: number;
+  plan: (Pick<ApiSubscriptionPlan, "planRef" | "name" | "description" | "billingCycle" | "features" | "programAccess" | "trialDays" | "discount" | "status">) | null;
+};
+
+export type ApiDashboardProgram = Omit<ApiProgram, "trainer" | "enrolledUsers" | "status"> & {
+  access: { viaSubscription: boolean; enrolled: boolean };
+  trainer: { trainerRef: string; name: string | null; avatarUrl: string | null } | null;
+};
+
+export type ApiDashboardAppointment = {
+  appointmentRef: string;
+  scheduledAt: string;
+  status: ApiAppointment["status"];
+  specialist: string;
+  notes: string | null;
+  service: Pick<ApiWellnessService, "serviceRef" | "name" | "type" | "location" | "price" | "duration"> | null;
+};
+
+export type ApiDashboardOrder = {
+  orderRef: string;
+  items: Array<ApiCartItem & { total: number }>;
+  itemCount: number;
+  subtotal: number;
+  discount: number;
+  deliveryFee: number;
+  total: number;
+  status: ApiOrder["status"];
+  createdAt: string;
+  invoicePath: string;
+};
+
+export type ApiDashboardNotification = {
+  notificationRef: string;
+  title: string;
+  message: string;
+  type: string;
+  channel: string;
+  createdAt: string;
 };
 
 type ApiRequestOptions = Omit<RequestInit, "body"> & {
@@ -302,6 +425,20 @@ export const productsApi = {
   },
 };
 
+export const homeApi = {
+  async getOverview() {
+    const response = await apiRequest<ApiHomeOverview>('/public/home');
+    return response.data;
+  },
+};
+
+export const dashboardApi = {
+  async getOverview() {
+    const response = await apiRequest<ApiCustomerDashboard>("/dashboard/me");
+    return response.data;
+  },
+};
+
 export const programsApi = {
   publicList(params: Record<string, string | number | undefined> = {}) {
     return apiRequest<{ programs: ApiProgram[] }>(`/programs/public${queryString(params)}`);
@@ -309,6 +446,49 @@ export const programsApi = {
 
   get(programRef: string) {
     return apiRequest<{ program: ApiProgram }>(`/programs/${encodeURIComponent(programRef)}`);
+  },
+};
+
+export const trainerPortalApi = {
+  async dashboard() {
+    const response = await apiRequest<ApiTrainerDashboard>("/trainers/me");
+    return response.data;
+  },
+
+  async updateContent(programRef: string, payload: { workoutSchedule: string[]; nutritionNotes?: string }) {
+    const response = await apiRequest<{ program: ApiProgram }>(`/trainers/me/programs/${encodeURIComponent(programRef)}/content`, {
+      method: "PATCH",
+      body: payload,
+    });
+    return response.data.program;
+  },
+
+  async uploadThumbnail(programRef: string, file: File) {
+    const body = new FormData();
+    body.append("thumbnail", file);
+    const response = await apiRequest<{ program: ApiProgram }>(`/trainers/me/programs/${encodeURIComponent(programRef)}/thumbnail`, {
+      method: "POST",
+      body,
+    });
+    return response.data.program;
+  },
+
+  async uploadVideos(programRef: string, files: File[]) {
+    const body = new FormData();
+    files.forEach((file) => body.append("videos", file));
+    const response = await apiRequest<{ program: ApiProgram }>(`/trainers/me/programs/${encodeURIComponent(programRef)}/videos`, {
+      method: "POST",
+      body,
+    });
+    return response.data.program;
+  },
+
+  async removeVideo(programRef: string, url: string) {
+    const response = await apiRequest<{ program: ApiProgram }>(`/trainers/me/programs/${encodeURIComponent(programRef)}/videos`, {
+      method: "DELETE",
+      body: { url },
+    });
+    return response.data.program;
   },
 };
 
@@ -410,6 +590,11 @@ export const ordersApi = {
       body: { shippingAddress },
     });
     return response.data.order;
+  },
+
+  async invoice(orderRef: string) {
+    const response = await apiRequest<{ invoice: Record<string, unknown> }>(`/orders/${encodeURIComponent(orderRef)}/invoice`);
+    return response.data.invoice;
   },
 };
 

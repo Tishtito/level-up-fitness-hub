@@ -1,25 +1,29 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
-import { Menu, X, Dumbbell, ShoppingBag } from "lucide-react";
+import { Menu, X, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import levelUpLogo from "@/assets/level-up-logo.jpeg";
 import { authApi } from "@/lib/api";
 import { useAuthSession } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
-const links = [
+const publicLinks = [
   { to: "/", label: "Home" },
   { to: "/programs", label: "Programs" },
   { to: "/plans", label: "Plans" },
   { to: "/nutrition", label: "Nutrition" },
   { to: "/physiotherapy", label: "Physio" },
   { to: "/shop", label: "Shop" },
-  { to: "/dashboard", label: "Dashboard" },
 ] as const;
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
   const path = useRouterState({ select: (s) => s.location.pathname });
   const session = useAuthSession();
+  const dashboardLink = session?.user.role === "TRAINER"
+    ? { to: "/trainer" as const, label: "Trainer Portal" }
+    : { to: "/dashboard" as const, label: "Dashboard" };
+  const links = [...publicLinks, dashboardLink];
 
   async function logout() {
     await authApi.logout();
@@ -31,9 +35,7 @@ export function Navbar() {
       <div className="mx-auto mt-3 max-w-7xl px-3 sm:px-6">
         <nav className="glass flex items-center justify-between rounded-2xl px-4 py-3 shadow-[var(--shadow-soft)]">
           <Link to="/" className="flex items-center gap-2 font-display text-lg font-bold">
-            <span className="grid h-9 w-9 place-items-center rounded-xl bg-[image:var(--gradient-primary)] text-primary-foreground">
-              <Dumbbell className="h-5 w-5" />
-            </span>
+            <img src={levelUpLogo} alt="Level Up Fitness" className="h-10 w-10 rounded-full object-cover shadow-sm" />
             <span>Level<span className="gradient-text">Up</span></span>
           </Link>
 
@@ -64,7 +66,7 @@ export function Navbar() {
             </Link>
             {session ? (
               <>
-                <Link to="/dashboard"><Button variant="soft" size="default">{session.user.name.split(" ")[0]}</Button></Link>
+                <Link to={dashboardLink.to}><Button variant="soft" size="default">{session.user.name.split(" ")[0]}</Button></Link>
                 <Button variant="ghost" size="default" onClick={logout}>Logout</Button>
               </>
             ) : (
