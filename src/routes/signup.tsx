@@ -15,6 +15,7 @@ import {
 } from "@/lib/auth-continuation";
 import { GOOGLE_CLIENT_ID } from "@/lib/env";
 import levelUpLogo from "@/assets/level-up-logo.jpeg";
+import programMobility from "@/assets/home/program-mobility.webp";
 
 type GoogleCredentialResponse = {
   credential?: string;
@@ -25,7 +26,10 @@ export const Route = createFileRoute("/signup")({
   head: () => ({
     meta: [
       { title: "Sign Up — Level Up Fitness" },
-      { name: "description", content: "Create your Level Up Fitness account and start your transformation." },
+      {
+        name: "description",
+        content: "Create your Level Up Fitness account and start your transformation.",
+      },
     ],
   }),
   component: SignUpPage,
@@ -61,7 +65,8 @@ function SignUpPage() {
 
   const nameError = touched.name && !nameValid ? "Enter your full name." : null;
   const emailError = touched.email && !emailValid ? "Enter a valid email address." : null;
-  const pwdError = touched.password && !passwordValid ? "Password must be at least 8 characters." : null;
+  const pwdError =
+    touched.password && !passwordValid ? "Password must be at least 8 characters." : null;
   const confirmError = touched.confirm && !confirmValid ? "Passwords do not match." : null;
   const agreeError = touched.agree && !agree ? "You must agree to the terms." : null;
 
@@ -88,7 +93,11 @@ function SignUpPage() {
     try {
       result = await authApi.register({ name: name.trim(), email: email.trim(), password });
     } catch (registrationError) {
-      setError(registrationError instanceof Error ? registrationError.message : "Registration failed. Please try again.");
+      setError(
+        registrationError instanceof Error
+          ? registrationError.message
+          : "Registration failed. Please try again.",
+      );
       setLoading(false);
       return;
     }
@@ -107,24 +116,31 @@ function SignUpPage() {
     }
   }
 
-  const handleGoogleCredential = useCallback(async (response: GoogleCredentialResponse) => {
-    if (!response.credential) {
-      setError("Google did not return a usable credential. Please try again.");
-      return;
-    }
+  const handleGoogleCredential = useCallback(
+    async (response: GoogleCredentialResponse) => {
+      if (!response.credential) {
+        setError("Google did not return a usable credential. Please try again.");
+        return;
+      }
 
-    setError(null);
-    setLoading(true);
-    try {
-      await authApi.googleCustomerLogin(response.credential);
-      toast.success("Account ready");
-      await finishAuthentication();
-    } catch (googleError) {
-      setError(googleError instanceof Error ? googleError.message : "Google sign up failed. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  }, [finishAuthentication]);
+      setError(null);
+      setLoading(true);
+      try {
+        await authApi.googleCustomerLogin(response.credential);
+        toast.success("Account ready");
+        await finishAuthentication();
+      } catch (googleError) {
+        setError(
+          googleError instanceof Error
+            ? googleError.message
+            : "Google sign up failed. Please try again.",
+        );
+      } finally {
+        setLoading(false);
+      }
+    },
+    [finishAuthentication],
+  );
 
   useEffect(() => {
     if (!GOOGLE_CLIENT_ID || !googleButtonRef.current) return;
@@ -132,6 +148,9 @@ function SignUpPage() {
     let cancelled = false;
     const renderGoogleButton = () => {
       if (cancelled || !window.google || !googleButtonRef.current) return;
+      const containerWidth =
+        googleButtonRef.current.parentElement?.clientWidth ?? window.innerWidth;
+      const buttonWidth = Math.max(280, Math.min(360, Math.floor(containerWidth - 2)));
       window.google.accounts.id.initialize({
         client_id: GOOGLE_CLIENT_ID,
         callback: handleGoogleCredential,
@@ -143,7 +162,7 @@ function SignUpPage() {
         type: "standard",
         text: "continue_with",
         shape: "pill",
-        width: 360,
+        width: buttonWidth,
       });
     };
 
@@ -184,33 +203,51 @@ function SignUpPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="grid min-h-screen lg:grid-cols-2">
-        {/* Form side */}
-        <div className="flex items-center justify-center px-4 py-12 sm:px-8">
-          <div className="w-full max-w-md">
-            <Link to="/" className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-[#111C30]">
-              <img src={levelUpLogo} alt="Level Up Fitness" className="h-11 w-11 rounded-full object-cover shadow-sm" />
-              Level Up Fitness
+      <div className="grid min-h-screen lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
+        <main className="flex items-center justify-center px-3 py-6 sm:px-8 sm:py-10 lg:px-10">
+          <div className="w-full max-w-lg">
+            <Link
+              to="/"
+              className="hidden items-center gap-3 text-sm font-medium text-foreground sm:inline-flex"
+            >
+              <img
+                src={levelUpLogo}
+                alt="Level Up Fitness"
+                className="h-10 w-10 rounded-full object-cover"
+              />
+              <span className="leading-none">
+                Level<span className="text-primary">Up</span>
+                <span className="mt-1 block text-[10px] tracking-[0.24em] text-muted-foreground uppercase">
+                  Fitness Hub
+                </span>
+              </span>
             </Link>
 
-            <div className="rounded-2xl border border-border bg-white p-8 shadow-[var(--shadow-elegant)]">
-              <h1 className="font-display text-2xl font-bold text-[#111C30]">Create your account</h1>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Start your fitness journey today
+            <div className="mt-4 rounded-2xl border border-border/60 bg-white p-5 shadow-[var(--shadow-soft)] sm:mt-8 sm:p-8">
+              <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
+                Create account
+              </p>
+              <h1 className="mt-3 max-w-[12ch] font-display text-2xl font-bold tracking-[-0.02em] text-foreground sm:max-w-none sm:text-4xl">
+                Start your membership.
+              </h1>
+              <p className="mt-3 max-w-md text-sm leading-6 text-muted-foreground sm:text-base">
+                Join for training, nutrition, recovery, and shop access in one account.
               </p>
 
               {error && (
                 <div
                   role="alert"
-                  className="mt-5 rounded-xl border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive"
+                  className="mt-6 rounded-2xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive"
                 >
-                  {error}
+                  <p className="font-medium">{error}</p>
                 </div>
               )}
 
               <form onSubmit={handleSubmit} className="mt-6 space-y-4" noValidate>
                 <div className="space-y-2">
-                  <Label htmlFor="name" className="text-[#111C30]">Full name</Label>
+                  <Label htmlFor="name" className="text-sm font-medium text-foreground">
+                    Full name
+                  </Label>
                   <div className="relative">
                     <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
@@ -222,14 +259,16 @@ function SignUpPage() {
                       onChange={(e) => setName(e.target.value)}
                       onBlur={() => setTouched((t) => ({ ...t, name: true }))}
                       aria-invalid={!!nameError}
-                      className="h-11 rounded-xl pl-9 focus-visible:ring-2 focus-visible:ring-[#7B2EFF]"
+                      className="h-11 rounded-lg border-border/80 bg-white pl-9 shadow-none focus-visible:ring-2 focus-visible:ring-primary/30"
                     />
                   </div>
                   {nameError && <p className="text-xs text-destructive">{nameError}</p>}
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-[#111C30]">Email</Label>
+                  <Label htmlFor="email" className="text-sm font-medium text-foreground">
+                    Email
+                  </Label>
                   <div className="relative">
                     <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
@@ -241,14 +280,16 @@ function SignUpPage() {
                       onChange={(e) => setEmail(e.target.value)}
                       onBlur={() => setTouched((t) => ({ ...t, email: true }))}
                       aria-invalid={!!emailError}
-                      className="h-11 rounded-xl pl-9 focus-visible:ring-2 focus-visible:ring-[#7B2EFF]"
+                      className="h-11 rounded-lg border-border/80 bg-white pl-9 shadow-none focus-visible:ring-2 focus-visible:ring-primary/30"
                     />
                   </div>
                   {emailError && <p className="text-xs text-destructive">{emailError}</p>}
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="password" className="text-[#111C30]">Password</Label>
+                  <Label htmlFor="password" className="text-sm font-medium text-foreground">
+                    Password
+                  </Label>
                   <div className="relative">
                     <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
@@ -260,13 +301,13 @@ function SignUpPage() {
                       onChange={(e) => setPassword(e.target.value)}
                       onBlur={() => setTouched((t) => ({ ...t, password: true }))}
                       aria-invalid={!!pwdError}
-                      className="h-11 rounded-xl pl-9 pr-10 focus-visible:ring-2 focus-visible:ring-[#7B2EFF]"
+                      className="h-11 rounded-lg border-border/80 bg-white pl-9 pr-10 shadow-none focus-visible:ring-2 focus-visible:ring-primary/30"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPwd((v) => !v)}
                       aria-label={showPwd ? "Hide password" : "Show password"}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-[#7B2EFF]"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
                     >
                       {showPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
@@ -275,7 +316,9 @@ function SignUpPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="confirm" className="text-[#111C30]">Confirm password</Label>
+                  <Label htmlFor="confirm" className="text-sm font-medium text-foreground">
+                    Confirm password
+                  </Label>
                   <div className="relative">
                     <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
@@ -287,13 +330,13 @@ function SignUpPage() {
                       onChange={(e) => setConfirm(e.target.value)}
                       onBlur={() => setTouched((t) => ({ ...t, confirm: true }))}
                       aria-invalid={!!confirmError}
-                      className="h-11 rounded-xl pl-9 pr-10 focus-visible:ring-2 focus-visible:ring-[#7B2EFF]"
+                      className="h-11 rounded-lg border-border/80 bg-white pl-9 pr-10 shadow-none focus-visible:ring-2 focus-visible:ring-primary/30"
                     />
                     <button
                       type="button"
                       onClick={() => setShowConfirm((v) => !v)}
                       aria-label={showConfirm ? "Hide password" : "Show password"}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-[#7B2EFF]"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
                     >
                       {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
@@ -302,22 +345,13 @@ function SignUpPage() {
                 </div>
 
                 <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <Checkbox
-                      id="agree"
-                      checked={agree}
-                      onCheckedChange={(v) => setAgree(!!v)}
-                    />
-                    <Label htmlFor="agree" className="cursor-pointer text-sm font-normal text-[#111C30]">
-                      I agree to the{" "}
-                      <Link to="/" className="font-medium text-[#7B2EFF] hover:underline">
-                        Terms of Service
-                      </Link>{" "}
-                      and{" "}
-                      <Link to="/" className="font-medium text-[#7B2EFF] hover:underline">
-                        Privacy Policy
-                      </Link>
-                    </Label>
+                  <div className="flex items-start gap-2">
+                    <Checkbox id="agree" checked={agree} onCheckedChange={(v) => setAgree(!!v)} />
+                    <div className="pt-0.5 text-sm text-foreground/80">
+                      <Label htmlFor="agree" className="cursor-pointer font-normal">
+                        I agree to the terms and privacy policy.
+                      </Label>
+                    </div>
                   </div>
                   {agreeError && <p className="text-xs text-destructive">{agreeError}</p>}
                 </div>
@@ -325,7 +359,7 @@ function SignUpPage() {
                 <Button
                   type="submit"
                   disabled={!canSubmit}
-                  className="h-11 w-full rounded-xl bg-[#7B2EFF] text-white hover:bg-[#7B2EFF]/90"
+                  className="h-11 w-full rounded-xl bg-primary text-primary-foreground shadow-none hover:bg-primary/90"
                 >
                   {loading ? (
                     <>
@@ -341,14 +375,18 @@ function SignUpPage() {
                     <span className="w-full border-t border-border" />
                   </div>
                   <div className="relative flex justify-center">
-                    <span className="bg-white px-3 text-xs uppercase tracking-wider text-muted-foreground">
+                    <span className="bg-white px-3 text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
                       or
                     </span>
                   </div>
                 </div>
 
                 {GOOGLE_CLIENT_ID ? (
-                  <div className={`flex min-h-11 w-full justify-center overflow-hidden rounded-xl border border-border ${!agree ? "pointer-events-none opacity-50" : ""}`}>
+                  <div
+                    className={`flex min-h-11 w-full justify-center overflow-hidden rounded-lg border border-border/80 bg-white ${
+                      !agree ? "pointer-events-none opacity-50" : ""
+                    }`}
+                  >
                     <div ref={googleButtonRef} className="flex w-full justify-center" />
                   </div>
                 ) : (
@@ -356,7 +394,7 @@ function SignUpPage() {
                     type="button"
                     variant="outline"
                     disabled
-                    className="h-11 w-full rounded-xl border-border text-[#111C30]"
+                    className="h-11 w-full rounded-lg border-border/80 bg-white text-foreground"
                   >
                     <GoogleIcon className="h-4 w-4" />
                     Continue with Google
@@ -366,41 +404,55 @@ function SignUpPage() {
 
               <p className="mt-6 text-center text-sm text-muted-foreground">
                 Already have an account?{" "}
-                <a href={loginUrlFor(search)} className="font-medium text-[#7B2EFF] hover:underline">
+                <a
+                  href={loginUrlFor(search)}
+                  className="font-medium text-foreground underline-offset-4 hover:underline"
+                >
                   Sign in
                 </a>
               </p>
             </div>
           </div>
-        </div>
+        </main>
 
-        {/* Right illustration panel */}
-        <aside className="relative hidden bg-[#111C30] lg:flex lg:items-center lg:justify-center">
-          <div className="max-w-md px-12 text-white">
-            <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-white/15 px-3 py-1 text-xs font-medium">
-              <ShieldCheck className="h-3.5 w-3.5" /> Member Portal
+        <aside className="relative hidden overflow-hidden lg:block">
+          <img
+            src={programMobility}
+            alt="A member working through a mobility session in a bright fitness studio"
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(20,35,29,0.92)_0%,rgba(20,35,29,0.56)_54%,rgba(20,35,29,0.22)_100%)]" />
+          <div className="relative flex h-full flex-col justify-between p-10 xl:p-14 text-white">
+            <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-medium text-white/90">
+              <ShieldCheck className="h-3.5 w-3.5" />
+              Member portal
             </div>
-            <h2 className="font-display text-4xl font-bold leading-tight">
-              Transform your body. Elevate your life.
-            </h2>
-            <p className="mt-4 text-sm text-white/70">
-              Join thousands of members accessing world-class training, nutrition, physiotherapy, and a curated wellness shop.
-            </p>
 
-            <ul className="mt-10 space-y-4">
+            <div className="max-w-xl pb-4">
+              <p className="text-sm font-medium text-white/70">Everything starts here.</p>
+              <h2 className="mt-4 text-4xl font-semibold leading-[1.05] tracking-[-0.03em] text-white sm:text-5xl">
+                Training, nutrition, and recovery in one account.
+              </h2>
+              <p className="mt-4 max-w-lg text-sm leading-6 text-white/78 sm:text-base">
+                Join a system that keeps your plans, appointments, and shopping connected from the
+                start.
+              </p>
+            </div>
+
+            <div className="grid max-w-xl gap-3 sm:grid-cols-3">
               {[
-                "Personalized workout & nutrition plans",
-                "Live trainer sessions & progress tracking",
-                "Curated wellness shop with member perks",
+                "Programs matched to your goal",
+                "Nutrition and physio access",
+                "Shop, checkout, and bookings",
               ].map((item) => (
-                <li key={item} className="flex items-center gap-3 text-sm text-white/85">
-                  <span className="grid h-7 w-7 place-items-center rounded-lg bg-[#7B2EFF]">
-                    <ShieldCheck className="h-4 w-4" />
-                  </span>
+                <div
+                  key={item}
+                  className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white/85"
+                >
                   {item}
-                </li>
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
         </aside>
       </div>

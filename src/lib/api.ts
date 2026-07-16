@@ -187,8 +187,11 @@ export type ApiPayment = {
   appointmentRef?: string | null;
   amount: number;
   method: "mpesa" | "card" | "paypal" | "cash_on_delivery";
-  status: "pending" | "processing" | "succeeded" | "failed" | "refunded";
+  status: "pending" | "processing" | "succeeded" | "failed" | "cancelled" | "refunded";
   transactionReference?: string | null;
+  providerRequestId?: string | null;
+  purpose?: "order_purchase" | "subscription_create" | "subscription_renew" | "subscription_change" | null;
+  targetPlanRef?: string | null;
 };
 
 export type ApiWellnessService = {
@@ -540,6 +543,30 @@ export const subscriptionsApi = {
     });
     return response.data.subscription;
   },
+
+  async checkout(planRef: string, phoneNumber: string) {
+    const response = await apiRequest<{ subscription: ApiUserSubscription; payment: ApiPayment | null }>("/subscriptions/checkout", {
+      method: "POST",
+      body: { planRef, phoneNumber },
+    });
+    return response.data;
+  },
+
+  async renewCheckout(subscriptionRef: string, phoneNumber: string) {
+    const response = await apiRequest<{ subscription: ApiUserSubscription; payment: ApiPayment | null }>(`/subscriptions/${encodeURIComponent(subscriptionRef)}/renew/checkout`, {
+      method: "POST",
+      body: { phoneNumber },
+    });
+    return response.data;
+  },
+
+  async changePlanCheckout(subscriptionRef: string, planRef: string, phoneNumber: string) {
+    const response = await apiRequest<{ subscription: ApiUserSubscription; payment: ApiPayment | null }>(`/subscriptions/${encodeURIComponent(subscriptionRef)}/change-plan/checkout`, {
+      method: "POST",
+      body: { planRef, phoneNumber },
+    });
+    return response.data;
+  },
 };
 
 export const cartApi = {
@@ -599,7 +626,7 @@ export const ordersApi = {
 };
 
 export const paymentsApi = {
-  async initiate(input: { orderRef?: string; subscriptionRef?: string; amount: number; method: ApiPayment["method"]; phoneNumber?: string }) {
+  async initiate(input: { orderRef: string; method: "mpesa" | "cash_on_delivery"; phoneNumber?: string }) {
     const response = await apiRequest<{ payment: ApiPayment }>("/payments/initiate", {
       method: "POST",
       body: input,
@@ -607,11 +634,13 @@ export const paymentsApi = {
     return response.data.payment;
   },
 
-  async bypassComplete(input: { orderRef: string; amount: number; method: Exclude<ApiPayment["method"], "cash_on_delivery">; phoneNumber?: string }) {
-    const response = await apiRequest<{ payment: ApiPayment }>("/payments/bypass-complete", {
-      method: "POST",
-      body: input,
-    });
+  async status(paymentRef: string) {
+    const response = await apiRequest<{ payment: ApiPayment }>(`/payments/${encodeURIComponent(paymentRef)}/status`);
+    return response.data.payment;
+  },
+
+  async verify(paymentRef: string) {
+    const response = await apiRequest<{ payment: ApiPayment }>("/payments/verify", { method: "POST", body: { paymentRef } });
     return response.data.payment;
   },
 };

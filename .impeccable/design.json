@@ -1,0 +1,285 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-06-21T00:00:00+03:00",
+  "title": "Design System: Level Up Fitness",
+  "extensions": {
+    "colorMeta": {
+      "kinetic-coral": {
+        "role": "primary",
+        "displayName": "Kinetic Coral",
+        "canonical": "#F2553D",
+        "tonalRamp": [
+          "#35110C",
+          "#682117",
+          "#9E3223",
+          "#CE422F",
+          "#F2553D",
+          "#F77B68",
+          "#FBA99C",
+          "#FDE0DA"
+        ]
+      },
+      "botanical-ink": {
+        "role": "secondary",
+        "displayName": "Botanical Ink",
+        "canonical": "#14231D",
+        "tonalRamp": [
+          "#08100C",
+          "#14231D",
+          "#263930",
+          "#3B5147",
+          "#5D7168",
+          "#87968F",
+          "#B9C2BD",
+          "#EEF1EF"
+        ]
+      },
+      "mineral-blue": {
+        "role": "secondary",
+        "displayName": "Mineral Blue",
+        "canonical": "#3F6E8C",
+        "tonalRamp": [
+          "#0C1B24",
+          "#1A3445",
+          "#294F66",
+          "#3F6E8C",
+          "#638AA1",
+          "#8DA8B8",
+          "#BECED7",
+          "#EDF2F5"
+        ]
+      },
+      "training-white": {
+        "role": "neutral",
+        "displayName": "Training White",
+        "canonical": "#FFFFFF",
+        "tonalRamp": [
+          "#202124",
+          "#414347",
+          "#676A70",
+          "#90939A",
+          "#B8BBC0",
+          "#D9DBDE",
+          "#EEEEF0",
+          "#FFFFFF"
+        ]
+      },
+      "canvas": {
+        "role": "neutral",
+        "displayName": "Canvas",
+        "canonical": "#F6F8F5",
+        "tonalRamp": [
+          "#20252A",
+          "#3F474F",
+          "#66717C",
+          "#909BA6",
+          "#BAC3CB",
+          "#D9DFE5",
+          "#EEF2F5",
+          "#F6F8F5"
+        ]
+      },
+      "slate-mist": {
+        "role": "neutral",
+        "displayName": "Slate Mist",
+        "canonical": "#E9EEEA",
+        "tonalRamp": [
+          "#1E242A",
+          "#3B454E",
+          "#606D78",
+          "#8996A2",
+          "#B3BEC7",
+          "#D3DBE2",
+          "#E8EDF2",
+          "#E9EEEA"
+        ]
+      },
+      "slate-text": {
+        "role": "neutral",
+        "displayName": "Slate Text",
+        "canonical": "#46564F",
+        "tonalRamp": [
+          "#11161D",
+          "#293440",
+          "#46564F",
+          "#667589",
+          "#8C98A8",
+          "#B4BDC7",
+          "#D9DEE4",
+          "#F3F5F7"
+        ]
+      },
+      "border": {
+        "role": "neutral",
+        "displayName": "Quiet Border",
+        "canonical": "#CDD6D0",
+        "tonalRamp": [
+          "#1D2228",
+          "#39434D",
+          "#5D6874",
+          "#858F9A",
+          "#ADB5BE",
+          "#CCD2D9",
+          "#CDD6D0",
+          "#F5F7F9"
+        ]
+      },
+      "dark-muted-text": {
+        "role": "neutral",
+        "displayName": "Dark Surface Muted Text",
+        "canonical": "#94A3B8",
+        "tonalRamp": [
+          "#151B23",
+          "#303A47",
+          "#4F5B6B",
+          "#707D8F",
+          "#94A3B8",
+          "#B6C0CE",
+          "#D7DDE5",
+          "#F3F5F8"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Homepage hero only." },
+      "headline": { "displayName": "Headline", "purpose": "Route and major section headings." },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Programs, plans, products, services, and panels."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Descriptions, explanations, and form guidance."
+      },
+      "label": { "displayName": "Label", "purpose": "Buttons, controls, and compact metadata." }
+    },
+    "shadows": [
+      {
+        "name": "ambient-low",
+        "value": "0 1px 2px rgb(20 35 29 / 0.05), 0 1px 3px rgb(20 35 29 / 0.07)",
+        "purpose": "Small floating navigation and controls."
+      },
+      {
+        "name": "editorial-lift",
+        "value": "0 6px 8px -6px rgb(20 35 29 / 0.22)",
+        "purpose": "One focal image, sticky summary, or selected commercial tier."
+      },
+      {
+        "name": "coral-focus-edge",
+        "value": "0 0 0 1px rgb(242 85 61 / 0.28)",
+        "purpose": "Supplemental accent edge, never the only focus cue."
+      }
+    ],
+    "motion": [
+      {
+        "name": "state-fast",
+        "value": "150ms cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "Pressed, selected, and focus feedback."
+      },
+      {
+        "name": "state-standard",
+        "value": "220ms cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "Hover and disclosure transitions."
+      },
+      {
+        "name": "legacy-smooth",
+        "value": "300ms cubic-bezier(0.4, 0, 0.2, 1)",
+        "purpose": "Existing card transitions; migrate toward state-standard."
+      }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The single dominant action in a section or transaction.",
+      "html": "<button class=\"ds-btn-primary\">Join now</button>",
+      "css": ".ds-btn-primary{min-height:40px;border:0;border-radius:12px;padding:10px 20px;background:var(--primary,#F2553D);color:var(--primary-foreground,#14231D);font:600 14px/1.25 Atkinson Hyperlegible Next,ui-sans-serif,system-ui,sans-serif;transition:transform 180ms cubic-bezier(.22,1,.36,1),filter 180ms cubic-bezier(.22,1,.36,1)}.ds-btn-primary:hover{filter:brightness(.92);transform:translateY(-1px)}.ds-btn-primary:active{transform:scale(.98)}.ds-btn-primary:focus-visible{outline:2px solid var(--ring,#F2553D);outline-offset:3px}"
+    },
+    {
+      "name": "Soft Button",
+      "kind": "button",
+      "refersTo": "button-soft",
+      "description": "A supporting action on dark or quiet surfaces.",
+      "html": "<button class=\"ds-btn-soft\">Explore programs</button>",
+      "css": ".ds-btn-soft{min-height:40px;border:0;border-radius:12px;padding:10px 20px;background:var(--surface,#FFF);color:var(--surface-foreground,#14231D);font:600 14px/1.25 Atkinson Hyperlegible Next,ui-sans-serif,system-ui,sans-serif;box-shadow:0 1px 3px rgb(17 28 48/.08);transition:background 180ms cubic-bezier(.22,1,.36,1),transform 180ms cubic-bezier(.22,1,.36,1)}.ds-btn-soft:hover{background:var(--secondary,#E9EEEA)}.ds-btn-soft:active{transform:scale(.98)}.ds-btn-soft:focus-visible{outline:2px solid var(--ring,#F2553D);outline-offset:3px}"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "The canonical single-line field for authentication, booking, and checkout.",
+      "html": "<label class=\"ds-field\">Email<input class=\"ds-input\" type=\"email\" placeholder=\"you@example.com\"></label>",
+      "css": ".ds-field{display:grid;gap:8px;color:var(--foreground,#14231D);font:600 14px/1.25 Atkinson Hyperlegible Next,ui-sans-serif,system-ui,sans-serif}.ds-input{min-height:40px;border:1px solid var(--input,#CDD6D0);border-radius:8px;padding:8px 12px;background:var(--surface,#FFF);color:var(--foreground,#14231D);font:400 14px/1.4 Atkinson Hyperlegible Next,ui-sans-serif,system-ui,sans-serif}.ds-input::placeholder{color:#46564F}.ds-input:hover{border-color:#94A3B8}.ds-input:focus-visible{outline:2px solid var(--ring,#F2553D);outline-offset:2px}"
+    },
+    {
+      "name": "Public Navigation",
+      "kind": "nav",
+      "description": "Sticky route navigation with a clear active destination.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Primary\"><a class=\"ds-brand\" href=\"/\">Level <strong>Up</strong></a><a class=\"ds-nav-link ds-active\" href=\"/programs\">Programs</a><a class=\"ds-nav-link\" href=\"/plans\">Plans</a><a class=\"ds-nav-link\" href=\"/shop\">Shop</a></nav>",
+      "css": ".ds-nav{display:flex;align-items:center;gap:8px;border:1px solid var(--border,#CDD6D0);border-radius:16px;padding:12px 16px;background:var(--surface,#FFF);color:var(--foreground,#14231D);box-shadow:0 1px 3px rgb(20 35 29/.08);font:500 14px/1.25 Atkinson Hyperlegible Next,ui-sans-serif,system-ui,sans-serif}.ds-brand{margin-right:auto;color:inherit;text-decoration:none;font:700 18px/1 Anybody,ui-sans-serif,system-ui,sans-serif}.ds-brand strong{color:var(--primary,#F2553D)}.ds-nav-link{border-radius:12px;padding:8px 12px;color:#46564F;text-decoration:none;transition:background 180ms,color 180ms}.ds-nav-link:hover{background:#E9EEEA;color:#14231D}.ds-nav-link:focus-visible{outline:2px solid var(--ring,#F2553D);outline-offset:2px}.ds-active{background:rgb(242 85 61/.1);color:#F2553D}"
+    },
+    {
+      "name": "Marketplace Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "A restrained content container for one purchasable or bookable offer.",
+      "html": "<article class=\"ds-card\"><p class=\"ds-card-meta\">Strength · 8 weeks</p><h3>Build a stronger base</h3><p>Coach-led sessions with a clear weekly progression.</p><a href=\"/programs\">View program</a></article>",
+      "css": ".ds-card{max-width:340px;border-radius:16px;padding:24px;background:var(--card,#FFF);color:var(--card-foreground,#14231D);font:400 14px/1.6 Atkinson Hyperlegible Next,ui-sans-serif,system-ui,sans-serif}.ds-card-meta{margin:0 0 8px;color:#46564F;font-size:12px}.ds-card h3{margin:0 0 8px;font:600 20px/1.25 Anybody,ui-sans-serif,system-ui,sans-serif;letter-spacing:-.02em}.ds-card p{margin:0 0 16px}.ds-card a{color:var(--primary,#F2553D);font-weight:600;text-underline-offset:4px}.ds-card a:hover{text-decoration-thickness:2px}.ds-card a:focus-visible{outline:2px solid var(--ring,#F2553D);outline-offset:3px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Nairobi Training Atelier",
+    "overview": "Level Up Fitness feels like a bright Nairobi training studio with a broad care team, not a software catalogue wearing gym imagery. The redesigned index pairs mineral-white daylight, botanical structure, kinetic-coral actions, expressive condensed display type, and clear transactional states. Each offer earns its own composition while preserving direct routes from discovery to purchase or booking.",
+    "keyCharacteristics": [
+      "Image-led editorial pacing supported by concise, specific copy.",
+      "A bright mineral canvas with botanical structure, one coral action color, and restrained mineral-blue support.",
+      "Clear commerce and booking paths with complete loading, empty, error, and success states.",
+      "Asymmetric layouts that distinguish training, care, social proof, and products.",
+      "Kenyan context expressed through real people, locations, prices, and services."
+    ],
+    "rules": [
+      {
+        "name": "The One Journey Rule",
+        "body": "Training, nutrition, physiotherapy, membership, and equipment must read as connected stages of care rather than unrelated product categories.",
+        "section": "overview"
+      },
+      {
+        "name": "The Committed Coral Rule",
+        "body": "Kinetic Coral may carry a whole purposeful section, but within neutral sections it is reserved for action, focus, and essential emphasis.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Eyebrow Rule",
+        "body": "A small uppercase tracked label may orient one major page hero. Repeating it above every section is prohibited.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat-by-Default Rule",
+        "body": "Most public content sits directly on the canvas. Elevation communicates overlap, stickiness, selection, or interaction—not the mere existence of a section.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do make the index page the primary brand surface and give it one dominant conversion path.",
+      "Do borrow Core Atelier’s editorial pacing, confident whitespace, image-led storytelling, and direct booking paths without copying its identity.",
+      "Do use Kinetic Coral as a committed brand field or for action, focus, selection, and essential emphasis.",
+      "Do replace repeated spinners with skeletons shaped like the content they represent.",
+      "Do preserve WCAG 2.2 AA contrast, keyboard access, reduced motion, and meaningful alt text."
+    ],
+    "donts": [
+      "Don't use generic purple SaaS landing-page patterns, repetitive equal-card grids, neon gym aggression, stock-photo transformation clichés, or decorative glassmorphism.",
+      "Don't make every service compete at the same visual volume.",
+      "Don't apply 24–32px radii to cards, sections, images, inputs, and buttons indiscriminately.",
+      "Don't repeat tiny uppercase tracked eyebrows above every section.",
+      "Don't use page-level circular spinners when the eventual layout is known."
+    ]
+  }
+}

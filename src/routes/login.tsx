@@ -6,9 +6,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ApiError, authApi } from "@/lib/api";
-import { completeAuthContinuation, parseAuthContinuation, signupUrlFor, verifyEmailUrlFor } from "@/lib/auth-continuation";
+import {
+  completeAuthContinuation,
+  parseAuthContinuation,
+  signupUrlFor,
+  verifyEmailUrlFor,
+} from "@/lib/auth-continuation";
 import { GOOGLE_CLIENT_ID } from "@/lib/env";
 import levelUpLogo from "@/assets/level-up-logo.jpeg";
+import heroStudio from "@/assets/home/hero-studio.webp";
 
 type GoogleCredentialResponse = {
   credential?: string;
@@ -23,7 +29,10 @@ declare global {
             client_id: string;
             callback: (response: GoogleCredentialResponse) => void;
           }) => void;
-          renderButton: (parent: HTMLElement, options: Record<string, string | number | boolean>) => void;
+          renderButton: (
+            parent: HTMLElement,
+            options: Record<string, string | number | boolean>,
+          ) => void;
           cancel: () => void;
         };
       };
@@ -36,7 +45,11 @@ export const Route = createFileRoute("/login")({
   head: () => ({
     meta: [
       { title: "Login — Level Up Fitness" },
-      { name: "description", content: "Sign in to manage your cart, subscriptions, programs, and Level Up Fitness dashboard." },
+      {
+        name: "description",
+        content:
+          "Sign in to manage your cart, subscriptions, programs, and Level Up Fitness dashboard.",
+      },
     ],
   }),
   component: LoginPage,
@@ -61,20 +74,27 @@ function LoginPage() {
   const canSubmit = emailValid && passwordValid && !loading;
 
   const emailError = touched.email && !emailValid ? "Enter a valid email address." : null;
-  const pwdError = touched.password && !passwordValid ? "Password must be at least 8 characters." : null;
+  const pwdError =
+    touched.password && !passwordValid ? "Password must be at least 8 characters." : null;
 
-  const finishLogin = useCallback(async (role: string) => {
-    try {
-      const next = await completeAuthContinuation(search, role === "TRAINER" ? "/trainer" : "/dashboard");
-      window.location.replace(next);
-    } catch (continuationError) {
-      setError(
-        continuationError instanceof Error
-          ? `You are signed in, but we could not complete your previous action: ${continuationError.message}`
-          : "You are signed in, but we could not complete your previous action. Please try it again.",
-      );
-    }
-  }, [search]);
+  const finishLogin = useCallback(
+    async (role: string) => {
+      try {
+        const next = await completeAuthContinuation(
+          search,
+          role === "TRAINER" ? "/trainer" : "/dashboard",
+        );
+        window.location.replace(next);
+      } catch (continuationError) {
+        setError(
+          continuationError instanceof Error
+            ? `You are signed in, but we could not complete your previous action: ${continuationError.message}`
+            : "You are signed in, but we could not complete your previous action. Please try it again.",
+        );
+      }
+    },
+    [search],
+  );
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -91,7 +111,9 @@ function LoginPage() {
         const details = loginError.details as { email?: string } | undefined;
         setUnverifiedEmail(details?.email ?? email.trim());
       }
-      setError(loginError instanceof Error ? loginError.message : "Login failed. Please try again.");
+      setError(
+        loginError instanceof Error ? loginError.message : "Login failed. Please try again.",
+      );
       setLoading(false);
       return;
     }
@@ -113,7 +135,11 @@ function LoginPage() {
         const session = await authApi.googleCustomerLogin(response.credential);
         await finishLogin(session.user.role);
       } catch (googleError) {
-        setError(googleError instanceof Error ? googleError.message : "Google login failed. Please try again.");
+        setError(
+          googleError instanceof Error
+            ? googleError.message
+            : "Google login failed. Please try again.",
+        );
         setLoading(false);
         return;
       }
@@ -130,7 +156,11 @@ function LoginPage() {
       await authApi.resendVerificationCode(unverifiedEmail);
       setError("A fresh verification code has been sent to your email.");
     } catch (resendError) {
-      setError(resendError instanceof Error ? resendError.message : "Could not resend the verification code.");
+      setError(
+        resendError instanceof Error
+          ? resendError.message
+          : "Could not resend the verification code.",
+      );
     } finally {
       setLoading(false);
     }
@@ -142,6 +172,9 @@ function LoginPage() {
     let cancelled = false;
     const renderGoogleButton = () => {
       if (cancelled || !window.google || !googleButtonRef.current) return;
+      const containerWidth =
+        googleButtonRef.current.parentElement?.clientWidth ?? window.innerWidth;
+      const buttonWidth = Math.max(280, Math.min(360, Math.floor(containerWidth - 2)));
       window.google.accounts.id.initialize({
         client_id: GOOGLE_CLIENT_ID,
         callback: handleGoogleCredential,
@@ -153,7 +186,7 @@ function LoginPage() {
         type: "standard",
         text: "continue_with",
         shape: "pill",
-        width: 360,
+        width: buttonWidth,
       });
     };
 
@@ -194,34 +227,50 @@ function LoginPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="grid min-h-screen lg:grid-cols-2">
-        {/* Form side */}
-        <div className="flex items-center justify-center px-4 py-12 sm:px-8">
-          <div className="w-full max-w-md">
-            <Link to="/" className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-[#111C30]">
-              <img src={levelUpLogo} alt="Level Up Fitness" className="h-11 w-11 rounded-full object-cover shadow-sm" />
-              Level Up Fitness
+      <div className="grid min-h-screen lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
+        <main className="flex items-center justify-center px-3 py-6 sm:px-8 sm:py-10 lg:px-10">
+          <div className="w-full max-w-lg">
+            <Link
+              to="/"
+              className="hidden items-center gap-3 text-sm font-medium text-foreground sm:inline-flex"
+            >
+              <img
+                src={levelUpLogo}
+                alt="Level Up Fitness"
+                className="h-10 w-10 rounded-full object-cover"
+              />
+              <span className="leading-none">
+                Level<span className="text-primary">Up</span>
+                <span className="mt-1 block text-[10px] tracking-[0.24em] text-muted-foreground uppercase">
+                  Fitness Hub
+                </span>
+              </span>
             </Link>
 
-            <div className="rounded-2xl border border-border bg-white p-8 shadow-[var(--shadow-elegant)]">
-              <h1 className="font-display text-2xl font-bold text-[#111C30]">Welcome Back</h1>
-              <p className="mt-1 text-sm text-muted-foreground">
+            <div className="mt-4 rounded-2xl border border-border/60 bg-white p-5 shadow-[var(--shadow-soft)] sm:mt-8 sm:p-8">
+              <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
+                Member access
+              </p>
+              <h1 className="mt-3 max-w-[12ch] font-display text-2xl font-bold tracking-[-0.02em] text-foreground sm:max-w-none sm:text-4xl">
+                Welcome back.
+              </h1>
+              <p className="mt-3 max-w-md text-sm leading-6 text-muted-foreground sm:text-base">
                 Sign in to continue your cart, subscriptions, programs, and dashboard.
               </p>
 
               {error && (
                 <div
                   role="alert"
-                  className="mt-5 rounded-xl border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive"
+                  className="mt-6 rounded-2xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive"
                 >
-                  {error}
+                  <p className="font-medium">{error}</p>
                   {unverifiedEmail && (
                     <div className="mt-3 flex flex-wrap gap-2">
                       <Button
                         type="button"
                         size="sm"
                         variant="outline"
-                        className="h-8 border-destructive/30 bg-white text-destructive hover:bg-destructive/10"
+                        className="h-9 rounded-lg border-destructive/20 bg-white text-destructive hover:bg-destructive/5"
                         onClick={resendVerification}
                         disabled={loading}
                       >
@@ -229,7 +278,7 @@ function LoginPage() {
                       </Button>
                       <a
                         href={verifyEmailUrlFor(unverifiedEmail, search)}
-                        className="inline-flex h-8 items-center rounded-md px-2 text-xs font-semibold text-destructive underline-offset-4 hover:underline"
+                        className="inline-flex h-9 items-center rounded-lg px-2 text-sm font-medium text-destructive underline-offset-4 hover:underline"
                       >
                         Enter code
                       </a>
@@ -240,7 +289,9 @@ function LoginPage() {
 
               <form onSubmit={handleSubmit} className="mt-6 space-y-4" noValidate>
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-[#111C30]">Email</Label>
+                  <Label htmlFor="email" className="text-sm font-medium text-foreground">
+                    Email
+                  </Label>
                   <div className="relative">
                     <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
@@ -252,18 +303,20 @@ function LoginPage() {
                       onChange={(e) => setEmail(e.target.value)}
                       onBlur={() => setTouched((t) => ({ ...t, email: true }))}
                       aria-invalid={!!emailError}
-                      className="h-11 rounded-xl pl-9 focus-visible:ring-2 focus-visible:ring-[#7B2EFF]"
+                      className="h-11 rounded-lg border-border/80 bg-white pl-9 shadow-none focus-visible:ring-2 focus-visible:ring-primary/30"
                     />
                   </div>
                   {emailError && <p className="text-xs text-destructive">{emailError}</p>}
                 </div>
 
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="password" className="text-[#111C30]">Password</Label>
+                  <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+                    <Label htmlFor="password" className="text-sm font-medium text-foreground">
+                      Password
+                    </Label>
                     <Link
                       to="/forgot-password"
-                      className="text-xs font-medium text-[#7B2EFF] hover:underline"
+                      className="text-xs font-medium text-foreground/70 hover:text-foreground"
                     >
                       Forgot password?
                     </Link>
@@ -279,13 +332,13 @@ function LoginPage() {
                       onChange={(e) => setPassword(e.target.value)}
                       onBlur={() => setTouched((t) => ({ ...t, password: true }))}
                       aria-invalid={!!pwdError}
-                      className="h-11 rounded-xl pl-9 pr-10 focus-visible:ring-2 focus-visible:ring-[#7B2EFF]"
+                      className="h-11 rounded-lg border-border/80 bg-white pl-9 pr-10 shadow-none focus-visible:ring-2 focus-visible:ring-primary/30"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPwd((v) => !v)}
                       aria-label={showPwd ? "Hide password" : "Show password"}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-[#7B2EFF]"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
                     >
                       {showPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
@@ -299,7 +352,10 @@ function LoginPage() {
                     checked={remember}
                     onCheckedChange={(v) => setRemember(!!v)}
                   />
-                  <Label htmlFor="remember" className="cursor-pointer text-sm font-normal text-[#111C30]">
+                  <Label
+                    htmlFor="remember"
+                    className="cursor-pointer text-sm font-normal text-foreground/80"
+                  >
                     Remember me on this device
                   </Label>
                 </div>
@@ -307,7 +363,7 @@ function LoginPage() {
                 <Button
                   type="submit"
                   disabled={!canSubmit}
-                  className="h-11 w-full rounded-xl bg-[#7B2EFF] text-white hover:bg-[#7B2EFF]/90"
+                  className="h-11 w-full rounded-xl bg-primary text-primary-foreground shadow-none hover:bg-primary/90"
                 >
                   {loading ? (
                     <>
@@ -323,14 +379,14 @@ function LoginPage() {
                     <span className="w-full border-t border-border" />
                   </div>
                   <div className="relative flex justify-center">
-                    <span className="bg-white px-3 text-xs uppercase tracking-wider text-muted-foreground">
+                    <span className="bg-white px-3 text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
                       or
                     </span>
                   </div>
                 </div>
 
                 {GOOGLE_CLIENT_ID ? (
-                  <div className="flex min-h-11 w-full justify-center overflow-hidden rounded-xl border border-border">
+                  <div className="flex min-h-11 w-full justify-center overflow-hidden rounded-lg border border-border/80 bg-white">
                     <div ref={googleButtonRef} className="flex w-full justify-center" />
                   </div>
                 ) : (
@@ -338,7 +394,7 @@ function LoginPage() {
                     type="button"
                     variant="outline"
                     disabled
-                    className="h-11 w-full rounded-xl border-border text-[#111C30]"
+                    className="h-11 w-full rounded-lg border-border/80 bg-white text-foreground"
                   >
                     <GoogleIcon className="h-4 w-4" />
                     Continue with Google
@@ -346,52 +402,69 @@ function LoginPage() {
                 )}
               </form>
 
-              <div className="mt-6 flex items-start gap-2 rounded-xl border border-border bg-background px-3 py-2.5">
-                <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-[#7B2EFF]" />
-                <div className="text-xs text-muted-foreground">
-                  <p className="font-medium text-[#111C30]">Secure member access</p>
-                  <p className="mt-0.5">Your cart, plans, and checkout stay protected behind your account.</p>
+              <div className="mt-6 flex items-start gap-3 rounded-2xl border border-border/60 bg-background px-4 py-3">
+                <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                <div className="text-xs leading-5 text-muted-foreground">
+                  <p className="font-medium text-foreground">Secure member access</p>
+                  <p>Your cart, plans, and checkout stay protected behind your account.</p>
                 </div>
               </div>
             </div>
 
-            <p className="mt-6 text-center text-xs text-muted-foreground">
+            <p className="mt-6 text-center text-sm text-muted-foreground">
               New here?{" "}
-              <a href={signupUrlFor(search)} className="font-semibold text-[#7B2EFF] hover:underline">
+              <a
+                href={signupUrlFor(search)}
+                className="font-medium text-foreground underline-offset-4 hover:underline"
+              >
                 Create an account
               </a>
             </p>
           </div>
-        </div>
+        </main>
 
-        {/* Right illustration panel */}
-        <aside className="relative hidden bg-[#111C30] lg:flex lg:items-center lg:justify-center">
-          <div className="max-w-md px-12 text-white">
-            <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-white/15 px-3 py-1 text-xs font-medium">
-              <Lock className="h-3.5 w-3.5" /> Member Login
+        <aside className="relative hidden overflow-hidden lg:block">
+          <img
+            src={heroStudio}
+            alt="Level Up Fitness coaches guiding a training session in a bright Nairobi studio"
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(20,35,29,0.92)_0%,rgba(20,35,29,0.56)_55%,rgba(20,35,29,0.28)_100%)]" />
+          <div className="relative flex h-full flex-col justify-between p-10 xl:p-14 text-white">
+            <div className="flex items-center justify-between gap-4">
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-medium text-white/90">
+                <Lock className="h-3.5 w-3.5" />
+                Member login
+              </div>
+              <p className="max-w-xs text-right text-xs leading-5 text-white/72">
+                One account for programs, nutrition, recovery, and shopping.
+              </p>
             </div>
-            <h2 className="font-display text-4xl font-bold leading-tight">
-              Pick up exactly where your fitness journey left off.
-            </h2>
-            <p className="mt-4 text-sm text-white/70">
-              Continue shopping, choose subscription plans, manage appointments, and track your
-              Level Up Fitness progress from one account.
-            </p>
 
-            <ul className="mt-10 space-y-4">
+            <div className="max-w-xl pb-4">
+              <p className="text-sm font-medium text-white/70">A quiet place to return.</p>
+              <blockquote className="mt-4 text-4xl font-semibold leading-[1.05] tracking-[-0.03em] text-white sm:text-5xl">
+                Care beyond the workout.
+                <span className="mt-3 block text-white/80">
+                  Pick up exactly where your fitness journey left off.
+                </span>
+              </blockquote>
+            </div>
+
+            <div className="grid max-w-xl gap-3 sm:grid-cols-3">
               {[
-                "Cart and checkout saved to your account",
-                "Subscriptions and program access in one dashboard",
-                "Wellness appointments and orders tracked securely",
+                "Saved cart and checkout",
+                "Active plans and programs",
+                "Appointments and order history",
               ].map((item) => (
-                <li key={item} className="flex items-center gap-3 text-sm text-white/85">
-                  <span className="grid h-7 w-7 place-items-center rounded-lg bg-[#7B2EFF]">
-                    <ShieldCheck className="h-4 w-4" />
-                  </span>
+                <div
+                  key={item}
+                  className="rounded-2xl border border-white/10 bg-white/8 px-4 py-3 text-sm text-white/85"
+                >
                   {item}
-                </li>
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
         </aside>
       </div>

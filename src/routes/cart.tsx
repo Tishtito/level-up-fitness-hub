@@ -1,290 +1,103 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
-import { CreditCard, Loader2, Lock, Minus, Package, Plus, Smartphone, Tag, Trash2, Wallet } from "lucide-react";
+import { Loader2, Lock, Minus, Package, Plus, Smartphone, Tag, Trash2, Wallet } from "lucide-react";
 import { toast } from "sonner";
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cartApi, ordersApi, paymentsApi, type ApiCart } from "@/lib/api";
 import { useAuthSession } from "@/lib/auth";
 import { loginUrlFor } from "@/lib/auth-continuation";
 import { apiAssetUrl } from "@/lib/env";
+import { usePaymentStatus } from "@/lib/use-payment-status";
 
+type Search = { orderRef?: string; paymentRef?: string; mode?: "pay_now" | "pay_on_delivery" };
 export const Route = createFileRoute("/cart")({
-  head: () => ({
-    meta: [
-      { title: "Cart & Checkout - Level Up Fitness" },
-      { name: "description", content: "Review your cart and check out securely with Card, M-Pesa, or PayPal." },
-    ],
+  validateSearch: (search: Record<string, unknown>): Search => ({
+    orderRef: typeof search.orderRef === "string" ? search.orderRef : undefined,
+    paymentRef: typeof search.paymentRef === "string" ? search.paymentRef : undefined,
+    mode: search.mode === "pay_now" || search.mode === "pay_on_delivery" ? search.mode : undefined,
   }),
+  head: () => ({ meta: [{ title: "Cart & Checkout - Level Up Fitness" }, { name: "description", content: "Checkout securely with M-Pesa or pay on delivery." }] }),
   component: CartPage,
 });
 
-const KSh = (value: number) =>
-  new Intl.NumberFormat("en-KE", { style: "currency", currency: "KES", maximumFractionDigits: 0 }).format(value);
+const KSh = (value: number) => new Intl.NumberFormat("en-KE", { style: "currency", currency: "KES", maximumFractionDigits: 0 }).format(value);
 
 function CartPage() {
   const session = useAuthSession();
+  const search = Route.useSearch();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [promo, setPromo] = useState("");
-  const [method, setMethod] = useState<"card" | "mpesa" | "paypal">("mpesa");
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [checkoutResult, setCheckoutResult] = useState<{ orderRef: string; paymentRef: string; mode: "pay_now" | "pay_on_delivery" } | null>(null);
-
-  const cartQuery = useQuery({
-    queryKey: ["cart"],
-    queryFn: cartApi.get,
-    enabled: !!session,
-  });
-
+  const cartQuery = useQuery({ queryKey: ["cart"], queryFn: cartApi.get, enabled: !!session });
+  const paymentQuery = usePaymentStatus(search.mode === "pay_now" ? search.paymentRef : undefined);
   const updateCart = (cart: ApiCart) => queryClient.setQueryData(["cart"], cart);
+  const updateQty = useMutation({ mutationFn: ({ productRef, quantity }: { productRef: string; quantity: number }) => cartApi.updateItem(productRef, quantity), onSuccess: updateCart, onError: showError });
+  const removeItem = useMutation({ mutationFn: cartApi.removeItem, onSuccess: updateCart, onError: showError });
+  const clearCart = useMutation({ mutationFn: cartApi.clear, onSuccess: updateCart, onError: showError });
+  const applyPromo = useMutation({ mutationFn: cartApi.applyPromo, onSuccess: (cart) => { updateCart(cart); toast.success("Promo code applied"); }, onError: showError });
 
-  const updateQtyMutation = useMutation({
-    mutationFn: ({ productRef, quantity }: { productRef: string; quantity: number }) => cartApi.updateItem(productRef, quantity),
-    onSuccess: updateCart,
-    onError: (error) => toast.error(error instanceof Error ? error.message : "Could not update cart"),
-  });
-
-  const removeMutation = useMutation({
-    mutationFn: (productRef: string) => cartApi.removeItem(productRef),
-    onSuccess: updateCart,
-    onError: (error) => toast.error(error instanceof Error ? error.message : "Could not remove item"),
-  });
-
-  const promoMutation = useMutation({
-    mutationFn: (promoCode: string) => cartApi.applyPromo(promoCode),
-    onSuccess: (cart) => {
-      updateCart(cart);
-      toast.success("Promo code applied");
-    },
-    onError: (error) => toast.error(error instanceof Error ? error.message : "Invalid promo code"),
-  });
-
-  const clearMutation = useMutation({
-    mutationFn: cartApi.clear,
-    onSuccess: updateCart,
-    onError: (error) => toast.error(error instanceof Error ? error.message : "Could not clear cart"),
-  });
-
-  const checkoutMutation = useMutation({
+  const checkout = useMutation({
     mutationFn: async (mode: "pay_now" | "pay_on_delivery") => {
-      const cart = cartQuery.data;
-      if (!cart || cart.items.length === 0) throw new Error("Your cart is empty");
-      const order = await ordersApi.create({});
-      const payment = mode === "pay_on_delivery"
-        ? await paymentsApi.initiate({
-            orderRef: order.orderRef,
-            amount: order.total,
-            method: "cash_on_delivery",
-          })
-        : await paymentsApi.bypassComplete({
-            orderRef: order.orderRef,
-            amount: order.total,
-            method,
-            phoneNumber: method === "mpesa" ? phoneNumber || undefined : undefined,
-          });
-      return { order, payment, mode };
+      if (!search.orderRef && !cartQuery.data?.items.length) throw new Error("Your cart is empty");
+      const orderRef = search.orderRef ?? (await ordersApi.create({})).orderRef;
+      const payment = await paymentsApi.initiate({ orderRef, method: mode === "pay_now" ? "mpesa" : "cash_on_delivery", phoneNumber: mode === "pay_now" ? phoneNumber : undefined });
+      return { orderRef, payment, mode };
     },
-    onSuccess: ({ order, payment, mode }) => {
-      setCheckoutResult({ orderRef: order.orderRef, paymentRef: payment.paymentRef, mode });
-      toast.success(mode === "pay_on_delivery" ? "Order placed for payment on delivery" : "Payment completed", {
-        description: `Order: ${order.orderRef}`,
-      });
+    onSuccess: ({ orderRef, payment, mode }) => {
+      void navigate({ to: "/cart", search: { orderRef, paymentRef: payment.paymentRef, mode }, replace: true });
+      toast.success(mode === "pay_on_delivery" ? "Order placed" : payment.status === "failed" ? "M-Pesa prompt failed" : payment.status === "cancelled" ? "M-Pesa prompt cancelled" : "M-Pesa prompt sent");
       void queryClient.invalidateQueries({ queryKey: ["cart"] });
     },
-    onError: (error) => toast.error(error instanceof Error ? error.message : "Checkout failed"),
+    onError: showError,
   });
 
-  if (!session) {
-    return (
-      <div className="mx-auto grid min-h-[65vh] max-w-7xl place-items-center px-4 pt-10 sm:px-6">
-        <div className="card-elevated max-w-md rounded-3xl p-8 text-center">
-          <Lock className="mx-auto h-10 w-10 text-primary" />
-          <h1 className="mt-4 font-display text-3xl font-bold">Login to view your cart</h1>
-          <p className="mt-2 text-sm text-muted-foreground">Your cart, checkout, and payments are available after login.</p>
-          <a href={loginUrlFor({ redirect: "/cart" })} className="mt-6 inline-block">
-            <Button variant="hero">Login to continue</Button>
-          </a>
-        </div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    if (paymentQuery.data?.status === "succeeded") toast.success("M-Pesa payment confirmed", { description: `Order ${search.orderRef} is paid.` });
+  }, [paymentQuery.data?.status, search.orderRef]);
+
+  if (!session) return <div className="mx-auto grid min-h-[65vh] max-w-7xl place-items-center px-4"><div className="card-elevated max-w-md rounded-3xl p-8 text-center"><Lock className="mx-auto h-10 w-10 text-primary" /><h1 className="mt-4 font-display text-3xl font-bold">Login to view your cart</h1><a href={loginUrlFor({ redirect: "/cart" })} className="mt-6 inline-block"><Button variant="hero">Login to continue</Button></a></div></div>;
+  if (cartQuery.isLoading) return <div className="grid min-h-[60vh] place-items-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
+  if (cartQuery.isError) return <div className="mx-auto max-w-xl px-4 py-20 text-center"><h1 className="font-display text-2xl font-bold">Cart could not be loaded</h1><Button className="mt-5" onClick={() => cartQuery.refetch()}>Try again</Button></div>;
 
   const cart = cartQuery.data;
   const items = cart?.items ?? [];
+  const canCreateOrder = items.length > 0;
+  const activePayment = paymentQuery.data;
+  const waiting = activePayment?.status === "pending" || activePayment?.status === "processing";
+  const payableTotal = activePayment?.amount ?? cart?.totals.total ?? 0;
 
-  return (
-    <div className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 space-y-8">
-      <header className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Checkout</p>
-          <h1 className="mt-2 font-display text-4xl font-bold">Your cart</h1>
-        </div>
-        {items.length > 0 && (
-          <Button variant="soft" onClick={() => clearMutation.mutate()} disabled={clearMutation.isPending}>
-            Clear cart
-          </Button>
-        )}
-      </header>
-
-      {cartQuery.isLoading ? (
-        <div className="card-elevated grid place-items-center rounded-3xl py-16 text-muted-foreground">
-          <Loader2 className="mb-3 h-8 w-8 animate-spin" />
-          <p className="text-sm font-medium">Loading cart...</p>
-        </div>
-      ) : cartQuery.isError ? (
-        <div className="card-elevated rounded-3xl p-10 text-center text-destructive">
-          <p className="text-sm font-medium">Cart could not be loaded.</p>
-        </div>
-      ) : (
-        <div className="grid gap-6 lg:grid-cols-[1fr_400px]">
-          <div className="space-y-4">
-            {items.map((item) => (
-              <div key={item.productRef} className="card-elevated flex flex-wrap items-center gap-4 rounded-2xl p-4">
-                {item.image ? (
-                  <img
-                    src={apiAssetUrl(item.image)}
-                    alt={item.name}
-                    className="h-20 w-20 rounded-2xl object-cover"
-                  />
-                ) : (
-                  <div className="grid h-20 w-20 place-items-center rounded-2xl bg-surface text-muted-foreground">
-                    <Package className="h-8 w-8" />
-                  </div>
-                )}
-                <div className="min-w-[180px] flex-1">
-                  <h3 className="font-display font-semibold">{item.name}</h3>
-                  <p className="text-sm text-muted-foreground">{KSh(item.unitPrice)}</p>
-                </div>
-                <div className="flex items-center gap-1 rounded-full bg-muted p-1">
-                  <button
-                    onClick={() => updateQtyMutation.mutate({ productRef: item.productRef, quantity: Math.max(1, item.quantity - 1) })}
-                    className="grid h-7 w-7 place-items-center rounded-full hover:bg-background"
-                    aria-label="Decrease quantity"
-                  >
-                    <Minus className="h-3 w-3" />
-                  </button>
-                  <span className="w-6 text-center text-sm font-semibold">{item.quantity}</span>
-                  <button
-                    onClick={() => updateQtyMutation.mutate({ productRef: item.productRef, quantity: item.quantity + 1 })}
-                    className="grid h-7 w-7 place-items-center rounded-full hover:bg-background"
-                    aria-label="Increase quantity"
-                  >
-                    <Plus className="h-3 w-3" />
-                  </button>
-                </div>
-                <p className="w-24 text-right font-display font-bold">{KSh(item.unitPrice * item.quantity)}</p>
-                <button onClick={() => removeMutation.mutate(item.productRef)} className="text-muted-foreground hover:text-destructive" aria-label="Remove item">
-                  <Trash2 className="h-4 w-4" />
-                </button>
-              </div>
-            ))}
-            {items.length === 0 && (
-              <div className="card-elevated rounded-2xl p-10 text-center">
-                <p className="text-muted-foreground">Your cart is empty.</p>
-                <Link to="/shop" className="mt-4 inline-block">
-                  <Button variant="hero">Continue Shopping</Button>
-                </Link>
-              </div>
-            )}
-
-            <div className="card-elevated rounded-2xl p-5">
-              <p className="font-display font-semibold inline-flex items-center gap-2">
-                <Tag className="h-4 w-4 text-primary" /> Promo code
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground">Try: LEVELUP10</p>
-              <div className="mt-3 flex gap-2">
-                <Input value={promo} onChange={(event) => setPromo(event.target.value)} placeholder="Enter code" />
-                <Button variant="soft" onClick={() => promoMutation.mutate(promo)} disabled={!promo.trim() || promoMutation.isPending}>
-                  Apply
-                </Button>
-              </div>
-            </div>
-          </div>
-
-          <aside className="card-elevated h-fit rounded-3xl p-6 lg:sticky lg:top-24 space-y-5">
-            <h2 className="font-display text-xl font-bold">Order Summary</h2>
-            <div className="space-y-2 text-sm">
-              <Row label="Subtotal" value={KSh(cart?.totals.subtotal ?? 0)} />
-              {(cart?.totals.discount ?? 0) > 0 && <Row label="Discount" value={`-${KSh(cart?.totals.discount ?? 0)}`} muted />}
-              <Row label="Delivery" value={(cart?.totals.deliveryFee ?? 0) === 0 ? "Free" : KSh(cart?.totals.deliveryFee ?? 0)} />
-              <div className="my-2 border-t border-border" />
-              <Row label="Total" value={KSh(cart?.totals.total ?? 0)} bold />
-            </div>
-
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Pay now method</p>
-              <div className="mt-2 grid grid-cols-3 gap-2">
-                {[
-                  { key: "card", icon: CreditCard, label: "Card" },
-                  { key: "mpesa", icon: Smartphone, label: "M-Pesa" },
-                  { key: "paypal", icon: Wallet, label: "PayPal" },
-                ].map((item) => (
-                  <button
-                    key={item.key}
-                    onClick={() => setMethod(item.key as typeof method)}
-                    className={`flex flex-col items-center gap-1 rounded-2xl border p-3 text-xs font-medium transition ${
-                      method === item.key ? "border-primary bg-primary/10 text-primary" : "border-border hover:bg-muted"
-                    }`}
-                  >
-                    <item.icon className="h-5 w-5" />
-                    {item.label}
-                  </button>
-                ))}
-              </div>
-              {method === "mpesa" && (
-                <Input className="mt-3" value={phoneNumber} onChange={(event) => setPhoneNumber(event.target.value)} placeholder="M-Pesa phone number" />
-              )}
-            </div>
-
-            {checkoutResult && (
-              <div className="rounded-2xl border border-success/30 bg-success/10 p-4 text-sm">
-                <p className="font-semibold text-success">
-                  {checkoutResult.mode === "pay_on_delivery" ? "Order placed" : "Payment completed"}
-                </p>
-                <p className="mt-1 text-muted-foreground">Order: {checkoutResult.orderRef}</p>
-                <p className="text-muted-foreground">Payment: {checkoutResult.paymentRef}</p>
-              </div>
-            )}
-
-            <div className="space-y-3">
-              <Button
-                variant="hero"
-                size="lg"
-                className="w-full"
-                onClick={() => checkoutMutation.mutate("pay_now")}
-                disabled={items.length === 0 || checkoutMutation.isPending}
-              >
-                {checkoutMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Lock className="h-4 w-4" />}
-                Pay now {KSh(cart?.totals.total ?? 0)}
-              </Button>
-              <Button
-                variant="soft"
-                size="lg"
-                className="w-full"
-                onClick={() => checkoutMutation.mutate("pay_on_delivery")}
-                disabled={items.length === 0 || checkoutMutation.isPending}
-              >
-                {checkoutMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wallet className="h-4 w-4" />}
-                Pay on delivery
-              </Button>
-            </div>
-            <p className="text-center text-xs text-muted-foreground">
-              Pay now uses a temporary backend completion bypass until live providers are configured.
-            </p>
-          </aside>
-        </div>
-      )}
+  return <div className="mx-auto max-w-7xl px-4 pb-16 pt-10 sm:px-6">
+    <div className="mb-8 flex items-end justify-between"><div><p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Shop</p><h1 className="mt-2 font-display text-4xl font-bold">Your Cart</h1></div>{items.length > 0 && <Button variant="ghost" onClick={() => clearCart.mutate()} disabled={clearCart.isPending}><Trash2 className="h-4 w-4" /> Clear</Button>}</div>
+    <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
+      <div className="space-y-4">
+        {items.map((item) => <div key={item.productRef} className="card-elevated flex flex-wrap items-center gap-4 rounded-2xl p-4">
+          {item.image ? <img src={apiAssetUrl(item.image)} alt={item.name} className="h-20 w-20 rounded-2xl object-cover" /> : <div className="grid h-20 w-20 place-items-center rounded-2xl bg-surface"><Package className="h-8 w-8 text-muted-foreground" /></div>}
+          <div className="min-w-[180px] flex-1"><h3 className="font-display font-semibold">{item.name}</h3><p className="text-sm text-muted-foreground">{KSh(item.unitPrice)}</p></div>
+          <div className="flex items-center gap-1 rounded-full bg-muted p-1"><button className="grid h-7 w-7 place-items-center" onClick={() => updateQty.mutate({ productRef: item.productRef, quantity: Math.max(1, item.quantity - 1) })}><Minus className="h-3 w-3" /></button><span className="w-6 text-center text-sm font-semibold">{item.quantity}</span><button className="grid h-7 w-7 place-items-center" onClick={() => updateQty.mutate({ productRef: item.productRef, quantity: item.quantity + 1 })}><Plus className="h-3 w-3" /></button></div>
+          <p className="w-24 text-right font-display font-bold">{KSh(item.unitPrice * item.quantity)}</p><button onClick={() => removeItem.mutate(item.productRef)} aria-label="Remove item"><Trash2 className="h-4 w-4 text-muted-foreground" /></button>
+        </div>)}
+        {!items.length && <div className="card-elevated rounded-2xl p-10 text-center"><p className="text-muted-foreground">{search.orderRef ? "Your order has been created. Complete its payment on the right." : "Your cart is empty."}</p>{!search.orderRef && <Button asChild className="mt-4" variant="hero"><Link to="/shop">Continue shopping</Link></Button>}</div>}
+        {items.length > 0 && <div className="card-elevated rounded-2xl p-5"><p className="inline-flex items-center gap-2 font-display font-semibold"><Tag className="h-4 w-4 text-primary" /> Promo code</p><div className="mt-3 flex gap-2"><Input value={promo} onChange={(event) => setPromo(event.target.value)} placeholder="Enter code" /><Button variant="soft" onClick={() => applyPromo.mutate(promo)} disabled={!promo.trim() || applyPromo.isPending}>Apply</Button></div></div>}
+      </div>
+      <aside className="card-elevated h-fit space-y-5 rounded-3xl p-6 lg:sticky lg:top-24">
+        <h2 className="font-display text-xl font-bold">Order Summary</h2>
+        <div className="space-y-2 text-sm"><Row label="Subtotal" value={KSh(cart?.totals.subtotal ?? activePayment?.amount ?? 0)} /><Row label="Discount" value={`-${KSh(cart?.totals.discount ?? 0)}`} /><Row label="Delivery" value={KSh(cart?.totals.deliveryFee ?? 0)} /><div className="border-t" /><Row label="Total" value={KSh(payableTotal)} bold /></div>
+        <div><p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Pay now with</p><div className="mt-2 flex items-center gap-3 rounded-2xl border border-primary bg-primary/5 p-3 text-sm font-semibold text-primary"><Smartphone className="h-5 w-5" /> M-Pesa STK Push</div><Input className="mt-3" inputMode="tel" value={phoneNumber} onChange={(event) => setPhoneNumber(event.target.value)} placeholder="0712 345 678" /></div>
+        {search.paymentRef && <PaymentNotice mode={search.mode} paymentRef={search.paymentRef} orderRef={search.orderRef} status={activePayment?.status} loading={paymentQuery.isLoading} />}
+        <Button className="w-full" size="lg" variant="hero" onClick={() => checkout.mutate("pay_now")} disabled={(!search.orderRef && !canCreateOrder) || checkout.isPending || waiting || phoneNumber.replace(/\D/g, "").length < 9}>{checkout.isPending || waiting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Lock className="h-4 w-4" />}{activePayment?.status === "failed" || activePayment?.status === "cancelled" ? "Retry M-Pesa" : `Pay now ${KSh(payableTotal)}`}</Button>
+        <Button className="w-full" size="lg" variant="soft" onClick={() => checkout.mutate("pay_on_delivery")} disabled={!canCreateOrder || checkout.isPending || !!search.paymentRef}><Wallet className="h-4 w-4" /> Pay on delivery</Button>
+        <p className="text-center text-xs text-muted-foreground">Orders are marked paid only after Safaricom confirms the transaction.</p>
+      </aside>
     </div>
-  );
+  </div>;
 }
 
-function Row({ label, value, bold, muted }: { label: string; value: string; bold?: boolean; muted?: boolean }) {
-  return (
-    <div className={`flex justify-between ${bold ? "font-display text-lg font-bold" : ""} ${muted ? "text-success" : ""}`}>
-      <span className={bold ? "" : "text-muted-foreground"}>{label}</span>
-      <span>{value}</span>
-    </div>
-  );
+function PaymentNotice({ mode, paymentRef, orderRef, status, loading }: { mode?: string; paymentRef: string; orderRef?: string; status?: string; loading: boolean }) {
+  const label = mode === "pay_on_delivery" ? "Order placed" : status === "succeeded" ? "Payment confirmed" : status === "cancelled" ? "M-Pesa prompt cancelled" : status === "failed" ? "Payment not completed" : "Waiting for M-Pesa confirmation";
+  return <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4 text-sm"><p className="font-semibold text-primary">{label}</p>{loading && <Loader2 className="mt-2 h-4 w-4 animate-spin" />}<p className="mt-1 text-muted-foreground">Order: {orderRef}</p><p className="text-muted-foreground">Payment: {paymentRef}</p></div>;
 }
+function Row({ label, value, bold }: { label: string; value: string; bold?: boolean }) { return <div className={`flex justify-between ${bold ? "font-display text-lg font-bold" : ""}`}><span className={bold ? "" : "text-muted-foreground"}>{label}</span><span>{value}</span></div>; }
+function showError(error: unknown) { toast.error(error instanceof Error ? error.message : "Operation failed"); }

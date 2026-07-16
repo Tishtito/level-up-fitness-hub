@@ -1,77 +1,154 @@
 import { Link } from "@tanstack/react-router";
-import { Music2, Facebook, Linkedin, Mail, MapPin, Phone } from "lucide-react";
+import { ArrowUpRight, Facebook, Linkedin, Mail, MapPin, Music2, Phone } from "lucide-react";
 import levelUpLogo from "@/assets/level-up-logo.jpeg";
 
 const socialLinks = [
   { label: "TikTok", href: "https://vm.tiktok.com/ZS92f16NoxntV-017g5/", icon: Music2 },
   { label: "Facebook", href: "https://www.facebook.com/levelupFitnessKE", icon: Facebook },
-  { label: "LinkedIn", href: "https://www.linkedin.com/in/levelup-functional-strength-coach-bab8361a3", icon: Linkedin },
+  {
+    label: "LinkedIn",
+    href: "https://www.linkedin.com/in/levelup-functional-strength-coach-bab8361a3",
+    icon: Linkedin,
+  },
 ] as const;
 
 export function Footer() {
   return (
-    <footer className="mt-24">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="card-elevated rounded-3xl p-8 sm:p-12">
-          <div className="grid gap-10 lg:grid-cols-4">
-            <div>
-              <Link to="/" className="flex items-center gap-2 font-display text-xl font-bold">
-                <img src={levelUpLogo} alt="Level Up Fitness" className="h-11 w-11 rounded-full object-cover shadow-sm" />
-                Level<span className="gradient-text">Up</span>
-              </Link>
-              <p className="mt-3 text-sm text-muted-foreground max-w-xs">
-                Transform your body. Elevate your life. The premium fitness platform for every goal.
-              </p>
-              <div className="mt-5 flex gap-2">
-                {socialLinks.map(({ label, href, icon: Icon }) => (
-                  <a
-                    key={label}
-                    href={href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={"Visit Level Up Fitness on " + label}
-                    title={label}
-                    className="grid h-9 w-9 place-items-center rounded-xl bg-surface/60 text-surface-foreground transition-colors hover:bg-primary hover:text-primary-foreground"
-                  >
-                    <Icon className="h-4 w-4" />
-                  </a>
-                ))}
+    <footer className="mt-24 border-t border-border/50 bg-background">
+      <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:py-16">
+        <div className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr]">
+          <div className="space-y-6">
+            <div className="inline-flex items-center gap-3">
+              <img
+                src={levelUpLogo}
+                alt="Level Up Fitness"
+                className="h-11 w-11 rounded-full object-cover"
+              />
+              <div>
+                <p className="font-display text-xl font-semibold leading-none">
+                  Level<span className="text-primary">Up</span>
+                </p>
+                <p className="mt-1 text-[10px] uppercase tracking-[0.24em] text-muted-foreground">
+                  Fitness Hub
+                </p>
               </div>
             </div>
 
-            <div>
-              <h4 className="font-display text-sm font-semibold uppercase tracking-wider">Explore</h4>
-              <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
-                <li><Link to="/programs" className="hover:text-primary">Programs</Link></li>
-                <li><Link to="/plans" className="hover:text-primary">Subscriptions</Link></li>
-                <li><Link to="/shop" className="hover:text-primary">Shop</Link></li>
-                <li><Link to="/dashboard" className="hover:text-primary">Dashboard</Link></li>
-              </ul>
+            <p className="max-w-xl text-sm leading-6 text-muted-foreground sm:text-base">
+              Transform your body. Elevate your life. Care beyond the workout. A single home for
+              training, nutrition, recovery, and the shop.
+            </p>
+
+            <div className="flex flex-wrap gap-3">
+              <Link
+                to="/plans"
+                className="inline-flex items-center gap-2 rounded-full border border-border/70 px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-foreground/5"
+              >
+                Explore plans
+                <ArrowUpRight className="h-4 w-4" />
+              </Link>
+              <Link
+                to="/programs"
+                className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-foreground/5 hover:text-foreground"
+              >
+                Browse programs
+              </Link>
             </div>
 
-            <div>
-              <h4 className="font-display text-sm font-semibold uppercase tracking-wider">Services</h4>
-              <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
-                <li><Link to="/nutrition" className="hover:text-primary">Nutritionist</Link></li>
-                <li><Link to="/physiotherapy" className="hover:text-primary">Physiotherapy</Link></li>
-                <li><Link to="/trainer" className="hover:text-primary">Trainer Portal</Link></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-display text-sm font-semibold uppercase tracking-wider">Contact</h4>
-              <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
-                <li className="flex items-center gap-2"><Mail className="h-4 w-4 text-primary" /> hello@levelup.fit</li>
-                <li className="flex items-center gap-2"><Phone className="h-4 w-4 text-primary" /> +254 700 000 000</li>
-                <li className="flex items-center gap-2"><MapPin className="h-4 w-4 text-primary" /> Nairobi, Kenya</li>
-              </ul>
+            <div className="flex gap-2">
+              {socialLinks.map(({ label, href, icon: Icon }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={"Visit Level Up Fitness on " + label}
+                  title={label}
+                  className="grid h-10 w-10 place-items-center rounded-full border border-border/60 text-foreground/65 transition-colors hover:bg-foreground/5 hover:text-foreground"
+                >
+                  <Icon className="h-4 w-4" />
+                </a>
+              ))}
             </div>
           </div>
 
-          <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-border/60 pt-6 text-xs text-muted-foreground sm:flex-row">
-            <p>© {new Date().getFullYear()} Level Up Fitness. All rights reserved.</p>
-            <p>Designed to elevate.</p>
+          <div className="grid gap-8 sm:grid-cols-3">
+            <div>
+              <h4 className="text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground">
+                Explore
+              </h4>
+              <ul className="mt-4 space-y-3 text-sm text-foreground/70">
+                <li>
+                  <Link to="/programs" className="transition-colors hover:text-foreground">
+                    Programs
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/plans" className="transition-colors hover:text-foreground">
+                    Subscriptions
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/shop" className="transition-colors hover:text-foreground">
+                    Shop
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/dashboard" className="transition-colors hover:text-foreground">
+                    Dashboard
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground">
+                Services
+              </h4>
+              <ul className="mt-4 space-y-3 text-sm text-foreground/70">
+                <li>
+                  <Link to="/nutrition" className="transition-colors hover:text-foreground">
+                    Nutritionist
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/physiotherapy" className="transition-colors hover:text-foreground">
+                    Physiotherapy
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/trainer" className="transition-colors hover:text-foreground">
+                    Trainer Portal
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground">
+                Contact
+              </h4>
+              <ul className="mt-4 space-y-3 text-sm text-foreground/70">
+                <li className="flex items-start gap-2">
+                  <Mail className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                  <span>hello@levelup.fit</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Phone className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                  <span>+254 700 000 000</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                  <span>Nairobi, Kenya</span>
+                </li>
+              </ul>
+            </div>
           </div>
+        </div>
+
+        <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-border/50 px-1 pt-6 text-xs text-muted-foreground sm:flex-row">
+          <p>© {new Date().getFullYear()} Level Up Fitness. All rights reserved.</p>
+          <p>Built for training, recovery, and consistency.</p>
         </div>
       </div>
     </footer>
