@@ -176,7 +176,7 @@ function ProgramCard({ program, featured = false }: { program: ApiProgram; featu
               <div className="mt-3 flex flex-wrap gap-2 text-xs text-muted-foreground">
                 <span className="inline-flex items-center gap-1 rounded-lg bg-background px-2 py-1">
                   <PlayCircle className="h-3.5 w-3.5" />
-                  {program.videos.length} videos
+                  {program.videos?.length ?? 0} videos
                 </span>
                 <span className="inline-flex items-center gap-1 rounded-lg bg-background px-2 py-1">
                   <Dumbbell className="h-3.5 w-3.5" />
@@ -303,7 +303,7 @@ function ProgramsPage() {
                   <div className="rounded-[1rem] bg-white p-4 shadow-[var(--shadow-soft)]">
                     <p className="text-xs font-medium text-muted-foreground">Program videos</p>
                     <p className="mt-2 font-display text-2xl font-bold">
-                      {programs.reduce((count, program) => count + program.videos.length, 0)}
+                      {programs.reduce((count, program) => count + (program.videos?.length ?? 0), 0)}
                     </p>
                   </div>
                   <div className="rounded-[1rem] bg-white p-4 shadow-[var(--shadow-soft)]">

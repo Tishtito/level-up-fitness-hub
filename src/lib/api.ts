@@ -64,6 +64,14 @@ export type ApiProgramVideo = {
   type?: string | null;
 };
 
+export type ApiProgramAccessReason = "free" | "staff" | "purchase" | "subscription" | "none";
+
+export type ApiProgramAccess = {
+  hasAccess: boolean;
+  reason: ApiProgramAccessReason;
+  subscriptionRequired: boolean;
+};
+
 export type ApiProgram = {
   programRef: string;
   title: string;
@@ -75,11 +83,15 @@ export type ApiProgram = {
   thumbnail?: string | null;
   trainer?: string | null;
   workoutSchedule: string[];
-  videos: ApiProgramVideo[];
+  // Gated content: present only when the viewer is entitled (see `access`). The public
+  // catalog/list endpoints omit these entirely.
+  videos?: ApiProgramVideo[];
   nutritionNotes?: string | null;
   status: "draft" | "active" | "inactive";
   subscriptionRequired: boolean;
   enrolledUsers?: string[];
+  // Present on the single-program detail endpoint; describes the viewer's entitlement.
+  access?: ApiProgramAccess;
 };
 
 export type ApiTrainerProfile = {
@@ -190,7 +202,8 @@ export type ApiPayment = {
   status: "pending" | "processing" | "succeeded" | "failed" | "cancelled" | "refunded";
   transactionReference?: string | null;
   providerRequestId?: string | null;
-  purpose?: "order_purchase" | "subscription_create" | "subscription_renew" | "subscription_change" | null;
+  purpose?: "order_purchase" | "subscription_create" | "subscription_renew" | "subscription_change" | "program_purchase" | null;
+  programRef?: string | null;
   targetPlanRef?: string | null;
 };
 
@@ -449,6 +462,14 @@ export const programsApi = {
 
   get(programRef: string) {
     return apiRequest<{ program: ApiProgram }>(`/programs/${encodeURIComponent(programRef)}`);
+  },
+
+  async checkout(programRef: string, phoneNumber: string) {
+    const response = await apiRequest<{ program: ApiProgram; payment: ApiPayment | null }>(`/programs/${encodeURIComponent(programRef)}/checkout`, {
+      method: "POST",
+      body: { phoneNumber },
+    });
+    return response.data;
   },
 };
 

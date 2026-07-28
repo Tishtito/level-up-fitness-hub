@@ -187,7 +187,7 @@ function ProgramCard({ program, onManage }: { program: ApiProgram; onManage: () 
       <div className="aspect-video bg-muted">{thumbnail ? <img src={thumbnail} alt="" className="h-full w-full object-cover" /> : <div className="grid h-full place-items-center"><BookOpen className="h-9 w-9 text-muted-foreground" /></div>}</div>
       <CardHeader className="pb-3"><div className="flex items-start justify-between gap-2"><CardTitle className="text-lg">{program.title}</CardTitle><Badge variant={program.status === "active" ? "default" : "secondary"} className="capitalize">{program.status}</Badge></div></CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid grid-cols-3 gap-2 text-center text-sm"><Metric label="Clients" value={program.enrolledUsers?.length ?? 0} /><Metric label="Videos" value={program.videos.length} /><Metric label="Schedule" value={program.workoutSchedule.length} /></div>
+        <div className="grid grid-cols-3 gap-2 text-center text-sm"><Metric label="Clients" value={program.enrolledUsers?.length ?? 0} /><Metric label="Videos" value={program.videos?.length ?? 0} /><Metric label="Schedule" value={program.workoutSchedule.length} /></div>
         <Button variant="soft" className="w-full" onClick={onManage}><Pencil className="h-4 w-4" />Manage content</Button>
       </CardContent>
     </Card>
@@ -229,7 +229,7 @@ function ContentDialog({ program, saving, removingVideo, onOpenChange, onSave, o
           <div className="space-y-2"><Label>Replace thumbnail</Label><Input type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={(event) => setThumbnail(event.target.files?.[0] ?? null)} /></div>
           <div className="space-y-2"><Label>Upload videos</Label><Input type="file" multiple accept="video/mp4,video/quicktime,video/webm" onChange={(event) => setVideos(Array.from(event.target.files ?? []))} /><p className="text-xs text-muted-foreground">Up to five videos, 250 MB each.</p></div>
           <Separator />
-          <div className="space-y-3"><Label>Saved videos</Label>{program?.videos.length ? program.videos.map((video) => (
+          <div className="space-y-3"><Label>Saved videos</Label>{(program?.videos ?? []).length ? (program?.videos ?? []).map((video) => (
             <div key={video.url} className="flex items-center justify-between gap-3 rounded-md border p-3">
               <a href={apiAssetUrl(video.url)} target="_blank" rel="noreferrer" className="flex min-w-0 items-center gap-2 text-sm font-medium hover:text-primary"><PlayCircle className="h-4 w-4 shrink-0" /><span className="truncate">{video.title}</span></a>
               {video.url.startsWith("/uploads/programs/") && <Button size="sm" variant="destructive" disabled={removingVideo} onClick={() => onRemoveVideo(video.url)}>Remove</Button>}

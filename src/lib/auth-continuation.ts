@@ -4,6 +4,7 @@ export type AuthContinuation = {
   redirect?: string;
   addProductRef?: string;
   planRef?: string;
+  programRef?: string;
 };
 
 const AUTH_CONTINUATION_KEY = "level-up-fitness-auth-continuation";
@@ -33,6 +34,11 @@ function normalizeAuthContinuation(search: Record<string, unknown>): AuthContinu
   const redirect = rawRedirect ? safeInternalRedirect(rawRedirect) : undefined;
   const addProductRef = optionalString(search.addProductRef);
   const planRef = optionalString(search.planRef);
+  const programRef = optionalString(search.programRef);
+
+  if (programRef) {
+    return { redirect: redirect === "/checkout" ? redirect : undefined, programRef };
+  }
 
   if (planRef && addProductRef) {
     const isCartAction = redirect === "/shop" || redirect === "/cart";
@@ -51,7 +57,7 @@ export function parseAuthContinuation(search: Record<string, unknown>): AuthCont
 }
 
 function hasContinuation(continuation: AuthContinuation) {
-  return !!(continuation.redirect || continuation.addProductRef || continuation.planRef);
+  return !!(continuation.redirect || continuation.addProductRef || continuation.planRef || continuation.programRef);
 }
 
 function readStoredContinuation(): AuthContinuation {
@@ -94,6 +100,7 @@ function continuationSearch(continuation: AuthContinuation) {
   if (normalized.redirect) search.set("redirect", normalized.redirect);
   if (normalized.addProductRef) search.set("addProductRef", normalized.addProductRef);
   if (normalized.planRef) search.set("planRef", normalized.planRef);
+  if (normalized.programRef) search.set("programRef", normalized.programRef);
   return search.toString();
 }
 
@@ -117,6 +124,11 @@ export function verifyEmailUrlFor(email: string, continuation: AuthContinuation)
 
 export async function completeAuthContinuation(continuation: AuthContinuation, fallback = "/dashboard") {
   const normalized = resolvedContinuation(continuation);
+
+  if (normalized.programRef) {
+    clearStoredContinuation();
+    return `/checkout?programRef=${encodeURIComponent(normalized.programRef)}`;
+  }
 
   if (normalized.planRef) {
     clearStoredContinuation();
