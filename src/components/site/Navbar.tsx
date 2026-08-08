@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import levelUpLogo from "@/assets/level-up-logo.jpeg";
 import { authApi } from "@/lib/api";
 import { useAuthSession } from "@/lib/auth";
+import { useCartCount } from "@/lib/use-cart-count";
 import { cn } from "@/lib/utils";
 
 const publicLinks = [
@@ -16,10 +17,30 @@ const publicLinks = [
   { to: "/shop", label: "Shop" },
 ] as const;
 
+/** Count bubble on the cart icon. The ring keeps it legible over the blurred header. */
+function CartBadge({ count }: { count: number }) {
+  if (count < 1) return null;
+
+  return (
+    <span
+      aria-hidden
+      className="absolute -right-0.5 -top-0.5 grid h-[1.15rem] min-w-[1.15rem] place-items-center rounded-full bg-primary px-1 text-[10px] font-bold leading-none text-primary-foreground ring-2 ring-background"
+    >
+      {count > 99 ? "99+" : count}
+    </span>
+  );
+}
+
+function cartLabel(count: number) {
+  if (count < 1) return "Cart";
+  return `Cart, ${count} ${count === 1 ? "item" : "items"}`;
+}
+
 export function Navbar() {
   const [open, setOpen] = useState(false);
   const path = useRouterState({ select: (s) => s.location.pathname });
   const session = useAuthSession();
+  const cartCount = useCartCount();
   const dashboardLink =
     session?.user.role === "TRAINER"
       ? { to: "/trainer" as const, label: "Trainer Portal" }
@@ -72,10 +93,11 @@ export function Navbar() {
           </ul>
 
           <div className="hidden items-center gap-2 lg:flex">
-            <Link to="/cart" aria-label="Cart">
+            <Link to="/cart" className="relative" aria-label={cartLabel(cartCount)}>
               <Button variant="ghost" size="icon" className="rounded-full">
                 <ShoppingBag className="h-5 w-5" />
               </Button>
+              <CartBadge count={cartCount} />
             </Link>
             {session ? (
               <>
@@ -104,15 +126,24 @@ export function Navbar() {
             )}
           </div>
 
-          <button
-            className="grid h-10 w-10 place-items-center rounded-full border border-border/60 lg:hidden"
-            onClick={() => setOpen((v) => !v)}
-            aria-label={open ? "Close navigation menu" : "Open navigation menu"}
-            aria-expanded={open}
-            aria-controls="mobile-navigation"
-          >
-            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
+          <div className="flex items-center gap-1 lg:hidden">
+            <Link to="/cart" className="relative" aria-label={cartLabel(cartCount)}>
+              <Button variant="ghost" size="icon" className="rounded-full">
+                <ShoppingBag className="h-5 w-5" />
+              </Button>
+              <CartBadge count={cartCount} />
+            </Link>
+
+            <button
+              className="grid h-10 w-10 place-items-center rounded-full border border-border/60"
+              onClick={() => setOpen((v) => !v)}
+              aria-label={open ? "Close navigation menu" : "Open navigation menu"}
+              aria-expanded={open}
+              aria-controls="mobile-navigation"
+            >
+              {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
+          </div>
         </nav>
 
         {open && (
@@ -144,6 +175,11 @@ export function Navbar() {
                 <Link to="/cart" onClick={() => setOpen(false)}>
                   <Button variant="ghost" className="w-full rounded-full">
                     Cart
+                    {cartCount > 0 && (
+                      <span className="ml-1.5 rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-bold leading-none text-primary-foreground">
+                        {cartCount > 99 ? "99+" : cartCount}
+                      </span>
+                    )}
                   </Button>
                 </Link>
                 {session ? (

@@ -9,6 +9,7 @@ import { cartApi, ordersApi, paymentsApi, type ApiCart } from "@/lib/api";
 import { useAuthSession } from "@/lib/auth";
 import { loginUrlFor } from "@/lib/auth-continuation";
 import { apiAssetUrl } from "@/lib/env";
+import { CART_QUERY_KEY } from "@/lib/use-cart-count";
 import { usePaymentStatus } from "@/lib/use-payment-status";
 
 type Search = { orderRef?: string; paymentRef?: string; mode?: "pay_now" | "pay_on_delivery" };
@@ -31,9 +32,13 @@ function CartPage() {
   const queryClient = useQueryClient();
   const [promo, setPromo] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
-  const cartQuery = useQuery({ queryKey: ["cart"], queryFn: cartApi.get, enabled: !!session });
+  const cartQuery = useQuery({
+    queryKey: CART_QUERY_KEY,
+    queryFn: cartApi.get,
+    enabled: !!session,
+  });
   const paymentQuery = usePaymentStatus(search.mode === "pay_now" ? search.paymentRef : undefined);
-  const updateCart = (cart: ApiCart) => queryClient.setQueryData(["cart"], cart);
+  const updateCart = (cart: ApiCart) => queryClient.setQueryData(CART_QUERY_KEY, cart);
   const updateQty = useMutation({ mutationFn: ({ productRef, quantity }: { productRef: string; quantity: number }) => cartApi.updateItem(productRef, quantity), onSuccess: updateCart, onError: showError });
   const removeItem = useMutation({ mutationFn: cartApi.removeItem, onSuccess: updateCart, onError: showError });
   const clearCart = useMutation({ mutationFn: cartApi.clear, onSuccess: updateCart, onError: showError });
@@ -49,7 +54,7 @@ function CartPage() {
     onSuccess: ({ orderRef, payment, mode }) => {
       void navigate({ to: "/cart", search: { orderRef, paymentRef: payment.paymentRef, mode }, replace: true });
       toast.success(mode === "pay_on_delivery" ? "Order placed" : payment.status === "failed" ? "M-Pesa prompt failed" : payment.status === "cancelled" ? "M-Pesa prompt cancelled" : "M-Pesa prompt sent");
-      void queryClient.invalidateQueries({ queryKey: ["cart"] });
+      void queryClient.invalidateQueries({ queryKey: CART_QUERY_KEY });
     },
     onError: showError,
   });

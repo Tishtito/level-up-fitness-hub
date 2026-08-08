@@ -135,6 +135,12 @@ export type ApiTrainerDashboard = {
   };
 };
 
+/** Compact program projection joined onto a plan by GET /subscriptions/plans. */
+export type ApiPlanProgram = Pick<
+  ApiProgram,
+  "programRef" | "title" | "thumbnail" | "category" | "difficultyLevel" | "duration"
+>;
+
 export type ApiSubscriptionPlan = {
   planRef: string;
   name: string;
@@ -143,6 +149,9 @@ export type ApiSubscriptionPlan = {
   billingCycle: "monthly" | "quarterly" | "yearly";
   features: string[];
   programAccess: string[];
+  // Resolved from programAccess by the plans list endpoint. Absent on plans that come from
+  // /public/home, which still returns bare refs.
+  programs?: ApiPlanProgram[];
   status: "active" | "inactive";
   trialDays: number;
   discount: number;
@@ -436,8 +445,15 @@ export const authApi = {
 };
 
 export const productsApi = {
-  publicList(params: Record<string, string | number | undefined> = {}) {
+  publicList(params: Record<string, string | number | boolean | undefined> = {}) {
     return apiRequest<{ products: ApiProduct[] }>(`/products/public${queryString(params)}`);
+  },
+
+  async get(productRef: string) {
+    const response = await apiRequest<{ product: ApiProduct }>(
+      `/products/${encodeURIComponent(productRef)}`,
+    );
+    return response.data.product;
   },
 };
 

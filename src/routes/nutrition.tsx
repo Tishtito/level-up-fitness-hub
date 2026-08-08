@@ -356,7 +356,7 @@ function NutritionPage() {
                         onClick={() => "serviceRef" in item && scrollToBooking(item.serviceRef)}
                         className="flex h-full flex-col rounded-[1rem] bg-[#263930] p-4 text-left transition hover:-translate-y-0.5"
                       >
-                        <div className="grid h-11 w-11 place-items-center rounded-xl bg-[#f2553d] text-[#14231d]">
+                        <div className="grid h-11 w-11 place-items-center rounded-xl bg-[#6d3bef] text-white">
                           <Icon className="h-5 w-5" />
                         </div>
                         <h3 className="mt-4 font-display text-xl font-bold">
@@ -441,7 +441,7 @@ function NutritionPage() {
                               onClick={() => setSelectedDate(value)}
                               className={`rounded-xl px-4 py-2 text-sm font-medium transition ${
                                 selectedDate === value
-                                  ? "bg-[#f2553d] text-[#14231d]"
+                                  ? "bg-[#6d3bef] text-white"
                                   : "bg-muted hover:bg-surface"
                               }`}
                             >
@@ -470,7 +470,7 @@ function NutritionPage() {
                             onClick={() => setSlot(time)}
                             className={`rounded-xl px-3 py-2 text-sm font-medium transition ${
                               slot === time
-                                ? "bg-[#f2553d] text-[#14231d]"
+                                ? "bg-[#6d3bef] text-white"
                                 : "bg-muted hover:bg-surface"
                             }`}
                           >
@@ -609,7 +609,7 @@ function NutritionPage() {
                               <p className="text-sm text-[#f6f8f5]/75">{service.name}</p>
                             </div>
                             <span className="inline-flex items-center gap-1 text-sm text-[#f6f8f5]/80">
-                              <Star className="h-3.5 w-3.5 fill-[#f2553d] text-[#f2553d]" />
+                              <Star className="h-3.5 w-3.5 fill-[#6d3bef] text-[#6d3bef]" />
                               Available
                             </span>
                           </div>
@@ -646,7 +646,7 @@ function NutritionPage() {
                               <p className="text-sm text-[#f6f8f5]/75">{nutritionist.spec}</p>
                             </div>
                             <span className="inline-flex items-center gap-1 text-sm text-[#f6f8f5]/80">
-                              <Star className="h-3.5 w-3.5 fill-[#f2553d] text-[#f2553d]" />
+                              <Star className="h-3.5 w-3.5 fill-[#6d3bef] text-[#6d3bef]" />
                               {nutritionist.rating}
                             </span>
                           </div>

@@ -2,13 +2,10 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, BarChart3, Clock, Dumbbell, Flame, PlayCircle } from "lucide-react";
 
-import heroStudio from "@/assets/home/hero-studio.webp";
-import programMobility from "@/assets/home/program-mobility.webp";
-import programStrength from "@/assets/home/program-strength.webp";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { programsApi, type ApiProgram } from "@/lib/api";
-import { apiAssetUrl } from "@/lib/env";
+import { programCategoryLabels as categoryLabels, programImage } from "@/lib/program-display";
 
 export const Route = createFileRoute("/programs/")({
   head: () => ({
@@ -24,22 +21,10 @@ export const Route = createFileRoute("/programs/")({
   component: ProgramsPage,
 });
 
-const categoryLabels: Record<ApiProgram["category"], string> = {
-  body_transformation: "Body transformation",
-  lose_weight: "Lose weight",
-  gain_weight_muscle_building: "Gain weight / muscle building",
-};
-
 const categoryKicker: Record<ApiProgram["category"], string> = {
   body_transformation: "Transform Your Body",
   lose_weight: "Elevate Your Life",
   gain_weight_muscle_building: "Care beyond the workout",
-};
-
-const fallbackImages: Record<ApiProgram["category"], string> = {
-  body_transformation: heroStudio,
-  lose_weight: programStrength,
-  gain_weight_muscle_building: programMobility,
 };
 
 const KSh = (value: number) =>
@@ -48,10 +33,6 @@ const KSh = (value: number) =>
     currency: "KES",
     maximumFractionDigits: 0,
   }).format(value);
-
-function programImage(program: ApiProgram) {
-  return apiAssetUrl(program.thumbnail) || fallbackImages[program.category];
-}
 
 function selectFeaturedProgram(programs: ApiProgram[]) {
   return (

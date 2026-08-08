@@ -62,9 +62,9 @@
   --popover: #ffffff;
   --popover-foreground: #14231d;
 
-  --primary: #f2553d;
-  --primary-foreground: #14231d;
-  --primary-glow: #f2553d;
+  --primary: #6d3bef;
+  --primary-foreground: #ffffff;
+  --primary-glow: #6d3bef;
 
   --secondary: #e9eeea;
   --secondary-foreground: #14231d;
@@ -81,27 +81,27 @@
 
   --border: #cdd6d0;
   --input: #b7c3bc;
-  --ring: #d83e28;
+  --ring: #5a2bd6;
 
   --sidebar: #14231d;
   --sidebar-foreground: #f6f8f5;
-  --sidebar-primary: #f2553d;
+  --sidebar-primary: #6d3bef;
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #263930;
   --sidebar-accent-foreground: #f6f8f5;
   --sidebar-border: #365044;
-  --sidebar-ring: #f2553d;
+  --sidebar-ring: #6d3bef;
 
   /* "Gradients" collapsed to flat colors — kept as linear-gradient() so they
      remain valid <image> values for bg-[image:var(--gradient-*)] utilities. */
   --gradient-hero: linear-gradient(#14231d, #14231d);
   --gradient-soft: linear-gradient(#f6f8f5, #f6f8f5);
-  --gradient-primary: linear-gradient(#f2553d, #f2553d);
+  --gradient-primary: linear-gradient(#6d3bef, #6d3bef);
   --gradient-card: linear-gradient(#ffffff, #ffffff);
 
   --shadow-soft: 0 1px 2px 0 rgb(20 35 29 / 0.05), 0 1px 3px 0 rgb(20 35 29 / 0.07);
   --shadow-elegant: 0 6px 8px -6px rgb(20 35 29 / 0.22);
-  --shadow-glow: 0 0 0 1px rgb(242 85 61 / 0.28);
+  --shadow-glow: 0 0 0 1px rgb(109 59 239 / 0.28);
 
   --transition-smooth:
     color 0.2s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.2s cubic-bezier(0.22, 1, 0.36, 1),
@@ -117,9 +117,9 @@
   --card-foreground: #f6f8f5;
   --popover: #263930;
   --popover-foreground: #f6f8f5;
-  --primary: #f2553d;
-  --primary-foreground: #14231d;
-  --primary-glow: #f2553d;
+  --primary: #8b5cf6;
+  --primary-foreground: #ffffff;
+  --primary-glow: #8b5cf6;
   --secondary: #263930;
   --secondary-foreground: #f6f8f5;
   --muted: #263930;
@@ -128,18 +128,18 @@
   --accent-foreground: #ffffff;
   --border: #365044;
   --input: #496357;
-  --ring: #f2553d;
+  --ring: #8b5cf6;
   --sidebar: #0e1915;
   --sidebar-foreground: #f6f8f5;
-  --sidebar-primary: #f2553d;
+  --sidebar-primary: #8b5cf6;
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #263930;
   --sidebar-accent-foreground: #f6f8f5;
   --sidebar-border: #365044;
-  --sidebar-ring: #f2553d;
+  --sidebar-ring: #8b5cf6;
   --gradient-hero: linear-gradient(#14231d, #14231d);
   --gradient-soft: linear-gradient(#14231d, #14231d);
-  --gradient-primary: linear-gradient(#f2553d, #f2553d);
+  --gradient-primary: linear-gradient(#8b5cf6, #8b5cf6);
   --gradient-card: linear-gradient(#263930, #263930);
 }
 

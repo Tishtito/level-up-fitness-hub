@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   ArrowRight,
@@ -28,6 +28,7 @@ import {
 } from "@/lib/api";
 import { useAuthSession } from "@/lib/auth";
 import { loginUrlFor } from "@/lib/auth-continuation";
+import { CART_QUERY_KEY } from "@/lib/use-cart-count";
 import { apiAssetUrl } from "@/lib/env";
 import { cn } from "@/lib/utils";
 
@@ -88,6 +89,7 @@ function programImage(program: ApiProgram) {
 function Home() {
   const session = useAuthSession();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const homeQuery = useQuery({
     queryKey: ["public", "home"],
     queryFn: homeApi.getOverview,
@@ -95,7 +97,10 @@ function Home() {
   });
   const addItemMutation = useMutation({
     mutationFn: (productRef: string) => cartApi.addItem(productRef, 1),
-    onSuccess: () => toast.success("Added to cart"),
+    onSuccess: () => {
+      toast.success("Added to cart");
+      void queryClient.invalidateQueries({ queryKey: CART_QUERY_KEY });
+    },
     onError: (error) =>
       toast.error(
         error instanceof Error ? error.message : "We couldn't add that item. Please try again.",
@@ -416,7 +421,12 @@ function Home() {
                   addItemMutation.isPending && addItemMutation.variables === product.productRef;
                 return (
                   <article key={product.productRef} className="group">
-                    <div className="grid aspect-square place-items-center overflow-hidden rounded-xl bg-secondary">
+                    <Link
+                      to="/shop/$productRef"
+                      params={{ productRef: product.productRef }}
+                      className="grid aspect-square place-items-center overflow-hidden rounded-xl bg-secondary"
+                      aria-label={`View ${product.name}`}
+                    >
                       {image ? (
                         <img
                           src={image}
@@ -427,10 +437,18 @@ function Home() {
                       ) : (
                         <Package className="h-12 w-12 text-muted-foreground" aria-hidden="true" />
                       )}
-                    </div>
+                    </Link>
                     <div className="mt-4 flex items-start justify-between gap-3">
                       <div>
-                        <h3 className="font-display text-lg font-semibold">{product.name}</h3>
+                        <h3 className="font-display text-lg font-semibold">
+                          <Link
+                            to="/shop/$productRef"
+                            params={{ productRef: product.productRef }}
+                            className="transition-colors hover:text-primary"
+                          >
+                            {product.name}
+                          </Link>
+                        </h3>
                         <p className="mt-1 text-sm capitalize text-muted-foreground">
                           {product.category.replaceAll("_", " ")}
                         </p>

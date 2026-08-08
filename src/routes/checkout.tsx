@@ -6,9 +6,10 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { programsApi, subscriptionsApi, type ApiPayment } from "@/lib/api";
+import { programsApi, subscriptionsApi, type ApiPayment, type ApiPlanProgram } from "@/lib/api";
 import { useAuthState } from "@/lib/auth";
 import { loginUrlFor } from "@/lib/auth-continuation";
+import { programImage } from "@/lib/program-display";
 import { usePaymentStatus } from "@/lib/use-payment-status";
 
 type Search = { planRef?: string; programRef?: string; paymentRef?: string; subscriptionRef?: string };
@@ -21,6 +22,7 @@ type CheckoutItem = {
   price: number;
   meta: string;
   features: string[];
+  programs?: ApiPlanProgram[];
   trialDays?: number;
   successCopy: string;
   successRedirect: string;
@@ -86,6 +88,7 @@ function CheckoutPage() {
       price: Math.max(0, plan.price - (plan.discount ?? 0)),
       meta: `${plan.billingCycle} billing`,
       features: plan.features,
+      programs: plan.programs ?? [],
       trialDays: plan.trialDays,
       successCopy: "Subscription activated",
       successRedirect: "/dashboard",
@@ -151,7 +154,7 @@ function CheckoutPage() {
 
   const payment = paymentQuery.data;
   return (
-    <div className="mx-auto max-w-6xl px-4 pb-16 pt-10 sm:px-6">j
+    <div className="mx-auto max-w-6xl px-4 pb-16 pt-10 sm:px-6">
       {mode === "program" && activeRef
         ? <Link to="/programs/$slug" params={{ slug: activeRef }} className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="h-4 w-4" /> Back to program</Link>
         : <Link to="/plans" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="h-4 w-4" /> Back to plans</Link>}
@@ -161,7 +164,7 @@ function CheckoutPage() {
       </ol>
       <div className="mt-8 grid items-start gap-8 lg:grid-cols-[1fr_380px]">
         <section className="card-elevated rounded-3xl p-6 sm:p-8">
-          {step === 0 && <div><h2 className="font-display text-xl font-bold">Confirm your {mode === "program" ? "program" : "plan"}</h2><p className="mt-3 text-muted-foreground">{item.description}</p>{item.features.length > 0 && <ul className="mt-5 space-y-2 text-sm">{item.features.map((feature) => <li key={feature} className="flex gap-2"><Check className="mt-0.5 h-4 w-4 text-primary" />{feature}</li>)}</ul>}</div>}
+          {step === 0 && <div><h2 className="font-display text-xl font-bold">Confirm your {mode === "program" ? "program" : "plan"}</h2><p className="mt-3 text-muted-foreground">{item.description}</p>{item.features.length > 0 && <ul className="mt-5 space-y-2 text-sm">{item.features.map((feature) => <li key={feature} className="flex gap-2"><Check className="mt-0.5 h-4 w-4 text-primary" />{feature}</li>)}</ul>}<IncludedPrograms programs={item.programs ?? []} /></div>}
           {step === 1 && <div><h2 className="font-display text-xl font-bold">Pay with M-Pesa</h2><div className="mt-5 rounded-2xl border border-[#43B02A] bg-[#43B02A]/10 p-5"><Smartphone className="h-6 w-6 text-[#43B02A]" /><p className="mt-2 font-semibold">M-Pesa</p><p className="mt-1 text-sm text-muted-foreground">Enter the Safaricom number that should receive the payment prompt.</p></div><div className="mt-5 space-y-2"><Label htmlFor="mpesa-phone">M-Pesa phone number</Label><Input id="mpesa-phone" inputMode="tel" placeholder="0712 345 678" value={phoneNumber} onChange={(event) => setPhoneNumber(event.target.value)} /></div></div>}
           {step === 2 && <PaymentState status={payment?.status} loading={paymentQuery.isLoading} paymentRef={search.paymentRef} onRetry={() => { setStep(1); void navigate({ to: "/checkout", search: mode === "program" ? { programRef: activeRef } : { planRef: activeRef }, replace: true }); }} />}
           <div className="mt-8 flex justify-between gap-3">
@@ -172,6 +175,44 @@ function CheckoutPage() {
         </section>
         <aside className="card-elevated sticky top-24 rounded-3xl p-6"><p className="inline-flex items-center gap-2 font-display text-lg font-bold"><Sparkles className="h-4 w-4 text-primary" />{item.name}</p><p className="mt-1 text-sm capitalize text-muted-foreground">{item.meta}</p><div className="my-5 border-t" /><div className="flex justify-between font-display text-xl font-bold"><span>Total</span><span>{KSh(total)}</span></div>{item.trialDays ? <p className="mt-3 text-xs text-muted-foreground">Includes {item.trialDays} trial days. Payment is collected at checkout.</p> : null}</aside>
       </div>
+    </div>
+  );
+}
+
+/** The programs a plan unlocks — buyers should see what they are paying for before paying. */
+function IncludedPrograms({ programs }: { programs: ApiPlanProgram[] }) {
+  if (!programs.length) return null;
+
+  return (
+    <div className="mt-6 border-t pt-5">
+      <h3 className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+        Programs included ({programs.length})
+      </h3>
+      <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+        {programs.map((program) => (
+          <li key={program.programRef}>
+            <Link
+              to="/programs/$slug"
+              params={{ slug: program.programRef }}
+              className="flex items-center gap-3 rounded-xl p-1.5 transition hover:bg-muted"
+            >
+              <img
+                src={programImage(program)}
+                alt=""
+                aria-hidden
+                className="h-11 w-11 shrink-0 rounded-xl object-cover"
+                loading="lazy"
+              />
+              <span className="min-w-0">
+                <span className="block truncate text-sm font-medium">{program.title}</span>
+                <span className="block truncate text-xs text-muted-foreground">
+                  {program.difficultyLevel} &middot; {program.duration}
+                </span>
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

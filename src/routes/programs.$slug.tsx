@@ -345,7 +345,7 @@ function ProgramDetailPage() {
                   key={item}
                   className="flex items-start gap-3 rounded-[1rem] bg-[#263930] p-4 text-sm leading-6"
                 >
-                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#f2553d]" />
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#6d3bef]" />
                   <span>{item}</span>
                 </li>
               ))}

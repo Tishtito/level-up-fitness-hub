@@ -25,7 +25,9 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ShopIndexRouteImport } from './routes/shop.index'
 import { Route as ProgramsIndexRouteImport } from './routes/programs.index'
+import { Route as ShopProductRefRouteImport } from './routes/shop.$productRef'
 import { Route as ProgramsSlugRouteImport } from './routes/programs.$slug'
 
 const VerifyEmailRoute = VerifyEmailRouteImport.update({
@@ -108,10 +110,20 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ShopIndexRoute = ShopIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ShopRoute,
+} as any)
 const ProgramsIndexRoute = ProgramsIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => ProgramsRoute,
+} as any)
+const ShopProductRefRoute = ShopProductRefRouteImport.update({
+  id: '/$productRef',
+  path: '/$productRef',
+  getParentRoute: () => ShopRoute,
 } as any)
 const ProgramsSlugRoute = ProgramsSlugRouteImport.update({
   id: '/$slug',
@@ -132,12 +144,14 @@ export interface FileRoutesByFullPath {
   '/programs': typeof ProgramsRouteWithChildren
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/shop': typeof ShopRoute
+  '/shop': typeof ShopRouteWithChildren
   '/signup': typeof SignupRoute
   '/trainer': typeof TrainerRoute
   '/verify-email': typeof VerifyEmailRoute
   '/programs/$slug': typeof ProgramsSlugRoute
+  '/shop/$productRef': typeof ShopProductRefRoute
   '/programs/': typeof ProgramsIndexRoute
+  '/shop/': typeof ShopIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -151,12 +165,13 @@ export interface FileRoutesByTo {
   '/plans': typeof PlansRoute
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/shop': typeof ShopRoute
   '/signup': typeof SignupRoute
   '/trainer': typeof TrainerRoute
   '/verify-email': typeof VerifyEmailRoute
   '/programs/$slug': typeof ProgramsSlugRoute
+  '/shop/$productRef': typeof ShopProductRefRoute
   '/programs': typeof ProgramsIndexRoute
+  '/shop': typeof ShopIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -172,12 +187,14 @@ export interface FileRoutesById {
   '/programs': typeof ProgramsRouteWithChildren
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/shop': typeof ShopRoute
+  '/shop': typeof ShopRouteWithChildren
   '/signup': typeof SignupRoute
   '/trainer': typeof TrainerRoute
   '/verify-email': typeof VerifyEmailRoute
   '/programs/$slug': typeof ProgramsSlugRoute
+  '/shop/$productRef': typeof ShopProductRefRoute
   '/programs/': typeof ProgramsIndexRoute
+  '/shop/': typeof ShopIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -199,7 +216,9 @@ export interface FileRouteTypes {
     | '/trainer'
     | '/verify-email'
     | '/programs/$slug'
+    | '/shop/$productRef'
     | '/programs/'
+    | '/shop/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -213,12 +232,13 @@ export interface FileRouteTypes {
     | '/plans'
     | '/register'
     | '/reset-password'
-    | '/shop'
     | '/signup'
     | '/trainer'
     | '/verify-email'
     | '/programs/$slug'
+    | '/shop/$productRef'
     | '/programs'
+    | '/shop'
   id:
     | '__root__'
     | '/'
@@ -238,7 +258,9 @@ export interface FileRouteTypes {
     | '/trainer'
     | '/verify-email'
     | '/programs/$slug'
+    | '/shop/$productRef'
     | '/programs/'
+    | '/shop/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -254,7 +276,7 @@ export interface RootRouteChildren {
   ProgramsRoute: typeof ProgramsRouteWithChildren
   RegisterRoute: typeof RegisterRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
-  ShopRoute: typeof ShopRoute
+  ShopRoute: typeof ShopRouteWithChildren
   SignupRoute: typeof SignupRoute
   TrainerRoute: typeof TrainerRoute
   VerifyEmailRoute: typeof VerifyEmailRoute
@@ -374,12 +396,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/shop/': {
+      id: '/shop/'
+      path: '/'
+      fullPath: '/shop/'
+      preLoaderRoute: typeof ShopIndexRouteImport
+      parentRoute: typeof ShopRoute
+    }
     '/programs/': {
       id: '/programs/'
       path: '/'
       fullPath: '/programs/'
       preLoaderRoute: typeof ProgramsIndexRouteImport
       parentRoute: typeof ProgramsRoute
+    }
+    '/shop/$productRef': {
+      id: '/shop/$productRef'
+      path: '/$productRef'
+      fullPath: '/shop/$productRef'
+      preLoaderRoute: typeof ShopProductRefRouteImport
+      parentRoute: typeof ShopRoute
     }
     '/programs/$slug': {
       id: '/programs/$slug'
@@ -405,6 +441,18 @@ const ProgramsRouteWithChildren = ProgramsRoute._addFileChildren(
   ProgramsRouteChildren,
 )
 
+interface ShopRouteChildren {
+  ShopProductRefRoute: typeof ShopProductRefRoute
+  ShopIndexRoute: typeof ShopIndexRoute
+}
+
+const ShopRouteChildren: ShopRouteChildren = {
+  ShopProductRefRoute: ShopProductRefRoute,
+  ShopIndexRoute: ShopIndexRoute,
+}
+
+const ShopRouteWithChildren = ShopRoute._addFileChildren(ShopRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CartRoute: CartRoute,
@@ -418,7 +466,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProgramsRoute: ProgramsRouteWithChildren,
   RegisterRoute: RegisterRoute,
   ResetPasswordRoute: ResetPasswordRoute,
-  ShopRoute: ShopRoute,
+  ShopRoute: ShopRouteWithChildren,
   SignupRoute: SignupRoute,
   TrainerRoute: TrainerRoute,
   VerifyEmailRoute: VerifyEmailRoute,
