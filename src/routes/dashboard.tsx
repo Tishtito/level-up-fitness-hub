@@ -334,6 +334,13 @@ function DashboardContent({ dashboard }: { dashboard: ApiCustomerDashboard }) {
             title="Upcoming appointments"
             icon={<CalendarDays className="h-5 w-5" />}
             subtitle="Pending and approved bookings."
+            action={
+              <Button asChild variant="ghost" size="sm">
+                <Link to="/history" search={{ tab: "appointments" }}>
+                  View all
+                </Link>
+              </Button>
+            }
           >
             {dashboard.appointments.length ? (
               <div className="divide-y divide-border">
@@ -376,6 +383,11 @@ function DashboardContent({ dashboard }: { dashboard: ApiCustomerDashboard }) {
             title="Recent orders"
             icon={<Package className="h-5 w-5" />}
             subtitle="Recent purchases and invoices."
+            action={
+              <Button asChild variant="ghost" size="sm">
+                <Link to="/history">View all</Link>
+              </Button>
+            }
           >
             {dashboard.orders.length ? (
               <div className="divide-y divide-border">
@@ -571,7 +583,13 @@ function OrderRow({ order }: { order: ApiDashboardOrder }) {
     <div className="flex flex-wrap items-center justify-between gap-3 py-4 first:pt-0 last:pb-0">
       <div>
         <div className="flex flex-wrap items-center gap-2">
-          <p className="font-mono text-xs font-semibold">{order.orderRef}</p>
+          <Link
+            to="/orders/$orderRef"
+            params={{ orderRef: order.orderRef }}
+            className="font-mono text-xs font-semibold transition-colors hover:text-primary"
+          >
+            {order.orderRef}
+          </Link>
           <Badge variant="secondary" className="capitalize">
             {order.status}
           </Badge>

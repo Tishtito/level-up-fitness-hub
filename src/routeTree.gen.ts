@@ -20,6 +20,7 @@ import { Route as PlansRouteImport } from './routes/plans'
 import { Route as PhysiotherapyRouteImport } from './routes/physiotherapy'
 import { Route as NutritionRouteImport } from './routes/nutrition'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as HistoryRouteImport } from './routes/history'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CheckoutRouteImport } from './routes/checkout'
@@ -29,6 +30,7 @@ import { Route as ShopIndexRouteImport } from './routes/shop.index'
 import { Route as ProgramsIndexRouteImport } from './routes/programs.index'
 import { Route as ShopProductRefRouteImport } from './routes/shop.$productRef'
 import { Route as ProgramsSlugRouteImport } from './routes/programs.$slug'
+import { Route as OrdersOrderRefRouteImport } from './routes/orders.$orderRef'
 
 const VerifyEmailRoute = VerifyEmailRouteImport.update({
   id: '/verify-email',
@@ -85,6 +87,11 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HistoryRoute = HistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
   id: '/forgot-password',
   path: '/forgot-password',
@@ -130,6 +137,11 @@ const ProgramsSlugRoute = ProgramsSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => ProgramsRoute,
 } as any)
+const OrdersOrderRefRoute = OrdersOrderRefRouteImport.update({
+  id: '/orders/$orderRef',
+  path: '/orders/$orderRef',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -137,6 +149,7 @@ export interface FileRoutesByFullPath {
   '/checkout': typeof CheckoutRoute
   '/dashboard': typeof DashboardRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/history': typeof HistoryRoute
   '/login': typeof LoginRoute
   '/nutrition': typeof NutritionRoute
   '/physiotherapy': typeof PhysiotherapyRoute
@@ -148,6 +161,7 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/trainer': typeof TrainerRoute
   '/verify-email': typeof VerifyEmailRoute
+  '/orders/$orderRef': typeof OrdersOrderRefRoute
   '/programs/$slug': typeof ProgramsSlugRoute
   '/shop/$productRef': typeof ShopProductRefRoute
   '/programs/': typeof ProgramsIndexRoute
@@ -159,6 +173,7 @@ export interface FileRoutesByTo {
   '/checkout': typeof CheckoutRoute
   '/dashboard': typeof DashboardRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/history': typeof HistoryRoute
   '/login': typeof LoginRoute
   '/nutrition': typeof NutritionRoute
   '/physiotherapy': typeof PhysiotherapyRoute
@@ -168,6 +183,7 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/trainer': typeof TrainerRoute
   '/verify-email': typeof VerifyEmailRoute
+  '/orders/$orderRef': typeof OrdersOrderRefRoute
   '/programs/$slug': typeof ProgramsSlugRoute
   '/shop/$productRef': typeof ShopProductRefRoute
   '/programs': typeof ProgramsIndexRoute
@@ -180,6 +196,7 @@ export interface FileRoutesById {
   '/checkout': typeof CheckoutRoute
   '/dashboard': typeof DashboardRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/history': typeof HistoryRoute
   '/login': typeof LoginRoute
   '/nutrition': typeof NutritionRoute
   '/physiotherapy': typeof PhysiotherapyRoute
@@ -191,6 +208,7 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/trainer': typeof TrainerRoute
   '/verify-email': typeof VerifyEmailRoute
+  '/orders/$orderRef': typeof OrdersOrderRefRoute
   '/programs/$slug': typeof ProgramsSlugRoute
   '/shop/$productRef': typeof ShopProductRefRoute
   '/programs/': typeof ProgramsIndexRoute
@@ -204,6 +222,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/dashboard'
     | '/forgot-password'
+    | '/history'
     | '/login'
     | '/nutrition'
     | '/physiotherapy'
@@ -215,6 +234,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/trainer'
     | '/verify-email'
+    | '/orders/$orderRef'
     | '/programs/$slug'
     | '/shop/$productRef'
     | '/programs/'
@@ -226,6 +246,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/dashboard'
     | '/forgot-password'
+    | '/history'
     | '/login'
     | '/nutrition'
     | '/physiotherapy'
@@ -235,6 +256,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/trainer'
     | '/verify-email'
+    | '/orders/$orderRef'
     | '/programs/$slug'
     | '/shop/$productRef'
     | '/programs'
@@ -246,6 +268,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/dashboard'
     | '/forgot-password'
+    | '/history'
     | '/login'
     | '/nutrition'
     | '/physiotherapy'
@@ -257,6 +280,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/trainer'
     | '/verify-email'
+    | '/orders/$orderRef'
     | '/programs/$slug'
     | '/shop/$productRef'
     | '/programs/'
@@ -269,6 +293,7 @@ export interface RootRouteChildren {
   CheckoutRoute: typeof CheckoutRoute
   DashboardRoute: typeof DashboardRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
+  HistoryRoute: typeof HistoryRoute
   LoginRoute: typeof LoginRoute
   NutritionRoute: typeof NutritionRoute
   PhysiotherapyRoute: typeof PhysiotherapyRoute
@@ -280,6 +305,7 @@ export interface RootRouteChildren {
   SignupRoute: typeof SignupRoute
   TrainerRoute: typeof TrainerRoute
   VerifyEmailRoute: typeof VerifyEmailRoute
+  OrdersOrderRefRoute: typeof OrdersOrderRefRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -361,6 +387,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/history': {
+      id: '/history'
+      path: '/history'
+      fullPath: '/history'
+      preLoaderRoute: typeof HistoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/forgot-password': {
       id: '/forgot-password'
       path: '/forgot-password'
@@ -424,6 +457,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProgramsSlugRouteImport
       parentRoute: typeof ProgramsRoute
     }
+    '/orders/$orderRef': {
+      id: '/orders/$orderRef'
+      path: '/orders/$orderRef'
+      fullPath: '/orders/$orderRef'
+      preLoaderRoute: typeof OrdersOrderRefRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -459,6 +499,7 @@ const rootRouteChildren: RootRouteChildren = {
   CheckoutRoute: CheckoutRoute,
   DashboardRoute: DashboardRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
+  HistoryRoute: HistoryRoute,
   LoginRoute: LoginRoute,
   NutritionRoute: NutritionRoute,
   PhysiotherapyRoute: PhysiotherapyRoute,
@@ -470,6 +511,7 @@ const rootRouteChildren: RootRouteChildren = {
   SignupRoute: SignupRoute,
   TrainerRoute: TrainerRoute,
   VerifyEmailRoute: VerifyEmailRoute,
+  OrdersOrderRefRoute: OrdersOrderRefRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

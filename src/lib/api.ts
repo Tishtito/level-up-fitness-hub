@@ -168,12 +168,33 @@ export type ApiUserSubscription = {
   amountPaid: number;
 };
 
+export type ApiDeliveryMethod = "standard" | "express" | "pickup";
+
+export type ApiDeliveryOption = {
+  method: ApiDeliveryMethod;
+  label: string;
+  eta: string;
+  fee: number;
+};
+
+export type ApiShippingAddress = {
+  fullName: string;
+  phone: string;
+  email?: string | null;
+  county: string;
+  city: string;
+  addressLine: string;
+  instructions?: string | null;
+};
+
 export type ApiCartItem = {
   productRef: string;
   quantity: number;
   unitPrice: number;
   name: string;
   image?: string | null;
+  // Projected from the product on read, so the UI can cap its quantity stepper.
+  stockQuantity?: number;
 };
 
 export type ApiCart = {
@@ -181,6 +202,7 @@ export type ApiCart = {
   userRef: string;
   items: ApiCartItem[];
   promoCode?: string | null;
+  deliveryMethod: ApiDeliveryMethod;
   totals: {
     subtotal: number;
     discount: number;
@@ -198,6 +220,11 @@ export type ApiOrder = {
   deliveryFee: number;
   total: number;
   status: "pending" | "paid" | "processing" | "shipped" | "delivered" | "cancelled" | "refunded";
+  shippingAddress: ApiShippingAddress;
+  deliveryMethod: ApiDeliveryMethod;
+  userEmail?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 export type ApiPayment = {
@@ -238,6 +265,7 @@ export type ApiAppointment = {
   scheduledAt: string;
   status: "pending" | "approved" | "rejected" | "cancelled" | "attended" | "no_show";
   notes?: string | null;
+  userEmail?: string | null;
   createdAt?: string;
   updatedAt?: string;
 };
@@ -462,6 +490,11 @@ export const homeApi = {
     const response = await apiRequest<ApiHomeOverview>('/public/home');
     return response.data;
   },
+
+  async deliveryOptions() {
+    const response = await apiRequest<{ deliveryOptions: ApiDeliveryOption[] }>("/public/delivery-options");
+    return response.data.deliveryOptions;
+  },
 };
 
 export const dashboardApi = {
@@ -551,8 +584,22 @@ export const appointmentsApi = {
     return apiRequest<{ appointments: ApiAppointment[] }>(`/appointments/upcoming${queryString(params)}`);
   },
 
+  /** The caller's full history, past included. `/upcoming` pins `from` to now. */
+  mine(params: Record<string, string | number | undefined> = {}) {
+    return apiRequest<{ appointments: ApiAppointment[] }>(`/appointments/me${queryString(params)}`);
+  },
+
   async cancel(appointmentRef: string) {
     const response = await apiRequest<{ appointment: ApiAppointment }>(`/appointments/${encodeURIComponent(appointmentRef)}/cancel`, { method: "PATCH" });
+    return response.data.appointment;
+  },
+
+  /** Moves the appointment and resets it to `pending` for re-approval. */
+  async reschedule(appointmentRef: string, scheduledAt: string) {
+    const response = await apiRequest<{ appointment: ApiAppointment }>(
+      `/appointments/${encodeURIComponent(appointmentRef)}/reschedule`,
+      { method: "PATCH", body: { scheduledAt } },
+    );
     return response.data.appointment;
   },
 };
@@ -645,14 +692,40 @@ export const cartApi = {
     });
     return response.data.cart;
   },
+
+  async setDeliveryMethod(deliveryMethod: ApiDeliveryMethod) {
+    const response = await apiRequest<{ cart: ApiCart }>("/cart/delivery-method", {
+      method: "PATCH",
+      body: { deliveryMethod },
+    });
+    return response.data.cart;
+  },
 };
 
 export const ordersApi = {
-  async create(shippingAddress: Record<string, unknown> = {}) {
+  async create(input: { shippingAddress: ApiShippingAddress; deliveryMethod?: ApiDeliveryMethod }) {
     const response = await apiRequest<{ order: ApiOrder }>("/orders", {
       method: "POST",
-      body: { shippingAddress },
+      body: input,
     });
+    return response.data.order;
+  },
+
+  async get(orderRef: string) {
+    const response = await apiRequest<{ order: ApiOrder }>(`/orders/${encodeURIComponent(orderRef)}`);
+    return response.data.order;
+  },
+
+  /** The caller's own orders, newest first. Returns the envelope for its `pagination`. */
+  list(params: Record<string, string | number | undefined> = {}) {
+    return apiRequest<{ orders: ApiOrder[] }>(`/orders/me${queryString(params)}`);
+  },
+
+  async cancel(orderRef: string) {
+    const response = await apiRequest<{ order: ApiOrder }>(
+      `/orders/${encodeURIComponent(orderRef)}/cancel`,
+      { method: "PATCH" },
+    );
     return response.data.order;
   },
 
