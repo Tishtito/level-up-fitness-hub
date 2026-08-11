@@ -106,6 +106,11 @@ export function Navbar() {
                     {session.user.name.split(" ")[0]}
                   </Button>
                 </Link>
+                <Link to="/profile">
+                  <Button variant="ghost" size="default" className="rounded-full">
+                    Profile
+                  </Button>
+                </Link>
                 <Button variant="ghost" size="default" className="rounded-full" onClick={logout}>
                   Logout
                 </Button>
@@ -183,9 +188,16 @@ export function Navbar() {
                   </Button>
                 </Link>
                 {session ? (
-                  <Button variant="ghost" className="w-full rounded-full" onClick={logout}>
-                    Logout
-                  </Button>
+                  <>
+                    <Link to="/profile" onClick={() => setOpen(false)}>
+                      <Button variant="ghost" className="w-full rounded-full">
+                        Profile
+                      </Button>
+                    </Link>
+                    <Button variant="ghost" className="w-full rounded-full" onClick={logout}>
+                      Logout
+                    </Button>
+                  </>
                 ) : (
                   <Link to="/login" onClick={() => setOpen(false)}>
                     <Button variant="ghost" className="w-full rounded-full">

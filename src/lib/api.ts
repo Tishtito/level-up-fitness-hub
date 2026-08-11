@@ -1,4 +1,11 @@
-import { clearAuthSession, getAuthSession, saveAuthSession, type AuthSession } from "@/lib/auth";
+import {
+  clearAuthSession,
+  getAuthSession,
+  saveAuthSession,
+  updateAuthUser,
+  type AuthSession,
+  type AuthUser,
+} from "@/lib/auth";
 import { API_URL } from "@/lib/env";
 
 export type Pagination = {
@@ -42,6 +49,13 @@ export type RegisterPendingVerification = {
   verificationRequired: true;
 };
 
+/** Mirrors updateProfileSchema on the API. `null` clears; an omitted key is left alone. */
+export type UpdateProfileInput = {
+  name?: string;
+  phone?: string | null;
+  avatarUrl?: string | null;
+};
+
 export type ApiProduct = {
   productRef: string;
   name: string;
@@ -60,7 +74,13 @@ export type ApiProduct = {
 
 export type ApiProgramVideo = {
   title: string;
+  /** Stored upload path. Not directly fetchable for videos — play `streamUrl` instead. */
   url: string;
+  /**
+   * Short-lived signed URL, attached by the API only for entitled viewers. Videos are no
+   * longer served from the public /uploads mount, so this is the playable source.
+   */
+  streamUrl?: string;
   type?: string | null;
 };
 
@@ -89,7 +109,11 @@ export type ApiProgram = {
   nutritionNotes?: string | null;
   status: "draft" | "active" | "inactive";
   subscriptionRequired: boolean;
+  // Only the trainer dashboard returns the raw list; catalog and detail endpoints expose
+  // counts instead, so buyers' user refs are never sent to the public storefront.
   enrolledUsers?: string[];
+  enrolledCount?: number;
+  videoCount?: number;
   // Present on the single-program detail endpoint; describes the viewer's entitlement.
   access?: ApiProgramAccess;
 };
@@ -222,6 +246,11 @@ export type ApiOrder = {
   status: "pending" | "paid" | "processing" | "shipped" | "delivered" | "cancelled" | "refunded";
   shippingAddress: ApiShippingAddress;
   deliveryMethod: ApiDeliveryMethod;
+  // Payment sits on its own axis: a cash-on-delivery order is fulfilled while still unpaid,
+  // so `status` alone never tells you whether the money has landed.
+  paymentMethod?: "mpesa" | "cash_on_delivery" | null;
+  paymentStatus?: "unpaid" | "paid" | "failed" | "refunded";
+  paidAt?: string | null;
   userEmail?: string | null;
   createdAt?: string;
   updatedAt?: string;
@@ -470,6 +499,34 @@ export const authApi = {
     }
     clearAuthSession();
   },
+
+  /** Authoritative current user. Prefer this over the cached session when seeding a form. */
+  async me() {
+    const response = await apiRequest<{ user: AuthUser }>("/auth/me");
+    return response.data.user;
+  },
+
+  // `null` clears an optional field; omit a key to leave it untouched. Email, password, role and
+  // status are not editable here — email has no re-verification flow and password has its own
+  // endpoint requiring the current one.
+  async updateProfile(input: UpdateProfileInput) {
+    const response = await apiRequest<{ user: AuthUser }>("/auth/profile", {
+      method: "PATCH",
+      body: input,
+    });
+    // Keep the stored session in step so the navbar reflects the change immediately.
+    updateAuthUser(response.data.user);
+    return response.data.user;
+  },
+
+  // The API revokes every refresh token on success, so other devices are signed out.
+  async changePassword(currentPassword: string, newPassword: string) {
+    const response = await apiRequest<{ passwordChanged: boolean }>("/auth/change-password", {
+      method: "PATCH",
+      body: { currentPassword, newPassword },
+    });
+    return response.data;
+  },
 };
 
 export const productsApi = {
@@ -703,7 +760,11 @@ export const cartApi = {
 };
 
 export const ordersApi = {
-  async create(input: { shippingAddress: ApiShippingAddress; deliveryMethod?: ApiDeliveryMethod }) {
+  async create(input: {
+    shippingAddress: ApiShippingAddress;
+    deliveryMethod?: ApiDeliveryMethod;
+    paymentMethod?: "mpesa" | "cash_on_delivery";
+  }) {
     const response = await apiRequest<{ order: ApiOrder }>("/orders", {
       method: "POST",
       body: input,

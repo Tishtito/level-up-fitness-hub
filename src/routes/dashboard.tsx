@@ -221,6 +221,9 @@ function DashboardContent({ dashboard }: { dashboard: ApiCustomerDashboard }) {
             </dl>
 
             <div className="mt-6 flex flex-wrap gap-2">
+              <Button asChild variant="hero">
+                <Link to="/profile">Edit profile</Link>
+              </Button>
               <Button asChild variant="soft">
                 <Link to="/cart">View cart</Link>
               </Button>
@@ -535,7 +538,7 @@ function ProgramCard({ program }: { program: ApiDashboardProgram }) {
         </p>
         <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
           <span>{program.workoutSchedule.length} schedule items</span>
-          <span>{program.videos?.length ?? 0} videos</span>
+          <span>{program.videos?.length ?? program.videoCount ?? 0} videos</span>
         </div>
         <div className="mt-4 flex flex-wrap gap-2">
           <Button asChild size="sm" variant="hero">
@@ -543,9 +546,13 @@ function ProgramCard({ program }: { program: ApiDashboardProgram }) {
               View program
             </Link>
           </Button>
-          {program.videos?.[0]?.url && (
+          {program.videos?.[0] && (
             <Button asChild size="sm" variant="soft">
-              <a href={apiAssetUrl(program.videos?.[0]?.url)} target="_blank" rel="noreferrer">
+              <a
+                href={apiAssetUrl(program.videos[0].streamUrl ?? program.videos[0].url)}
+                target="_blank"
+                rel="noreferrer"
+              >
                 <PlayCircle className="h-4 w-4" />
                 Watch
               </a>

@@ -69,7 +69,10 @@ function OrderPage() {
   const awaitingMpesa =
     payment?.method === "mpesa" &&
     (payment.status === "pending" || payment.status === "processing");
-  const payOnDelivery = !search.paymentRef && order?.status === "pending";
+  // Driven by the order's own payment axis rather than a URL-param heuristic. The old check
+  // dropped the "have cash ready" notice the moment an admin moved the order to `processing`,
+  // and showed it to prepaid customers who arrived without a ?paymentRef.
+  const payOnDelivery = order?.paymentMethod === "cash_on_delivery" && order?.paymentStatus !== "paid";
   // The thank-you framing belongs to the moment right after checkout. Reached from history,
   // an order from last month should just look like an order.
   const justPlaced =

@@ -161,7 +161,7 @@ function ProgramCard({ program, featured = false }: { program: ApiProgram; featu
                 </span>
                 <span className="inline-flex items-center gap-1 rounded-lg bg-background px-2 py-1">
                   <Dumbbell className="h-3.5 w-3.5" />
-                  {program.enrolledUsers?.length ?? 0} enrolled
+                  {program.enrolledCount ?? program.enrolledUsers?.length ?? 0} enrolled
                 </span>
               </div>
               {program.nutritionNotes && (

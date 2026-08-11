@@ -543,6 +543,9 @@ function CartCheckout() {
     try {
       const order = await ordersApi.create({
         deliveryMethod,
+        // Sent up front so the order knows its journey from birth: a cash-on-delivery order
+        // never passes through `paid`, a prepaid one does.
+        paymentMethod: payMethod,
         shippingAddress: {
           fullName: address.fullName.trim(),
           phone: address.phone.trim(),

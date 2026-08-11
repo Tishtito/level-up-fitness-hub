@@ -10,6 +10,8 @@ export type AuthUser = {
   role: string;
   status: string;
   avatarUrl?: string | null;
+  /** Present on GET /auth/me; null until the address is confirmed. */
+  emailVerifiedAt?: string | null;
 };
 
 export type AuthSession = {
@@ -51,6 +53,17 @@ export function saveAuthSession(session: AuthSession) {
     window.localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(session));
   }
   emit();
+}
+
+/**
+ * Merge fresh user fields into the stored session, keeping the tokens.
+ *
+ * Routes through saveAuthSession so subscribers are notified — that is what lets the navbar
+ * pick up a renamed profile without a reload. No-ops when signed out.
+ */
+export function updateAuthUser(patch: Partial<AuthUser>) {
+  if (!currentSession) return;
+  saveAuthSession({ ...currentSession, user: { ...currentSession.user, ...patch } });
 }
 
 export function clearAuthSession() {

@@ -16,6 +16,7 @@ import { Route as ShopRouteImport } from './routes/shop'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ProgramsRouteImport } from './routes/programs'
+import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as PlansRouteImport } from './routes/plans'
 import { Route as PhysiotherapyRouteImport } from './routes/physiotherapy'
 import { Route as NutritionRouteImport } from './routes/nutrition'
@@ -65,6 +66,11 @@ const RegisterRoute = RegisterRouteImport.update({
 const ProgramsRoute = ProgramsRouteImport.update({
   id: '/programs',
   path: '/programs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PlansRoute = PlansRouteImport.update({
@@ -154,6 +160,7 @@ export interface FileRoutesByFullPath {
   '/nutrition': typeof NutritionRoute
   '/physiotherapy': typeof PhysiotherapyRoute
   '/plans': typeof PlansRoute
+  '/profile': typeof ProfileRoute
   '/programs': typeof ProgramsRouteWithChildren
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -178,6 +185,7 @@ export interface FileRoutesByTo {
   '/nutrition': typeof NutritionRoute
   '/physiotherapy': typeof PhysiotherapyRoute
   '/plans': typeof PlansRoute
+  '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
@@ -201,6 +209,7 @@ export interface FileRoutesById {
   '/nutrition': typeof NutritionRoute
   '/physiotherapy': typeof PhysiotherapyRoute
   '/plans': typeof PlansRoute
+  '/profile': typeof ProfileRoute
   '/programs': typeof ProgramsRouteWithChildren
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -227,6 +236,7 @@ export interface FileRouteTypes {
     | '/nutrition'
     | '/physiotherapy'
     | '/plans'
+    | '/profile'
     | '/programs'
     | '/register'
     | '/reset-password'
@@ -251,6 +261,7 @@ export interface FileRouteTypes {
     | '/nutrition'
     | '/physiotherapy'
     | '/plans'
+    | '/profile'
     | '/register'
     | '/reset-password'
     | '/signup'
@@ -273,6 +284,7 @@ export interface FileRouteTypes {
     | '/nutrition'
     | '/physiotherapy'
     | '/plans'
+    | '/profile'
     | '/programs'
     | '/register'
     | '/reset-password'
@@ -298,6 +310,7 @@ export interface RootRouteChildren {
   NutritionRoute: typeof NutritionRoute
   PhysiotherapyRoute: typeof PhysiotherapyRoute
   PlansRoute: typeof PlansRoute
+  ProfileRoute: typeof ProfileRoute
   ProgramsRoute: typeof ProgramsRouteWithChildren
   RegisterRoute: typeof RegisterRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
@@ -357,6 +370,13 @@ declare module '@tanstack/react-router' {
       path: '/programs'
       fullPath: '/programs'
       preLoaderRoute: typeof ProgramsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/plans': {
@@ -504,6 +524,7 @@ const rootRouteChildren: RootRouteChildren = {
   NutritionRoute: NutritionRoute,
   PhysiotherapyRoute: PhysiotherapyRoute,
   PlansRoute: PlansRoute,
+  ProfileRoute: ProfileRoute,
   ProgramsRoute: ProgramsRouteWithChildren,
   RegisterRoute: RegisterRoute,
   ResetPasswordRoute: ResetPasswordRoute,

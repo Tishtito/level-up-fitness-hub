@@ -137,7 +137,7 @@ function ProgramDetailPage() {
   const program = programQuery.data;
   const videos = program.videos ?? [];
   const totalVideos = videos.length;
-  const enrolledCount = program.enrolledUsers?.length ?? 0;
+  const enrolledCount = program.enrolledCount ?? program.enrolledUsers?.length ?? 0;
   const hasAccess = program.access?.hasAccess ?? !program.subscriptionRequired;
   const buyLabel = program.price > 0 ? `Buy for ${KSh(program.price)}` : "Get access";
 
@@ -292,7 +292,9 @@ function ProgramDetailPage() {
           ) : videos.length > 0 ? (
             <div className="grid gap-4 md:grid-cols-2">
               {videos.map((video) => {
-                const videoUrl = apiAssetUrl(video.url) || video.url;
+                // Videos are no longer public under /uploads: play the signed streamUrl the
+                // API attaches for entitled viewers, falling back only for external entries.
+                const videoUrl = apiAssetUrl(video.streamUrl ?? video.url) || video.url;
                 return (
                   <article
                     key={`${video.title}-${video.url}`}
