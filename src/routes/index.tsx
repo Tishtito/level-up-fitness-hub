@@ -354,6 +354,12 @@ function Home() {
                 >
                   Physiotherapy
                 </Link>
+                <Link
+                  to="/medicare"
+                  className="inline-flex min-h-11 items-center px-2 text-sm font-semibold underline decoration-primary-foreground/50 decoration-2 underline-offset-8 hover:decoration-primary-foreground focus-visible:rounded focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary-foreground"
+                >
+                  Medical assessments
+                </Link>
               </div>
             </div>
           </div>

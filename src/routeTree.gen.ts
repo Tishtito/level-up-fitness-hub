@@ -20,6 +20,7 @@ import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as PlansRouteImport } from './routes/plans'
 import { Route as PhysiotherapyRouteImport } from './routes/physiotherapy'
 import { Route as NutritionRouteImport } from './routes/nutrition'
+import { Route as MedicareRouteImport } from './routes/medicare'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as HistoryRouteImport } from './routes/history'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
@@ -86,6 +87,11 @@ const PhysiotherapyRoute = PhysiotherapyRouteImport.update({
 const NutritionRoute = NutritionRouteImport.update({
   id: '/nutrition',
   path: '/nutrition',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MedicareRoute = MedicareRouteImport.update({
+  id: '/medicare',
+  path: '/medicare',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -157,6 +163,7 @@ export interface FileRoutesByFullPath {
   '/forgot-password': typeof ForgotPasswordRoute
   '/history': typeof HistoryRoute
   '/login': typeof LoginRoute
+  '/medicare': typeof MedicareRoute
   '/nutrition': typeof NutritionRoute
   '/physiotherapy': typeof PhysiotherapyRoute
   '/plans': typeof PlansRoute
@@ -182,6 +189,7 @@ export interface FileRoutesByTo {
   '/forgot-password': typeof ForgotPasswordRoute
   '/history': typeof HistoryRoute
   '/login': typeof LoginRoute
+  '/medicare': typeof MedicareRoute
   '/nutrition': typeof NutritionRoute
   '/physiotherapy': typeof PhysiotherapyRoute
   '/plans': typeof PlansRoute
@@ -206,6 +214,7 @@ export interface FileRoutesById {
   '/forgot-password': typeof ForgotPasswordRoute
   '/history': typeof HistoryRoute
   '/login': typeof LoginRoute
+  '/medicare': typeof MedicareRoute
   '/nutrition': typeof NutritionRoute
   '/physiotherapy': typeof PhysiotherapyRoute
   '/plans': typeof PlansRoute
@@ -233,6 +242,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/history'
     | '/login'
+    | '/medicare'
     | '/nutrition'
     | '/physiotherapy'
     | '/plans'
@@ -258,6 +268,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/history'
     | '/login'
+    | '/medicare'
     | '/nutrition'
     | '/physiotherapy'
     | '/plans'
@@ -281,6 +292,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/history'
     | '/login'
+    | '/medicare'
     | '/nutrition'
     | '/physiotherapy'
     | '/plans'
@@ -307,6 +319,7 @@ export interface RootRouteChildren {
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   HistoryRoute: typeof HistoryRoute
   LoginRoute: typeof LoginRoute
+  MedicareRoute: typeof MedicareRoute
   NutritionRoute: typeof NutritionRoute
   PhysiotherapyRoute: typeof PhysiotherapyRoute
   PlansRoute: typeof PlansRoute
@@ -398,6 +411,13 @@ declare module '@tanstack/react-router' {
       path: '/nutrition'
       fullPath: '/nutrition'
       preLoaderRoute: typeof NutritionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/medicare': {
+      id: '/medicare'
+      path: '/medicare'
+      fullPath: '/medicare'
+      preLoaderRoute: typeof MedicareRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -521,6 +541,7 @@ const rootRouteChildren: RootRouteChildren = {
   ForgotPasswordRoute: ForgotPasswordRoute,
   HistoryRoute: HistoryRoute,
   LoginRoute: LoginRoute,
+  MedicareRoute: MedicareRoute,
   NutritionRoute: NutritionRoute,
   PhysiotherapyRoute: PhysiotherapyRoute,
   PlansRoute: PlansRoute,
