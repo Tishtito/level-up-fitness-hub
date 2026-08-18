@@ -338,8 +338,8 @@ function ProgramsPage() {
             </section>
 
             <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-              <div className="rounded-[1.25rem] bg-[#14231d] p-8 text-[#f6f8f5] shadow-[var(--shadow-elegant)]">
-                <p className="text-sm font-semibold text-[#f6f8f5]/75">How access works</p>
+              <div className="rounded-[1.25rem] bg-[#111827] p-8 text-[#f8fafc] shadow-[var(--shadow-elegant)]">
+                <p className="text-sm font-semibold text-[#f8fafc]/75">How access works</p>
                 <h2 className="mt-2 font-display text-3xl font-bold sm:text-4xl">
                   Simple, direct, and easy to scan.
                 </h2>
@@ -358,10 +358,10 @@ function ProgramsPage() {
                       body: "Follow the schedule, track the content, and keep nutrition support visible.",
                     },
                   ].map((step, index) => (
-                    <div key={step.title} className="rounded-[1rem] bg-[#263930] p-4">
-                      <p className="text-xs font-semibold text-[#f6f8f5]/70">0{index + 1}</p>
+                    <div key={step.title} className="rounded-[1rem] bg-[#1f2937] p-4">
+                      <p className="text-xs font-semibold text-[#f8fafc]/70">0{index + 1}</p>
                       <h3 className="mt-2 font-display text-xl font-bold">{step.title}</h3>
-                      <p className="mt-2 text-sm leading-6 text-[#f6f8f5]/80">{step.body}</p>
+                      <p className="mt-2 text-sm leading-6 text-[#f8fafc]/80">{step.body}</p>
                     </div>
                   ))}
                 </div>

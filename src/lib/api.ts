@@ -60,7 +60,14 @@ export type ApiProduct = {
   productRef: string;
   name: string;
   description: string;
-  category: "supplements" | "gym_apparel" | "fitness_equipment" | "resistance_bands" | "water_bottles" | "protein_shakers" | "accessories";
+  category:
+    | "supplements"
+    | "gym_apparel"
+    | "fitness_equipment"
+    | "resistance_bands"
+    | "water_bottles"
+    | "protein_shakers"
+    | "accessories";
   price: number;
   discountPrice?: number | null;
   images: string[];
@@ -267,7 +274,13 @@ export type ApiPayment = {
   status: "pending" | "processing" | "succeeded" | "failed" | "cancelled" | "refunded";
   transactionReference?: string | null;
   providerRequestId?: string | null;
-  purpose?: "order_purchase" | "subscription_create" | "subscription_renew" | "subscription_change" | "program_purchase" | null;
+  purpose?:
+    | "order_purchase"
+    | "subscription_create"
+    | "subscription_renew"
+    | "subscription_change"
+    | "program_purchase"
+    | null;
   programRef?: string | null;
   targetPlanRef?: string | null;
 };
@@ -276,7 +289,7 @@ export type ApiWellnessService = {
   serviceRef: string;
   name: string;
   description: string;
-  type: "nutritionist" | "physiotherapy";
+  type: "nutritionist" | "physiotherapy" | "medical_assessment";
   specialist: string;
   location: string;
   price: number;
@@ -342,7 +355,18 @@ export type ApiDashboardSubscription = {
   startedAt: string;
   currentPeriodEnd: string;
   amountPaid: number;
-  plan: (Pick<ApiSubscriptionPlan, "planRef" | "name" | "description" | "billingCycle" | "features" | "programAccess" | "trialDays" | "discount" | "status">) | null;
+  plan: Pick<
+    ApiSubscriptionPlan,
+    | "planRef"
+    | "name"
+    | "description"
+    | "billingCycle"
+    | "features"
+    | "programAccess"
+    | "trialDays"
+    | "discount"
+    | "status"
+  > | null;
 };
 
 export type ApiDashboardProgram = Omit<ApiProgram, "trainer" | "enrolledUsers" | "status"> & {
@@ -356,7 +380,10 @@ export type ApiDashboardAppointment = {
   status: ApiAppointment["status"];
   specialist: string;
   notes: string | null;
-  service: Pick<ApiWellnessService, "serviceRef" | "name" | "type" | "location" | "price" | "duration"> | null;
+  service: Pick<
+    ApiWellnessService,
+    "serviceRef" | "name" | "type" | "location" | "price" | "duration"
+  > | null;
 };
 
 export type ApiDashboardOrder = {
@@ -398,7 +425,10 @@ function queryString(params: Record<string, string | number | boolean | undefine
   return value ? `?${value}` : "";
 }
 
-export async function apiRequest<T>(path: string, options: ApiRequestOptions = {}): Promise<ApiResponse<T>> {
+export async function apiRequest<T>(
+  path: string,
+  options: ApiRequestOptions = {},
+): Promise<ApiResponse<T>> {
   const session = getAuthSession();
   const headers = new Headers(options.headers);
   const isFormData = options.body instanceof FormData;
@@ -409,16 +439,24 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
   const response = await fetch(buildUrl(path), {
     ...options,
     headers,
-    body: options.body === undefined || isFormData ? (options.body as BodyInit | undefined) : JSON.stringify(options.body),
+    body:
+      options.body === undefined || isFormData
+        ? (options.body as BodyInit | undefined)
+        : JSON.stringify(options.body),
   });
 
-  const payload = await response.json().catch(() => null) as ApiResponse<T> | ApiErrorPayload | null;
+  const payload = (await response.json().catch(() => null)) as
+    | ApiResponse<T>
+    | ApiErrorPayload
+    | null;
 
   if (!response.ok || !payload || ("success" in payload && payload.success === false)) {
     if (response.status === 401) clearAuthSession();
     const errorPayload = payload as ApiErrorPayload | null;
     throw new ApiError(
-      errorPayload?.error?.message || errorPayload?.message || `Request failed with status ${response.status}`,
+      errorPayload?.error?.message ||
+        errorPayload?.message ||
+        `Request failed with status ${response.status}`,
       response.status,
       errorPayload?.error?.code,
       errorPayload?.error?.details,
@@ -466,10 +504,13 @@ export const authApi = {
   },
 
   async resendVerificationCode(email: string) {
-    const response = await apiRequest<{ verificationCodeSent: boolean }>("/auth/resend-verification-code", {
-      method: "POST",
-      body: { email },
-    });
+    const response = await apiRequest<{ verificationCodeSent: boolean }>(
+      "/auth/resend-verification-code",
+      {
+        method: "POST",
+        body: { email },
+      },
+    );
     return response.data;
   },
 
@@ -544,12 +585,14 @@ export const productsApi = {
 
 export const homeApi = {
   async getOverview() {
-    const response = await apiRequest<ApiHomeOverview>('/public/home');
+    const response = await apiRequest<ApiHomeOverview>("/public/home");
     return response.data;
   },
 
   async deliveryOptions() {
-    const response = await apiRequest<{ deliveryOptions: ApiDeliveryOption[] }>("/public/delivery-options");
+    const response = await apiRequest<{ deliveryOptions: ApiDeliveryOption[] }>(
+      "/public/delivery-options",
+    );
     return response.data.deliveryOptions;
   },
 };
@@ -571,10 +614,13 @@ export const programsApi = {
   },
 
   async checkout(programRef: string, phoneNumber: string) {
-    const response = await apiRequest<{ program: ApiProgram; payment: ApiPayment | null }>(`/programs/${encodeURIComponent(programRef)}/checkout`, {
-      method: "POST",
-      body: { phoneNumber },
-    });
+    const response = await apiRequest<{ program: ApiProgram; payment: ApiPayment | null }>(
+      `/programs/${encodeURIComponent(programRef)}/checkout`,
+      {
+        method: "POST",
+        body: { phoneNumber },
+      },
+    );
     return response.data;
   },
 };
@@ -585,39 +631,54 @@ export const trainerPortalApi = {
     return response.data;
   },
 
-  async updateContent(programRef: string, payload: { workoutSchedule: string[]; nutritionNotes?: string }) {
-    const response = await apiRequest<{ program: ApiProgram }>(`/trainers/me/programs/${encodeURIComponent(programRef)}/content`, {
-      method: "PATCH",
-      body: payload,
-    });
+  async updateContent(
+    programRef: string,
+    payload: { workoutSchedule: string[]; nutritionNotes?: string },
+  ) {
+    const response = await apiRequest<{ program: ApiProgram }>(
+      `/trainers/me/programs/${encodeURIComponent(programRef)}/content`,
+      {
+        method: "PATCH",
+        body: payload,
+      },
+    );
     return response.data.program;
   },
 
   async uploadThumbnail(programRef: string, file: File) {
     const body = new FormData();
     body.append("thumbnail", file);
-    const response = await apiRequest<{ program: ApiProgram }>(`/trainers/me/programs/${encodeURIComponent(programRef)}/thumbnail`, {
-      method: "POST",
-      body,
-    });
+    const response = await apiRequest<{ program: ApiProgram }>(
+      `/trainers/me/programs/${encodeURIComponent(programRef)}/thumbnail`,
+      {
+        method: "POST",
+        body,
+      },
+    );
     return response.data.program;
   },
 
   async uploadVideos(programRef: string, files: File[]) {
     const body = new FormData();
     files.forEach((file) => body.append("videos", file));
-    const response = await apiRequest<{ program: ApiProgram }>(`/trainers/me/programs/${encodeURIComponent(programRef)}/videos`, {
-      method: "POST",
-      body,
-    });
+    const response = await apiRequest<{ program: ApiProgram }>(
+      `/trainers/me/programs/${encodeURIComponent(programRef)}/videos`,
+      {
+        method: "POST",
+        body,
+      },
+    );
     return response.data.program;
   },
 
   async removeVideo(programRef: string, url: string) {
-    const response = await apiRequest<{ program: ApiProgram }>(`/trainers/me/programs/${encodeURIComponent(programRef)}/videos`, {
-      method: "DELETE",
-      body: { url },
-    });
+    const response = await apiRequest<{ program: ApiProgram }>(
+      `/trainers/me/programs/${encodeURIComponent(programRef)}/videos`,
+      {
+        method: "DELETE",
+        body: { url },
+      },
+    );
     return response.data.program;
   },
 };
@@ -629,7 +690,12 @@ export const servicesApi = {
 };
 
 export const appointmentsApi = {
-  async book(input: { serviceRef: string; scheduledAt: string; specialist?: string; notes?: string }) {
+  async book(input: {
+    serviceRef: string;
+    scheduledAt: string;
+    specialist?: string;
+    notes?: string;
+  }) {
     const response = await apiRequest<{ appointment: ApiAppointment }>("/appointments", {
       method: "POST",
       body: input,
@@ -638,7 +704,9 @@ export const appointmentsApi = {
   },
 
   upcoming(params: Record<string, string | number | undefined> = {}) {
-    return apiRequest<{ appointments: ApiAppointment[] }>(`/appointments/upcoming${queryString(params)}`);
+    return apiRequest<{ appointments: ApiAppointment[] }>(
+      `/appointments/upcoming${queryString(params)}`,
+    );
   },
 
   /** The caller's full history, past included. `/upcoming` pins `from` to now. */
@@ -647,7 +715,10 @@ export const appointmentsApi = {
   },
 
   async cancel(appointmentRef: string) {
-    const response = await apiRequest<{ appointment: ApiAppointment }>(`/appointments/${encodeURIComponent(appointmentRef)}/cancel`, { method: "PATCH" });
+    const response = await apiRequest<{ appointment: ApiAppointment }>(
+      `/appointments/${encodeURIComponent(appointmentRef)}/cancel`,
+      { method: "PATCH" },
+    );
     return response.data.appointment;
   },
 
@@ -663,30 +734,42 @@ export const appointmentsApi = {
 
 export const subscriptionsApi = {
   plans(params: Record<string, string | number | undefined> = {}) {
-    return apiRequest<{ plans: ApiSubscriptionPlan[] }>(`/subscriptions/plans${queryString(params)}`);
+    return apiRequest<{ plans: ApiSubscriptionPlan[] }>(
+      `/subscriptions/plans${queryString(params)}`,
+    );
   },
 
   async getPlan(planRef: string) {
-    const response = await apiRequest<{ plans: ApiSubscriptionPlan[] }>(`/subscriptions/plans${queryString({ status: "active", limit: 100 })}`);
+    const response = await apiRequest<{ plans: ApiSubscriptionPlan[] }>(
+      `/subscriptions/plans${queryString({ status: "active", limit: 100 })}`,
+    );
     const plan = response.data.plans.find((item) => item.planRef === planRef);
     if (!plan) throw new Error("Subscription plan not found");
     return plan;
   },
 
   list(params: Record<string, string | number | undefined> = {}) {
-    return apiRequest<{ subscriptions: ApiUserSubscription[] }>(`/subscriptions${queryString(params)}`);
+    return apiRequest<{ subscriptions: ApiUserSubscription[] }>(
+      `/subscriptions${queryString(params)}`,
+    );
   },
 
   async subscribe(planRef: string) {
-    const response = await apiRequest<{ subscription: ApiUserSubscription }>("/subscriptions/subscribe", {
-      method: "POST",
-      body: { planRef },
-    });
+    const response = await apiRequest<{ subscription: ApiUserSubscription }>(
+      "/subscriptions/subscribe",
+      {
+        method: "POST",
+        body: { planRef },
+      },
+    );
     return response.data.subscription;
   },
 
   async checkout(planRef: string, phoneNumber: string) {
-    const response = await apiRequest<{ subscription: ApiUserSubscription; payment: ApiPayment | null }>("/subscriptions/checkout", {
+    const response = await apiRequest<{
+      subscription: ApiUserSubscription;
+      payment: ApiPayment | null;
+    }>("/subscriptions/checkout", {
       method: "POST",
       body: { planRef, phoneNumber },
     });
@@ -694,7 +777,10 @@ export const subscriptionsApi = {
   },
 
   async renewCheckout(subscriptionRef: string, phoneNumber: string) {
-    const response = await apiRequest<{ subscription: ApiUserSubscription; payment: ApiPayment | null }>(`/subscriptions/${encodeURIComponent(subscriptionRef)}/renew/checkout`, {
+    const response = await apiRequest<{
+      subscription: ApiUserSubscription;
+      payment: ApiPayment | null;
+    }>(`/subscriptions/${encodeURIComponent(subscriptionRef)}/renew/checkout`, {
       method: "POST",
       body: { phoneNumber },
     });
@@ -702,7 +788,10 @@ export const subscriptionsApi = {
   },
 
   async changePlanCheckout(subscriptionRef: string, planRef: string, phoneNumber: string) {
-    const response = await apiRequest<{ subscription: ApiUserSubscription; payment: ApiPayment | null }>(`/subscriptions/${encodeURIComponent(subscriptionRef)}/change-plan/checkout`, {
+    const response = await apiRequest<{
+      subscription: ApiUserSubscription;
+      payment: ApiPayment | null;
+    }>(`/subscriptions/${encodeURIComponent(subscriptionRef)}/change-plan/checkout`, {
       method: "POST",
       body: { planRef, phoneNumber },
     });
@@ -733,7 +822,9 @@ export const cartApi = {
   },
 
   async removeItem(productRef: string) {
-    const response = await apiRequest<{ cart: ApiCart }>(`/cart/items/${productRef}`, { method: "DELETE" });
+    const response = await apiRequest<{ cart: ApiCart }>(`/cart/items/${productRef}`, {
+      method: "DELETE",
+    });
     return response.data.cart;
   },
 
@@ -773,7 +864,9 @@ export const ordersApi = {
   },
 
   async get(orderRef: string) {
-    const response = await apiRequest<{ order: ApiOrder }>(`/orders/${encodeURIComponent(orderRef)}`);
+    const response = await apiRequest<{ order: ApiOrder }>(
+      `/orders/${encodeURIComponent(orderRef)}`,
+    );
     return response.data.order;
   },
 
@@ -791,13 +884,19 @@ export const ordersApi = {
   },
 
   async invoice(orderRef: string) {
-    const response = await apiRequest<{ invoice: Record<string, unknown> }>(`/orders/${encodeURIComponent(orderRef)}/invoice`);
+    const response = await apiRequest<{ invoice: Record<string, unknown> }>(
+      `/orders/${encodeURIComponent(orderRef)}/invoice`,
+    );
     return response.data.invoice;
   },
 };
 
 export const paymentsApi = {
-  async initiate(input: { orderRef: string; method: "mpesa" | "cash_on_delivery"; phoneNumber?: string }) {
+  async initiate(input: {
+    orderRef: string;
+    method: "mpesa" | "cash_on_delivery";
+    phoneNumber?: string;
+  }) {
     const response = await apiRequest<{ payment: ApiPayment }>("/payments/initiate", {
       method: "POST",
       body: input,
@@ -806,12 +905,17 @@ export const paymentsApi = {
   },
 
   async status(paymentRef: string) {
-    const response = await apiRequest<{ payment: ApiPayment }>(`/payments/${encodeURIComponent(paymentRef)}/status`);
+    const response = await apiRequest<{ payment: ApiPayment }>(
+      `/payments/${encodeURIComponent(paymentRef)}/status`,
+    );
     return response.data.payment;
   },
 
   async verify(paymentRef: string) {
-    const response = await apiRequest<{ payment: ApiPayment }>("/payments/verify", { method: "POST", body: { paymentRef } });
+    const response = await apiRequest<{ payment: ApiPayment }>("/payments/verify", {
+      method: "POST",
+      body: { paymentRef },
+    });
     return response.data.payment;
   },
 };

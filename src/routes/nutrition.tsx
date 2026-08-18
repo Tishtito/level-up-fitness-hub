@@ -340,8 +340,8 @@ function NutritionPage() {
             </section>
 
             <section className="grid gap-6 xl:grid-cols-12">
-              <div className="xl:col-span-7 rounded-[1.25rem] bg-[#14231d] p-8 text-[#f6f8f5] shadow-[var(--shadow-elegant)]">
-                <p className="text-sm font-semibold text-[#f6f8f5]/75">Nutrition services</p>
+              <div className="xl:col-span-7 rounded-[1.25rem] bg-[#111827] p-8 text-[#f8fafc] shadow-[var(--shadow-elegant)]">
+                <p className="text-sm font-semibold text-[#f8fafc]/75">Nutrition services</p>
                 <h2 className="mt-2 font-display text-3xl font-bold sm:text-4xl">
                   Direct, specific, and easy to compare.
                 </h2>
@@ -354,23 +354,23 @@ function NutritionPage() {
                         key={"serviceRef" in item ? item.serviceRef : item.name}
                         type="button"
                         onClick={() => "serviceRef" in item && scrollToBooking(item.serviceRef)}
-                        className="flex h-full flex-col rounded-[1rem] bg-[#263930] p-4 text-left transition hover:-translate-y-0.5"
+                        className="flex h-full flex-col rounded-[1rem] bg-[#1f2937] p-4 text-left transition hover:-translate-y-0.5"
                       >
-                        <div className="grid h-11 w-11 place-items-center rounded-xl bg-[#6d3bef] text-white">
+                        <div className="grid h-11 w-11 place-items-center rounded-xl bg-[#5b2c83] text-white">
                           <Icon className="h-5 w-5" />
                         </div>
                         <h3 className="mt-4 font-display text-xl font-bold">
                           {"name" in item ? item.name : ""}
                         </h3>
-                        <p className="mt-2 text-sm leading-6 text-[#f6f8f5]/80">
+                        <p className="mt-2 text-sm leading-6 text-[#f8fafc]/80">
                           {"description" in item ? item.description : item.desc}
                         </p>
-                        <p className="mt-4 font-display text-2xl font-bold text-[#f6f8f5]">
+                        <p className="mt-4 font-display text-2xl font-bold text-[#f8fafc]">
                           {"price" in item && typeof item.price === "number"
                             ? KSh(item.price)
                             : item.price}
                         </p>
-                        <div className="mt-auto pt-4 text-sm text-[#f6f8f5]/70">
+                        <div className="mt-auto pt-4 text-sm text-[#f8fafc]/70">
                           {"serviceRef" in item
                             ? "Tap to use this service in the booking form."
                             : "Tap to jump to booking."}
@@ -441,7 +441,7 @@ function NutritionPage() {
                               onClick={() => setSelectedDate(value)}
                               className={`rounded-xl px-4 py-2 text-sm font-medium transition ${
                                 selectedDate === value
-                                  ? "bg-[#6d3bef] text-white"
+                                  ? "bg-[#5b2c83] text-white"
                                   : "bg-muted hover:bg-surface"
                               }`}
                             >
@@ -470,7 +470,7 @@ function NutritionPage() {
                             onClick={() => setSlot(time)}
                             className={`rounded-xl px-3 py-2 text-sm font-medium transition ${
                               slot === time
-                                ? "bg-[#6d3bef] text-white"
+                                ? "bg-[#5b2c83] text-white"
                                 : "bg-muted hover:bg-surface"
                             }`}
                           >
@@ -588,9 +588,9 @@ function NutritionPage() {
 
               <div
                 id="team"
-                className="rounded-[1.25rem] bg-[#14231d] p-8 text-[#f6f8f5] shadow-[var(--shadow-elegant)]"
+                className="rounded-[1.25rem] bg-[#111827] p-8 text-[#f8fafc] shadow-[var(--shadow-elegant)]"
               >
-                <p className="text-sm font-semibold text-[#f6f8f5]/75">Meet the nutritionists</p>
+                <p className="text-sm font-semibold text-[#f8fafc]/75">Meet the nutritionists</p>
                 <h2 className="mt-2 font-display text-3xl font-bold sm:text-4xl">
                   Practical support for meals, habits, and progress.
                 </h2>
@@ -599,24 +599,27 @@ function NutritionPage() {
                     ? services.map((service) => (
                         <article
                           key={service.serviceRef}
-                          className="rounded-[1rem] bg-[#263930] p-5"
+                          className="rounded-[1rem] bg-[#1f2937] p-5"
                         >
                           <div className="flex items-start justify-between gap-4">
                             <div>
                               <h3 className="font-display text-xl font-bold">
                                 {service.specialist}
                               </h3>
-                              <p className="text-sm text-[#f6f8f5]/75">{service.name}</p>
+                              <p className="text-sm text-[#f8fafc]/75">{service.name}</p>
                             </div>
-                            <span className="inline-flex items-center gap-1 text-sm text-[#f6f8f5]/80">
-                              <Star className="h-3.5 w-3.5 fill-[#6d3bef] text-[#6d3bef]" />
+                            <span className="inline-flex items-center gap-1 text-sm text-[#f8fafc]/80">
+                              <span
+                                className="h-2 w-2 rounded-full bg-[#7ed957]"
+                                aria-hidden="true"
+                              />
                               Available
                             </span>
                           </div>
-                          <p className="mt-3 text-sm leading-6 text-[#f6f8f5]/80">
+                          <p className="mt-3 text-sm leading-6 text-[#f8fafc]/80">
                             {service.description}
                           </p>
-                          <div className="mt-4 flex flex-wrap gap-2 text-xs text-[#f6f8f5]/70">
+                          <div className="mt-4 flex flex-wrap gap-2 text-xs text-[#f8fafc]/70">
                             <span className="rounded-full bg-white/10 px-2.5 py-1">
                               {service.duration} min
                             </span>
@@ -636,21 +639,21 @@ function NutritionPage() {
                     : fallbackNutritionists.map((nutritionist) => (
                         <article
                           key={nutritionist.name}
-                          className="rounded-[1rem] bg-[#263930] p-5"
+                          className="rounded-[1rem] bg-[#1f2937] p-5"
                         >
                           <div className="flex items-start justify-between gap-4">
                             <div>
                               <h3 className="font-display text-xl font-bold">
                                 {nutritionist.name}
                               </h3>
-                              <p className="text-sm text-[#f6f8f5]/75">{nutritionist.spec}</p>
+                              <p className="text-sm text-[#f8fafc]/75">{nutritionist.spec}</p>
                             </div>
-                            <span className="inline-flex items-center gap-1 text-sm text-[#f6f8f5]/80">
-                              <Star className="h-3.5 w-3.5 fill-[#6d3bef] text-[#6d3bef]" />
+                            <span className="inline-flex items-center gap-1 text-sm text-[#f8fafc]/80">
+                              <Star className="h-3.5 w-3.5 fill-[#1769aa] text-[#1769aa]" />
                               {nutritionist.rating}
                             </span>
                           </div>
-                          <p className="mt-3 text-sm leading-6 text-[#f6f8f5]/80">
+                          <p className="mt-3 text-sm leading-6 text-[#f8fafc]/80">
                             Nutrition guidance tailored to your training and recovery goals.
                           </p>
                           <Button variant="soft" className="mt-4" onClick={() => scrollToBooking()}>

@@ -332,8 +332,8 @@ function ProgramDetailPage() {
         </section>
 
         <section className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-          <div className="rounded-[1.25rem] bg-[#14231d] p-8 text-[#f6f8f5] shadow-[var(--shadow-elegant)]">
-            <p className="text-sm font-semibold text-[#f6f8f5]/75">What you get</p>
+          <div className="rounded-[1.25rem] bg-[#111827] p-8 text-[#f8fafc] shadow-[var(--shadow-elegant)]">
+            <p className="text-sm font-semibold text-[#f8fafc]/75">What you get</p>
             <h2 className="mt-2 font-display text-3xl font-bold sm:text-4xl">
               The essentials stay visible.
             </h2>
@@ -345,9 +345,9 @@ function ProgramDetailPage() {
               ].map((item) => (
                 <li
                   key={item}
-                  className="flex items-start gap-3 rounded-[1rem] bg-[#263930] p-4 text-sm leading-6"
+                  className="flex items-start gap-3 rounded-[1rem] bg-[#1f2937] p-4 text-sm leading-6"
                 >
-                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#6d3bef]" />
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#f8fafc]" />
                   <span>{item}</span>
                 </li>
               ))}

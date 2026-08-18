@@ -30,6 +30,7 @@
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -50,58 +51,60 @@
 :root {
   --radius: 0.75rem;
 
-  /* Bright Nairobi palette — flat colors only. */
-  --background: #f6f8f5;
-  --foreground: #14231d;
+  /* Level Up brand palette — Deep Purple, Electric Blue, Luminous Green,
+     Deep Navy, and White. Flat fills only. */
+  --background: #f8fafc;
+  --foreground: #111827;
 
   --surface: #ffffff;
-  --surface-foreground: #14231d;
+  --surface-foreground: #111827;
 
   --card: #ffffff;
-  --card-foreground: #14231d;
+  --card-foreground: #111827;
   --popover: #ffffff;
-  --popover-foreground: #14231d;
+  --popover-foreground: #111827;
 
-  --primary: #6d3bef;
+  --primary: #5b2c83;
   --primary-foreground: #ffffff;
-  --primary-glow: #6d3bef;
+  --primary-glow: #5b2c83;
 
-  --secondary: #e9eeea;
-  --secondary-foreground: #14231d;
+  --secondary: #e5e9f0;
+  --secondary-foreground: #111827;
 
-  --muted: #e9eeea;
-  --muted-foreground: #46564f;
+  --muted: #e5e9f0;
+  --muted-foreground: #4b5563;
 
-  --accent: #dde8ee;
-  --accent-foreground: #14231d;
+  --accent: #1769aa;
+  --accent-foreground: #ffffff;
 
-  --destructive: oklch(0.6 0.22 25);
+  --destructive: oklch(0.55 0.21 25);
   --destructive-foreground: #ffffff;
-  --success: #24845c;
+  --success: #1f8a4c;
+  --success-soft: #7ed957;
 
-  --border: #cdd6d0;
-  --input: #b7c3bc;
-  --ring: #5a2bd6;
+  --border: #d8dfe8;
+  --input: #b6c2d0;
+  --ring: #5b2c83;
 
-  --sidebar: #14231d;
-  --sidebar-foreground: #f6f8f5;
-  --sidebar-primary: #6d3bef;
+  --sidebar: #111827;
+  --sidebar-foreground: #f8fafc;
+  --sidebar-primary: #5b2c83;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #263930;
-  --sidebar-accent-foreground: #f6f8f5;
-  --sidebar-border: #365044;
-  --sidebar-ring: #6d3bef;
+  --sidebar-accent: #1f2937;
+  --sidebar-accent-foreground: #f8fafc;
+  --sidebar-border: #2c3a50;
+  --sidebar-ring: #5b2c83;
 
   /* "Gradients" collapsed to flat colors — kept as linear-gradient() so they
      remain valid <image> values for bg-[image:var(--gradient-*)] utilities. */
-  --gradient-hero: linear-gradient(#14231d, #14231d);
-  --gradient-soft: linear-gradient(#f6f8f5, #f6f8f5);
-  --gradient-primary: linear-gradient(#6d3bef, #6d3bef);
+  --gradient-hero: linear-gradient(#111827, #111827);
+  --gradient-soft: linear-gradient(#f8fafc, #f8fafc);
+  --gradient-primary: linear-gradient(#5b2c83, #5b2c83);
   --gradient-card: linear-gradient(#ffffff, #ffffff);
 
-  --shadow-soft: 0 1px 2px 0 rgb(20 35 29 / 0.05), 0 1px 3px 0 rgb(20 35 29 / 0.07);
-  --shadow-elegant: 0 6px 8px -6px rgb(20 35 29 / 0.22);
-  --shadow-glow: 0 0 0 1px rgb(109 59 239 / 0.28);
+  --shadow-soft: 0 1px 2px 0 rgb(17 24 39 / 0.05), 0 1px 3px 0 rgb(17 24 39 / 0.07);
+  --shadow-elegant: 0 6px 8px -6px rgb(17 24 39 / 0.22);
+  --shadow-glow: 0 0 0 1px rgb(91 44 131 / 0.28);
 
   --transition-smooth:
     color 0.2s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.2s cubic-bezier(0.22, 1, 0.36, 1),
@@ -109,38 +112,38 @@
 }
 
 .dark {
-  --background: #14231d;
-  --foreground: #f6f8f5;
-  --surface: #263930;
-  --surface-foreground: #f6f8f5;
-  --card: #263930;
-  --card-foreground: #f6f8f5;
-  --popover: #263930;
-  --popover-foreground: #f6f8f5;
+  --background: #0b1220;
+  --foreground: #f8fafc;
+  --surface: #1f2937;
+  --surface-foreground: #f8fafc;
+  --card: #1f2937;
+  --card-foreground: #f8fafc;
+  --popover: #1f2937;
+  --popover-foreground: #f8fafc;
   --primary: #8b5cf6;
   --primary-foreground: #ffffff;
   --primary-glow: #8b5cf6;
-  --secondary: #263930;
-  --secondary-foreground: #f6f8f5;
-  --muted: #263930;
-  --muted-foreground: #b6c4bc;
-  --accent: #3f6e8c;
+  --secondary: #1f2937;
+  --secondary-foreground: #f8fafc;
+  --muted: #1f2937;
+  --muted-foreground: #9ca8b8;
+  --accent: #2d7cbe;
   --accent-foreground: #ffffff;
-  --border: #365044;
-  --input: #496357;
+  --border: #2c3a50;
+  --input: #3b4a61;
   --ring: #8b5cf6;
-  --sidebar: #0e1915;
-  --sidebar-foreground: #f6f8f5;
+  --sidebar: #0b1220;
+  --sidebar-foreground: #f8fafc;
   --sidebar-primary: #8b5cf6;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #263930;
-  --sidebar-accent-foreground: #f6f8f5;
-  --sidebar-border: #365044;
+  --sidebar-accent: #1f2937;
+  --sidebar-accent-foreground: #f8fafc;
+  --sidebar-border: #2c3a50;
   --sidebar-ring: #8b5cf6;
-  --gradient-hero: linear-gradient(#14231d, #14231d);
-  --gradient-soft: linear-gradient(#14231d, #14231d);
+  --gradient-hero: linear-gradient(#0b1220, #0b1220);
+  --gradient-soft: linear-gradient(#0b1220, #0b1220);
   --gradient-primary: linear-gradient(#8b5cf6, #8b5cf6);
-  --gradient-card: linear-gradient(#263930, #263930);
+  --gradient-card: linear-gradient(#1f2937, #1f2937);
 }
 
 @layer base {
@@ -184,8 +187,8 @@
     border: 1px solid var(--border);
   }
   .glass-dark {
-    background: #14231d;
-    border: 1px solid #365044;
+    background: #111827;
+    border: 1px solid #2c3a50;
   }
   .gradient-text {
     color: var(--primary);

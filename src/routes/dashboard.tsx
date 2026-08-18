@@ -180,10 +180,10 @@ function DashboardContent({ dashboard }: { dashboard: ApiCustomerDashboard }) {
             </div>
           </div>
 
-          <div className="rounded-[1.25rem] border border-border bg-[#14231d] p-6 text-[#f6f8f5] shadow-[var(--shadow-elegant)] sm:p-8">
-            <p className="text-sm font-semibold text-[#f6f8f5]/75">Account</p>
+          <div className="rounded-[1.25rem] border border-border bg-[#111827] p-6 text-[#f8fafc] shadow-[var(--shadow-elegant)] sm:p-8">
+            <p className="text-sm font-semibold text-[#f8fafc]/75">Account</p>
             <div className="mt-4 flex items-center gap-4">
-              <div className="grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-full bg-[#263930] text-lg font-bold text-[#f6f8f5]">
+              <div className="grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-full bg-[#1f2937] text-lg font-bold text-[#f8fafc]">
                 {dashboard.profile.avatarUrl ? (
                   <img
                     src={apiAssetUrl(dashboard.profile.avatarUrl)}
@@ -489,11 +489,11 @@ function QuickStat({ label, value, sub }: { label: string; value: string; sub: s
 
 function InfoRow({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
   return (
-    <div className="flex items-start gap-3 rounded-[1rem] bg-[#263930] p-4">
-      <span className="mt-0.5 text-[#f6f8f5]">{icon}</span>
+    <div className="flex items-start gap-3 rounded-[1rem] bg-[#1f2937] p-4">
+      <span className="mt-0.5 text-[#f8fafc]">{icon}</span>
       <div className="min-w-0">
-        <dt className="text-xs text-[#f6f8f5]/70">{label}</dt>
-        <dd className="mt-1 break-all text-sm font-medium text-[#f6f8f5]">{value}</dd>
+        <dt className="text-xs text-[#f8fafc]/70">{label}</dt>
+        <dd className="mt-1 break-all text-sm font-medium text-[#f8fafc]">{value}</dd>
       </div>
     </div>
   );

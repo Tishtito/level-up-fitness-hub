@@ -64,6 +64,17 @@ const testimonials = [
   },
 ];
 
+const platformPillars = [
+  { label: "Functional fitness", to: "/programs" },
+  { label: "Women's wellness", to: "/plans" },
+  { label: "Nutrition", to: "/nutrition" },
+  { label: "Health screening", to: "/medicare" },
+  { label: "Recovery", to: "/physiotherapy" },
+  { label: "Lifestyle education", to: "/plans" },
+  { label: "Medical support", to: "/medicare" },
+  { label: "Fitness products", to: "/shop" },
+] as const;
+
 const KSh = (value: number) =>
   new Intl.NumberFormat("en-KE", {
     style: "currency",
@@ -137,17 +148,16 @@ function Home() {
         <div className="home-hero grid overflow-hidden rounded-2xl bg-surface lg:min-h-[39rem] lg:grid-cols-[0.9fr_1.1fr]">
           <div className="home-hero-copy flex flex-col justify-center px-6 py-12 sm:px-10 lg:px-14 lg:py-16">
             <p className="max-w-xs text-sm font-semibold text-primary">
-              Nairobi moves. We move with you.
+              Train strong, screen smart, live better.
             </p>
             <h1
               id="home-hero-title"
-              className="mt-5 max-w-[11ch] text-balance font-display text-[clamp(3.25rem,7vw,5.75rem)] font-extrabold leading-[0.92] tracking-[-0.035em] text-foreground"
+              className="mt-5 max-w-[16ch] text-balance font-display text-[clamp(3.25rem,7vw,5.75rem)] font-extrabold leading-[0.92] tracking-[-0.035em] text-foreground"
             >
-              Transform your body. Elevate your life.
+              Stronger Women. Healthier Lives. Better Ageing.
             </h1>
-            <p className="mt-7 max-w-[34rem] text-pretty text-lg leading-relaxed text-muted-foreground">
-              Training, nutrition and recovery—built around your goals, your routine and the life
-              you want to lead.
+            <p className="mt-7 max-w-[38rem] text-pretty text-lg leading-relaxed text-muted-foreground">
+              Kenya's complete fitness, wellness & health-support destination for women.
             </p>
             <div className="mt-8 flex flex-col items-start gap-3 sm:flex-row sm:flex-wrap sm:items-center">
               <Button asChild variant="hero" size="xl" className="w-full sm:w-auto">
@@ -187,6 +197,33 @@ function Home() {
       </section>
 
       <div className="space-y-[clamp(5rem,10vw,8rem)] pt-[clamp(5rem,10vw,8rem)]">
+        <section className="mx-auto max-w-7xl px-4 sm:px-6" aria-label="What LevelUp is about">
+          <div className="mx-auto max-w-3xl">
+            <p className="text-base leading-relaxed text-muted-foreground sm:text-lg">
+              LevelUp E-Commerce & Wellness Hub is a women-focused fitness, wellness and lifestyle
+              platform designed to help women become stronger, healthier, more confident and
+              physically active at every stage of life.
+            </p>
+            <p className="mt-5 text-base leading-relaxed text-muted-foreground sm:text-lg">
+              We go beyond traditional gyms and fitness programmes. LevelUp brings together
+              functional fitness, women's wellness, nutrition, health screening, recovery, lifestyle
+              education, medical support and fitness products in one integrated ecosystem.
+            </p>
+            <ul className="mt-8 flex flex-wrap gap-2" aria-label="What LevelUp brings together">
+              {platformPillars.map((pillar) => (
+                <li key={pillar.label}>
+                  <Link
+                    to={pillar.to}
+                    className="inline-flex min-h-8 items-center rounded-lg border border-border bg-secondary px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:border-primary hover:text-primary focus-visible:rounded focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                  >
+                    {pillar.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
         <section className="mx-auto max-w-7xl px-4 sm:px-6" aria-labelledby="programs-title">
           <SectionHeading
             titleId="programs-title"
@@ -234,9 +271,10 @@ function Home() {
                   </p>
                 </div>
                 {maxTrialDays > 0 && (
-                  <p className="text-sm font-semibold text-primary">
+                  <span className="inline-flex w-fit items-center gap-2 rounded-full bg-success-soft px-3 py-1 text-xs font-bold text-foreground">
+                    <span className="h-1.5 w-1.5 rounded-full bg-foreground" aria-hidden="true" />
                     Up to {maxTrialDays} trial days
-                  </p>
+                  </span>
                 )}
               </div>
               {plans.slice(0, 3).map((plan, index) => {
@@ -246,7 +284,7 @@ function Home() {
                     key={plan.planRef}
                     className={cn(
                       "flex min-h-full flex-col border-b border-background/20 p-7 last:border-b-0 lg:border-b-0 lg:border-r lg:last:border-r-0",
-                      featured && "bg-[#3F6E8C]",
+                      featured && "bg-[#1769AA]",
                     )}
                   >
                     <div className="flex min-h-7 items-start justify-between gap-3">
@@ -276,7 +314,7 @@ function Home() {
                       {plan.features.slice(0, 5).map((feature) => (
                         <li key={feature} className="flex gap-2">
                           <Check
-                            className="mt-0.5 h-4 w-4 shrink-0 text-primary"
+                            className="mt-0.5 h-4 w-4 shrink-0 text-background"
                             aria-hidden="true"
                           />
                           <span>{feature}</span>
@@ -368,7 +406,7 @@ function Home() {
         <section className="mx-auto max-w-7xl px-4 sm:px-6" aria-labelledby="stories-title">
           <div className="grid gap-10 lg:grid-cols-[1.35fr_0.65fr] lg:items-start">
             <article className="rounded-2xl bg-foreground p-8 text-background sm:p-12">
-              <Quote className="h-10 w-10 text-primary" aria-hidden="true" />
+              <Quote className="h-10 w-10 text-accent" aria-hidden="true" />
               <h2
                 id="stories-title"
                 className="mt-8 max-w-[20ch] text-balance font-display text-[clamp(2rem,4vw,3.75rem)] font-bold leading-[1.05]"
@@ -611,7 +649,12 @@ function ProgramsEditorial({ programs }: { programs: ApiProgram[] }) {
 }
 
 function ServiceRow({ service }: { service: ApiWellnessService }) {
-  const destination = service.type === "nutritionist" ? "/nutrition" : "/physiotherapy";
+  const destination =
+    service.type === "nutritionist"
+      ? "/nutrition"
+      : service.type === "medical_assessment"
+        ? "/medicare"
+        : "/physiotherapy";
   return (
     <article className="grid gap-4 py-5 sm:grid-cols-[1fr_auto] sm:items-center">
       <div>

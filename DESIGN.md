@@ -2,14 +2,15 @@
 name: Level Up Fitness
 description: An image-led Kenyan fitness marketplace connecting training, nutrition, recovery, and gear.
 colors:
-  kinetic-coral: "#F2553D"
-  botanical-ink: "#14231D"
-  mineral-blue: "#3F6E8C"
+  deep-purple: "#5B2C83"
+  electric-blue: "#1769AA"
+  luminous-green: "#7ED957"
+  deep-navy: "#111827"
   training-white: "#FFFFFF"
-  canvas: "#F6F8F5"
-  botanical-mist: "#E9EEEA"
-  muted-text: "#46564F"
-  border: "#CDD6D0"
+  canvas: "#F8FAFC"
+  navy-surface: "#1F2937"
+  muted-text: "#4B5563"
+  border: "#D8DFE8"
 typography:
   display:
     fontFamily: "Anybody, Arial Narrow, ui-sans-serif, system-ui, sans-serif"
@@ -53,33 +54,33 @@ spacing:
   section: "96px"
 components:
   button-primary:
-    backgroundColor: "{colors.kinetic-coral}"
-    textColor: "{colors.botanical-ink}"
+    backgroundColor: "{colors.deep-purple}"
+    textColor: "{colors.training-white}"
     typography: "{typography.label}"
     rounded: "{rounded.md}"
     padding: "10px 20px"
     height: "40px"
   button-primary-hover:
-    backgroundColor: "{colors.kinetic-coral}"
-    textColor: "{colors.botanical-ink}"
+    backgroundColor: "{colors.deep-purple}"
+    textColor: "{colors.training-white}"
     rounded: "{rounded.md}"
   button-soft:
     backgroundColor: "{colors.training-white}"
-    textColor: "{colors.botanical-ink}"
+    textColor: "{colors.deep-navy}"
     typography: "{typography.label}"
     rounded: "{rounded.md}"
     padding: "10px 20px"
     height: "40px"
   input:
     backgroundColor: "{colors.training-white}"
-    textColor: "{colors.botanical-ink}"
+    textColor: "{colors.deep-navy}"
     typography: "{typography.body}"
     rounded: "{rounded.sm}"
     padding: "8px 12px"
     height: "36px"
   card:
     backgroundColor: "{colors.training-white}"
-    textColor: "{colors.botanical-ink}"
+    textColor: "{colors.deep-navy}"
     rounded: "{rounded.lg}"
     padding: "24px"
 ---
@@ -88,16 +89,16 @@ components:
 
 ## Overview
 
-**Creative North Star: “The Nairobi Training Atelier”**
+**Creative North Star: "The Nairobi Training Atelier"**
 
-Level Up Fitness feels like a bright Nairobi training studio with a broad care team, not a software catalogue wearing gym imagery. The redesigned index pairs mineral-white daylight, botanical structure, kinetic-coral actions, expressive condensed display type, and clear transactional states. Its strongest qualities are the connected service story, responsive compositions, complete loading/error/empty states, and direct routes from discovery to purchase or booking.
+Level Up Fitness feels like a bright Nairobi training studio with a broad care team, not a software catalogue wearing gym imagery. The redesigned index pairs white daylight, deep-navy structure, deep-purple actions, electric-blue support, expressive condensed display type, and clear transactional states. Its strongest qualities are the connected service story, responsive compositions, complete loading/error/empty states, and direct routes from discovery to purchase or booking.
 
-The index rejects its previous formula of elevated cards, 24–32px radii, tracked eyebrows, purple actions, and equal-column grids. Each offer now earns its own composition while preserving functional clarity and taking only pacing, whitespace, and image-led storytelling cues from Core Atelier.
+The index rejects formulaic elevated-card layouts, 24–32px radii, tracked eyebrows, and equal-column grids. Each offer earns its own composition while preserving functional clarity and taking only pacing, whitespace, and image-led storytelling cues from Core Atelier.
 
 **Key Characteristics:**
 
 - Image-led editorial pacing supported by concise, specific copy.
-- A bright mineral canvas with botanical structure, one coral action color, and restrained mineral-blue support.
+- A white canvas with deep-navy structure, one deep-purple action color, restrained electric-blue support, and a scarce luminous-green energy accent.
 - Clear commerce and booking paths with complete loading, empty, error, and success states.
 - Asymmetric layouts that distinguish training, care, social proof, and products.
 - Kenyan context expressed through real people, locations, prices, and services.
@@ -108,28 +109,34 @@ The index rejects its previous formula of elevated cards, 24–32px radii, track
 
 ## Colors
 
-The committed palette pairs a kinetic coral action field with botanical ink, a mineral-white daylight canvas, and restrained mineral blue.
+The committed palette pairs a deep-purple action field with deep-navy structure, a white daylight canvas, and two restrained support tones.
 
 ### Primary
 
-- **Kinetic Coral:** The primary brand field and action color for conversion, emphasis, and connected-care sections.
+- **Deep Purple `#5B2C83`:** The brand field and action color for conversion, emphasis, and connected-care sections. White text on it reaches 9.4:1 contrast.
 
 ### Secondary
 
-- **Botanical Ink:** The authority color for display type, dark structural surfaces, and high-contrast sections.
-- **Mineral Blue:** A restrained support tone for featured membership and care-related emphasis.
+- **Deep Navy `#111827`:** The authority color for display type, dark structural surfaces, and high-contrast sections.
+- **Electric Blue `#1769AA`:** A restrained support tone for membership, care-related emphasis, links, and information. White text on it reaches 5.5:1; never pair it directly with Deep Purple (1.7:1) — separate them with white or navy fields.
 
 ### Neutral
 
-- **Training White:** Raised surfaces, form panels, cards, and inverse text.
-- **Canvas:** The mineral-white page background and quietest surface.
-- **Botanical Mist:** Secondary controls, skeletons, and grouped content.
-- **Muted Text:** Supporting copy on light backgrounds.
-- **Border:** Dividers and control outlines only where structure cannot be communicated by spacing.
+- **Training White `#FFFFFF`:** Raised surfaces, form panels, cards, and inverse text.
+- **Canvas `#F8FAFC`:** The white page background and quietest surface.
+- **Navy Surface `#1F2937`:** Inner cards and grouped content on deep-navy sections (one step lighter than the section field).
+- **Muted Text `#4B5563`:** Supporting copy on light backgrounds.
+- **Border `#D8DFE8`:** Dividers and control outlines only where structure cannot be communicated by spacing.
 
-**The Committed Coral Rule.** Kinetic Coral may carry a whole purposeful section, but within neutral sections it is reserved for action, focus, and essential emphasis.
+### Accent
 
-**The No Fake Gradient Rule.** Compatibility variables remain flat fills. Do not introduce coral-to-blue gradients or gradient text.
+- **Luminous Green `#7ED957`:** The energy accent for "live" states, availability, ratings, highlights, and progress on dark surfaces. **The Green Rule:** it fails contrast on white (1.7:1) — use it only as a fill with Deep Navy text (10.1:1), on dark fields, or as non-text accents (dots, bars, borders). For green *text* on white, use the darker success green `#1F8A4C` (4.5:1+).
+
+**The Committed Purple Rule.** Deep Purple may carry a whole purposeful section, but within neutral sections it is reserved for action, focus, and essential emphasis.
+
+**The Scarcity Rule.** Luminous Green is a rare accent. One green highlight per viewport; never green text on white; never white text on green.
+
+**The No Fake Gradient Rule.** Compatibility variables remain flat fills. Do not introduce purple-to-blue gradients or gradient text.
 
 **The Contrast Rule.** Body and placeholder text must reach 4.5:1; large text and essential graphical controls must reach 3:1. Never reduce opacity until copy becomes ornamental.
 
@@ -152,17 +159,17 @@ The committed palette pairs a kinetic coral action field with botanical ink, a m
 
 **The Data Rule.** Prices, counts, dates, and durations use tabular numerals so scanning remains stable as values update.
 
-**The Real Hierarchy Rule.** Use size, weight, placement, and whitespace before color. Coral headings on every card flatten hierarchy instead of creating it.
+**The Real Hierarchy Rule.** Use size, weight, placement, and whitespace before color. Purple headings on every card flatten hierarchy instead of creating it.
 
 ## Elevation
 
-The current system uses cool navy-tinted shadows and tonal layering. Low elevation combines a subtle 1–3px ambient shadow with white surfaces; high elevation uses a broad 30px shadow for heroes, featured plans, and hover. This vocabulary is coherent in color but over-applied through the global `card-elevated` pattern.
+The current system uses navy-tinted shadows and tonal layering. Low elevation combines a subtle 1–3px ambient shadow with white surfaces; high elevation uses a broad 30px shadow for heroes, featured plans, and hover. This vocabulary is coherent in color but over-applied through the global `card-elevated` pattern.
 
 ### Shadow Vocabulary
 
-- **Ambient low** (`0 1px 2px rgb(17 28 48 / 0.04), 0 1px 3px rgb(17 28 48 / 0.06)`): Small floating navigation and controls.
-- **Editorial lift** (`0 10px 30px -12px rgb(17 28 48 / 0.18)`): One focal image, sticky summary, or selected commercial tier per viewport.
-- **Coral focus edge** (`0 0 0 1px rgb(242 85 61 / 0.28)`): Supplemental accent edge; never the only focus indicator.
+- **Ambient low** (`0 1px 2px rgb(17 24 39 / 0.05), 0 1px 3px rgb(17 24 39 / 0.07)`): Small floating navigation and controls.
+- **Editorial lift** (`0 10px 30px -12px rgb(17 24 39 / 0.18)`): One focal image, sticky summary, or selected commercial tier per viewport.
+- **Purple focus edge** (`0 0 0 1px rgb(91 44 131 / 0.28)`): Supplemental accent edge; never the only focus indicator.
 
 **The Flat-by-Default Rule.** Most public content sits directly on the canvas. Elevation communicates overlap, stickiness, selection, or interaction—not the mere existence of a section.
 
@@ -175,19 +182,19 @@ Components are direct and task-oriented. They inherit the current Radix primitiv
 ### Buttons
 
 - **Shape:** Compact controls use gently curved 8px corners; standard actions use 12px corners. Full pills are reserved for tags, not actions.
-- **Primary:** Kinetic Coral with Botanical Ink text, semibold weight, and 10px by 20px padding. This pairing reaches 4.77:1 contrast.
+- **Primary:** Deep Purple with White text, semibold weight, and 10px by 20px padding. This pairing reaches 9.4:1 contrast.
 - **Hover / Focus / Active:** Hover shifts tone and may rise no more than 2px; active returns to the baseline with a subtle 0.98 scale. Focus uses a visible 2px ring with offset. Transitions run 150–250ms and respect reduced motion.
 - **Secondary / Ghost / Tertiary:** Soft white buttons support secondary actions; text links handle low-priority navigation. Do not pair filled and ghost buttons by reflex in every section.
 
 ### Chips
 
 - **Style:** 8px corners, compact padding, sentence case, and neutral fill. Use pills only when the chip represents a filter or status with a rounded semantic shape.
-- **State:** Selected chips use Kinetic Coral plus a non-color cue; status chips use semantic color and explicit text.
+- **State:** Selected chips use Deep Purple plus a non-color cue; status chips use semantic color and explicit text. A "live" or availability status may use Luminous Green as a non-text dot with explicit text alongside.
 
 ### Cards / Containers
 
 - **Corner Style:** 12–16px for reusable cards. The existing 24–32px route-level radii are legacy and must not spread.
-- **Background:** Training White on Canvas; Botanical Ink is reserved for high-emphasis brand surfaces.
+- **Background:** Training White on Canvas; Deep Navy is reserved for high-emphasis brand surfaces, with Navy Surface for inner cards.
 - **Shadow Strategy:** Flat by default; use ambient low only when elevation communicates hierarchy.
 - **Border:** Use either a low-contrast border or a shadow, never both as decoration.
 - **Internal Padding:** 16px compact, 24px standard, and 40px only for large editorial containers.
@@ -195,7 +202,7 @@ Components are direct and task-oriented. They inherit the current Radix primitiv
 ### Inputs / Fields
 
 - **Style:** Training White or transparent background, 1px Border outline, 8px corners, 36–44px height depending on context.
-- **Focus:** 2px deep-coral ring with visible offset. Do not use a color-only border change.
+- **Focus:** 2px deep-purple ring with visible offset. Do not use a color-only border change.
 - **Error / Disabled:** Place direct error copy beside the field; preserve readable disabled text and do not rely on opacity alone.
 
 ### Navigation
@@ -216,7 +223,9 @@ Programs, plans, care services, testimonials, and products require different com
 
 - **Do** make the index page the primary brand surface and give it one dominant conversion path.
 - **Do** borrow Core Atelier’s editorial pacing, confident whitespace, image-led storytelling, and direct booking paths without copying its identity.
-- **Do** use Kinetic Coral as a committed brand field or for action, focus, selection, and essential emphasis.
+- **Do** use Deep Purple as a committed brand field or for action, focus, selection, and essential emphasis.
+- **Do** reserve Luminous Green for scarce energy accents on dark surfaces or as a fill with Deep Navy text; use the darker success green for text-level success on white.
+- **Do** use Electric Blue as a restrained support tone for membership and care-related emphasis, separated from purple fields by white or navy.
 - **Do** replace repeated spinners with skeletons shaped like the content they represent.
 - **Do** show real Nairobi context, KES pricing, practitioner credentials, locations, and credible member outcomes.
 - **Do** align plan features, prices, and calls to action across comparison layouts.
@@ -226,13 +235,14 @@ Programs, plans, care services, testimonials, and products require different com
 
 ### Don't:
 
-- **Don't** use generic purple SaaS landing-page patterns, repetitive equal-card grids, neon gym aggression, stock-photo transformation clichés, or decorative glassmorphism.
+- **Don't** default to generic purple SaaS landing-page patterns, repetitive equal-card grids, neon gym aggression, stock-photo transformation clichés, or decorative glassmorphism — the purple brand is a commitment, not a license for clichés.
 - **Don't** make every service compete at the same visual volume.
 - **Don't** apply 24–32px radii to cards, sections, images, inputs, and buttons indiscriminately.
 - **Don't** combine a 1px border with a wide soft shadow on the same element as decoration.
 - **Don't** repeat tiny uppercase tracked eyebrows above every section.
-- **Don't** use gradient text, coral-to-blue gradients, or fake gradient variables as a reason to add visual effects.
+- **Don't** use gradient text, purple-to-blue gradients, or fake gradient variables as a reason to add visual effects.
+- **Don't** use white text on Luminous Green, green text on white, or purple text on Electric Blue — these pairings fail contrast.
 - **Don't** use Lucide icons as the primary personality of every card; photography, typography, and content should carry the brand.
 - **Don't** use page-level circular spinners when the eventual layout is known.
-- **Don't** use generic claims such as “premium,” “beautifully simple,” or “next level” without specific evidence.
+- **Don't** use generic claims such as "premium," "beautifully simple," or "next level" without specific evidence.
 - **Don't** leave legal links pointing to the homepage, omit a skip link, use empty alt text on meaningful program imagery, or ship mobile menu buttons without expanded-state semantics.
