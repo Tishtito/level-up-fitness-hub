@@ -29,6 +29,7 @@ const publicLinks = [
   { to: "/plans", label: "Plans" },
   { label: "Services", children: servicesChildren },
   { to: "/shop", label: "Shop" },
+  { to: "/corporate", label: "Corporate" },
 ] as const;
 
 type NavListItem = (typeof publicLinks)[number] | { to: string; label: string };
@@ -162,7 +163,8 @@ export function Navbar() {
     session?.user.role === "TRAINER"
       ? { to: "/trainer" as const, label: "Trainer Portal" }
       : { to: "/dashboard" as const, label: "Dashboard" };
-  const links = [...publicLinks, dashboardLink];
+  // Signed-out visitors get no dashboard link — it only redirects them to login.
+  const links = session ? [...publicLinks, dashboardLink] : [...publicLinks];
 
   async function logout() {
     await authApi.logout();

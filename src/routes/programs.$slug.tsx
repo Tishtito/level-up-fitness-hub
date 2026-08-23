@@ -12,15 +12,14 @@ import {
   PlayCircle,
 } from "lucide-react";
 
-import heroStudio from "@/assets/home/hero-studio.webp";
-import programMobility from "@/assets/home/program-mobility.webp";
-import programStrength from "@/assets/home/program-strength.webp";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { programsApi, type ApiProgram } from "@/lib/api";
 import { useAuthSession } from "@/lib/auth";
 import { loginUrlFor } from "@/lib/auth-continuation";
 import { apiAssetUrl } from "@/lib/env";
+import { programImage, programTrainerName } from "@/lib/program-display";
+import { useProgramCategories } from "@/hooks/use-program-categories";
 
 export const Route = createFileRoute("/programs/$slug")({
   head: () => ({
@@ -32,28 +31,12 @@ export const Route = createFileRoute("/programs/$slug")({
   component: ProgramDetailPage,
 });
 
-const categoryLabels: Record<ApiProgram["category"], string> = {
-  body_transformation: "Body transformation",
-  lose_weight: "Lose weight",
-  gain_weight_muscle_building: "Gain weight / muscle building",
-};
-
-const fallbackImages: Record<ApiProgram["category"], string> = {
-  body_transformation: heroStudio,
-  lose_weight: programStrength,
-  gain_weight_muscle_building: programMobility,
-};
-
 const KSh = (value: number) =>
   new Intl.NumberFormat("en-KE", {
     style: "currency",
     currency: "KES",
     maximumFractionDigits: 0,
   }).format(value);
-
-function programImage(program: ApiProgram) {
-  return apiAssetUrl(program.thumbnail) || fallbackImages[program.category];
-}
 
 function ProgramDetailSkeleton() {
   return (
@@ -92,6 +75,7 @@ function ProgramDetailSkeleton() {
 }
 
 function ProgramDetailPage() {
+  const { labelFor } = useProgramCategories();
   const { slug: programRef } = Route.useParams();
   const session = useAuthSession();
   const navigate = useNavigate();
@@ -136,7 +120,7 @@ function ProgramDetailPage() {
 
   const program = programQuery.data;
   const videos = program.videos ?? [];
-  const totalVideos = videos.length;
+  const totalVideos = program.videoCount ?? videos.length;
   const enrolledCount = program.enrolledCount ?? program.enrolledUsers?.length ?? 0;
   const hasAccess = program.access?.hasAccess ?? !program.subscriptionRequired;
   const buyLabel = program.price > 0 ? `Buy for ${KSh(program.price)}` : "Get access";
@@ -175,7 +159,7 @@ function ProgramDetailPage() {
             <p className="text-sm font-semibold text-primary">Program</p>
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="secondary" className="rounded-full">
-                {categoryLabels[program.category]}
+                {labelFor(program.category)}
               </Badge>
               {program.subscriptionRequired && (
                 <Badge className="rounded-full">Subscription required</Badge>
@@ -185,7 +169,7 @@ function ProgramDetailPage() {
               {program.title}
             </h1>
             <p className="max-w-2xl text-base leading-7 text-muted-foreground">
-              with {program.trainer || "Level Up coaching team"}
+              with {programTrainerName(program)}
             </p>
             <div className="flex flex-wrap gap-2 text-xs">
               <span className="rounded-full bg-muted px-2.5 py-1 text-surface-foreground">

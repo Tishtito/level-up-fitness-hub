@@ -17,7 +17,6 @@ import { toast } from "sonner";
 import heroStudio from "@/assets/home/hero-studio.webp";
 import nutritionCare from "@/assets/home/nutrition-care.webp";
 import programMobility from "@/assets/home/program-mobility.webp";
-import programStrength from "@/assets/home/program-strength.webp";
 import { Button } from "@/components/ui/button";
 import {
   cartApi,
@@ -30,6 +29,7 @@ import { useAuthSession } from "@/lib/auth";
 import { loginUrlFor } from "@/lib/auth-continuation";
 import { CART_QUERY_KEY } from "@/lib/use-cart-count";
 import { apiAssetUrl } from "@/lib/env";
+import { programImage } from "@/lib/program-display";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/")({
@@ -88,14 +88,6 @@ function planAmount(plan: ApiSubscriptionPlan) {
   return Math.max(0, plan.price - (plan.discount ?? 0));
 }
 
-function fallbackProgramImage(program: ApiProgram) {
-  if (program.category === "lose_weight") return programMobility;
-  return programStrength;
-}
-
-function programImage(program: ApiProgram) {
-  return apiAssetUrl(program.thumbnail) || fallbackProgramImage(program);
-}
 
 function Home() {
   const session = useAuthSession();

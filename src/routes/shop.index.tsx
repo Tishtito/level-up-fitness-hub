@@ -386,7 +386,10 @@ function ShopPagination({ page, totalPages }: { page: number; totalPages: number
       {page > 1 ? (
         <Link
           to="/shop"
-          search={(prev: ShopSearch) => ({ ...prev, page: page - 1 > 1 ? page - 1 : undefined })}
+          search={(prev) => ({
+            ...(prev as ShopSearch),
+            page: page - 1 > 1 ? page - 1 : undefined,
+          })}
           className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "gap-1")}
           aria-label="Go to previous page"
         >
@@ -408,7 +411,7 @@ function ShopPagination({ page, totalPages }: { page: number; totalPages: number
           <Link
             key={entry}
             to="/shop"
-            search={(prev: ShopSearch) => ({ ...prev, page: entry > 1 ? entry : undefined })}
+            search={(prev) => ({ ...(prev as ShopSearch), page: entry > 1 ? entry : undefined })}
             className={linkClass(entry === page)}
             aria-label={`Go to page ${entry}`}
             aria-current={entry === page ? "page" : undefined}
@@ -421,7 +424,7 @@ function ShopPagination({ page, totalPages }: { page: number; totalPages: number
       {page < totalPages ? (
         <Link
           to="/shop"
-          search={(prev: ShopSearch) => ({ ...prev, page: page + 1 })}
+          search={(prev) => ({ ...(prev as ShopSearch), page: page + 1 })}
           className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "gap-1")}
           aria-label="Go to next page"
         >
@@ -469,7 +472,7 @@ function ShopPage() {
     // unless a page was explicitly requested, so this resets to page 1.
     void navigate({
       to: "/shop",
-      search: (prev: ShopSearch) => ({ ...prev, ...patch, page: patch.page }),
+      search: (prev) => ({ ...(prev as ShopSearch), ...patch, page: patch.page }),
       replace,
     });
   }

@@ -103,7 +103,8 @@ export type ApiProgram = {
   programRef: string;
   title: string;
   description: string;
-  category: "body_transformation" | "lose_weight" | "gain_weight_muscle_building";
+  /** Category slug; labels resolve through useProgramCategories(). */
+  category: string;
   difficultyLevel: string;
   duration: string;
   price: number;
@@ -583,6 +584,30 @@ export const productsApi = {
   },
 };
 
+export type ApiOrganisationType = "company" | "school" | "ngo" | "government";
+
+export type ApiEnquiryInput = {
+  organisationName: string;
+  organisationType: ApiOrganisationType;
+  contactName: string;
+  email: string;
+  phone?: string | null;
+  county: string;
+  city?: string | null;
+  headcount?: number | null;
+  preferredDate?: string | null;
+  budget?: number | null;
+  message: string;
+  /** Honeypot — hidden in the UI, always empty for a real person. */
+  website?: string | null;
+};
+
+export type ApiEnquiry = ApiEnquiryInput & {
+  enquiryRef: string;
+  status: "new" | "contacted" | "closed";
+  createdAt?: string;
+};
+
 export const homeApi = {
   async getOverview() {
     const response = await apiRequest<ApiHomeOverview>("/public/home");
@@ -601,6 +626,24 @@ export const dashboardApi = {
   async getOverview() {
     const response = await apiRequest<ApiCustomerDashboard>("/dashboard/me");
     return response.data;
+  },
+};
+
+export type ApiProgramCategory = {
+  categoryRef: string;
+  slug: string;
+  name: string;
+  description?: string | null;
+  status: "active" | "inactive";
+  sortOrder: number;
+};
+
+export const programCategoriesApi = {
+  // /public is active-only and sorted by sortOrder server-side.
+  publicList(params: Record<string, string | number | undefined> = {}) {
+    return apiRequest<{ categories: ApiProgramCategory[] }>(
+      `/program-categories/public${queryString(params)}`,
+    );
   },
 };
 
@@ -917,5 +960,16 @@ export const paymentsApi = {
       body: { paymentRef },
     });
     return response.data.payment;
+  },
+};
+
+export const enquiriesApi = {
+  /** Public endpoint — no session required. */
+  async create(input: ApiEnquiryInput) {
+    const response = await apiRequest<{ enquiry: ApiEnquiry }>("/enquiries", {
+      method: "POST",
+      body: input,
+    });
+    return response.data.enquiry;
   },
 };
