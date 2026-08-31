@@ -1,8 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Award, BookOpen, CheckCircle2, Clock, DollarSign, Loader2, Lock, Mail, Pencil, PlayCircle, Upload, Users } from "lucide-react";
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { toast } from "sonner";
+import * as tus from "tus-js-client";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -60,14 +61,12 @@ function TrainerDashboardPage() {
       workoutSchedule: string[];
       nutritionNotes: string;
       thumbnail: File | null;
-      videos: File[];
     }) => {
       await trainerPortalApi.updateContent(input.program.programRef, {
         workoutSchedule: input.workoutSchedule,
         nutritionNotes: input.nutritionNotes.trim() || undefined,
       });
       if (input.thumbnail) await trainerPortalApi.uploadThumbnail(input.program.programRef, input.thumbnail);
-      if (input.videos.length) await trainerPortalApi.uploadVideos(input.program.programRef, input.videos);
     },
     onSuccess: () => {
       toast.success("Program content updated");
@@ -78,8 +77,8 @@ function TrainerDashboardPage() {
   });
 
   const removeVideoMutation = useMutation({
-    mutationFn: ({ programRef, url }: { programRef: string; url: string }) =>
-      trainerPortalApi.removeVideo(programRef, url),
+    mutationFn: ({ programRef, uid }: { programRef: string; uid: string }) =>
+      trainerPortalApi.removeVideo(programRef, uid),
     onSuccess: () => {
       toast.success("Video removed");
       void queryClient.invalidateQueries({ queryKey: ["trainer", "dashboard"] });
@@ -164,7 +163,8 @@ function TrainerDashboardPage() {
         removingVideo={removeVideoMutation.isPending}
         onOpenChange={(open) => !open && setEditingProgram(null)}
         onSave={(values) => editingProgram && saveContentMutation.mutate({ program: editingProgram, ...values })}
-        onRemoveVideo={(url) => editingProgram && removeVideoMutation.mutate({ programRef: editingProgram.programRef, url })}
+        onRemoveVideo={(uid) => editingProgram && removeVideoMutation.mutate({ programRef: editingProgram.programRef, uid })}
+        onVideosChanged={() => void queryClient.invalidateQueries({ queryKey: ["trainer", "dashboard"] })}
       />
     </div>
   );
@@ -194,28 +194,83 @@ function ProgramCard({ program, onManage }: { program: ApiProgram; onManage: () 
   );
 }
 
-type ContentValues = { workoutSchedule: string[]; nutritionNotes: string; thumbnail: File | null; videos: File[] };
+/** An upload in flight, tracked outside the form so a large transfer never blocks a save. */
+type VideoUpload = { id: string; name: string; progress: number; status: "uploading" | "processing" | "error" };
 
-function ContentDialog({ program, saving, removingVideo, onOpenChange, onSave, onRemoveVideo }: {
+type ContentValues = { workoutSchedule: string[]; nutritionNotes: string; thumbnail: File | null };
+
+function ContentDialog({ program, saving, removingVideo, onOpenChange, onSave, onRemoveVideo, onVideosChanged }: {
   program: ApiProgram | null;
   saving: boolean;
   removingVideo: boolean;
   onOpenChange: (open: boolean) => void;
   onSave: (values: ContentValues) => void;
-  onRemoveVideo: (url: string) => void;
+  onRemoveVideo: (uid: string) => void;
+  onVideosChanged: () => void;
 }) {
   const [schedule, setSchedule] = useState("");
   const [nutritionNotes, setNutritionNotes] = useState("");
   const [thumbnail, setThumbnail] = useState<File | null>(null);
-  const [videos, setVideos] = useState<File[]>([]);
+  const [uploads, setUploads] = useState<VideoUpload[]>([]);
+  const videoInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!program) return;
     setSchedule(program.workoutSchedule.join("\n"));
     setNutritionNotes(program.nutritionNotes ?? "");
     setThumbnail(null);
-    setVideos([]);
+    setUploads([]);
   }, [program]);
+
+  /**
+   * Uploads straight to Cloudflare over tus, outside the save mutation: these transfers run for
+   * minutes on a large file and must not hold the dialog open or roll back a metadata edit.
+   */
+  async function startUploads(files: File[]) {
+    if (!program) return;
+    const programRef = program.programRef;
+
+    await Promise.all(files.map(async (file) => {
+      const id = `${file.name}-${file.size}-${Math.random().toString(36).slice(2, 8)}`;
+      const title = file.name.replace(/\.[^.]+$/, "");
+      setUploads((current) => [...current, { id, name: title, progress: 0, status: "uploading" }]);
+
+      try {
+        const { uid, uploadUrl } = await trainerPortalApi.createVideoUpload(programRef, {
+          title,
+          sizeBytes: file.size,
+        });
+
+        await new Promise<void>((resolve, reject) => {
+          const upload = new tus.Upload(file, {
+            uploadUrl,
+            // Cloudflare requires a multiple of 256KiB.
+            chunkSize: 50 * 1024 * 1024,
+            retryDelays: [0, 3000, 5000, 10000, 20000],
+            metadata: { name: title, filetype: file.type },
+            onProgress: (sent, total) => {
+              const progress = total ? Math.round((sent / total) * 100) : 0;
+              setUploads((current) => current.map((item) => (item.id === id ? { ...item, progress } : item)));
+            },
+            onError: reject,
+            onSuccess: () => resolve(),
+          });
+          upload.start();
+        });
+
+        setUploads((current) =>
+          current.map((item) => (item.id === id ? { ...item, status: "processing", progress: 100 } : item)));
+        await trainerPortalApi.confirmVideo(programRef, uid);
+        setUploads((current) => current.filter((item) => item.id !== id));
+        toast.success(`${title} uploaded`);
+        onVideosChanged();
+      } catch (error) {
+        setUploads((current) =>
+          current.map((item) => (item.id === id ? { ...item, status: "error" } : item)));
+        toast.error(error instanceof Error ? error.message : "Upload failed");
+      }
+    }));
+  }
 
   const scheduleItems = useMemo(() => schedule.split("\n").map((item) => item.trim()).filter(Boolean), [schedule]);
 
@@ -227,16 +282,44 @@ function ContentDialog({ program, saving, removingVideo, onOpenChange, onSave, o
           <div className="space-y-2"><Label>Workout schedule</Label><Textarea rows={6} value={schedule} onChange={(event) => setSchedule(event.target.value)} placeholder="One schedule item per line" /></div>
           <div className="space-y-2"><Label>Nutrition notes</Label><Textarea rows={5} value={nutritionNotes} onChange={(event) => setNutritionNotes(event.target.value)} /></div>
           <div className="space-y-2"><Label>Replace thumbnail</Label><Input type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={(event) => setThumbnail(event.target.files?.[0] ?? null)} /></div>
-          <div className="space-y-2"><Label>Upload videos</Label><Input type="file" multiple accept="video/mp4,video/quicktime,video/webm" onChange={(event) => setVideos(Array.from(event.target.files ?? []))} /><p className="text-xs text-muted-foreground">Up to five videos, 250 MB each.</p></div>
+          <div className="space-y-2">
+            <Label>Upload videos</Label>
+            <Input
+              ref={videoInputRef}
+              type="file"
+              multiple
+              accept="video/*"
+              onChange={(event) => {
+                void startUploads(Array.from(event.target.files ?? []));
+                if (videoInputRef.current) videoInputRef.current.value = "";
+              }}
+            />
+            <p className="text-xs text-muted-foreground">
+              Uploads go straight to Cloudflare and resume if the connection drops.
+            </p>
+            {uploads.map((upload) => (
+              <div key={upload.id} className="space-y-1 rounded-md border p-2">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="truncate text-xs font-medium">{upload.name}</span>
+                  <span className="shrink-0 text-xs text-muted-foreground">
+                    {upload.status === "error" ? "Failed" : upload.status === "processing" ? "Processing…" : `${upload.progress}%`}
+                  </span>
+                </div>
+                <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                  <div className="h-full bg-primary transition-all" style={{ width: `${upload.status === "processing" ? 100 : upload.progress}%` }} />
+                </div>
+              </div>
+            ))}
+          </div>
           <Separator />
           <div className="space-y-3"><Label>Saved videos</Label>{(program?.videos ?? []).length ? (program?.videos ?? []).map((video) => (
-            <div key={video.url} className="flex items-center justify-between gap-3 rounded-md border p-3">
-              <a href={apiAssetUrl(video.url)} target="_blank" rel="noreferrer" className="flex min-w-0 items-center gap-2 text-sm font-medium hover:text-primary"><PlayCircle className="h-4 w-4 shrink-0" /><span className="truncate">{video.title}</span></a>
-              {video.url.startsWith("/uploads/programs/") && <Button size="sm" variant="destructive" disabled={removingVideo} onClick={() => onRemoveVideo(video.url)}>Remove</Button>}
+            <div key={video.uid} className="flex items-center justify-between gap-3 rounded-md border p-3">
+              <span className="flex min-w-0 items-center gap-2 text-sm font-medium"><PlayCircle className="h-4 w-4 shrink-0" /><span className="truncate">{video.title}</span><span className="shrink-0 text-xs capitalize text-muted-foreground">{video.status}</span></span>
+              <Button size="sm" variant="destructive" disabled={removingVideo} onClick={() => onRemoveVideo(video.uid)}>Remove</Button>
             </div>
           )) : <p className="text-sm text-muted-foreground">No videos uploaded yet.</p>}</div>
         </div>
-        <DialogFooter><Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button><Button disabled={saving} onClick={() => onSave({ workoutSchedule: scheduleItems, nutritionNotes, thumbnail, videos })}>{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}Save content</Button></DialogFooter>
+        <DialogFooter><Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button><Button disabled={saving} onClick={() => onSave({ workoutSchedule: scheduleItems, nutritionNotes, thumbnail })}>{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}Save content</Button></DialogFooter>
       </DialogContent>
     </Dialog>
   );

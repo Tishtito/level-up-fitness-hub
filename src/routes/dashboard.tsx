@@ -546,16 +546,13 @@ function ProgramCard({ program }: { program: ApiDashboardProgram }) {
               View program
             </Link>
           </Button>
-          {program.videos?.[0] && (
+          {/* Playback is a Cloudflare embed on the program page now, not a file link. */}
+          {(program.videos?.length ?? program.videoCount ?? 0) > 0 && (
             <Button asChild size="sm" variant="soft">
-              <a
-                href={apiAssetUrl(program.videos[0].streamUrl ?? program.videos[0].url)}
-                target="_blank"
-                rel="noreferrer"
-              >
+              <Link to="/programs/$slug" params={{ slug: program.programRef }}>
                 <PlayCircle className="h-4 w-4" />
                 Watch
-              </a>
+              </Link>
             </Button>
           )}
         </div>

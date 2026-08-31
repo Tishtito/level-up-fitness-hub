@@ -38,6 +38,12 @@ const KSh = (value: number) =>
     maximumFractionDigits: 0,
   }).format(value);
 
+function formatVideoDuration(seconds?: number | null) {
+  if (!seconds || seconds <= 0) return "Ready to watch";
+  const minutes = Math.floor(seconds / 60);
+  return `${minutes}:${String(Math.round(seconds % 60)).padStart(2, "0")} min`;
+}
+
 function ProgramDetailSkeleton() {
   return (
     <div className="mx-auto max-w-6xl px-4 pb-16 pt-8 sm:px-6">
@@ -274,39 +280,39 @@ function ProgramDetailPage() {
               </Button>
             </div>
           ) : videos.length > 0 ? (
-            <div className="grid gap-4 md:grid-cols-2">
-              {videos.map((video) => {
-                // Videos are no longer public under /uploads: play the signed streamUrl the
-                // API attaches for entitled viewers, falling back only for external entries.
-                const videoUrl = apiAssetUrl(video.streamUrl ?? video.url) || video.url;
-                return (
-                  <article
-                    key={`${video.title}-${video.url}`}
-                    className="card-elevated rounded-[1rem] p-5"
-                  >
-                    <div className="flex items-start gap-3">
-                      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary/15 text-primary">
-                        <PlayCircle className="h-5 w-5" />
-                      </span>
-                      <div className="min-w-0">
-                        <h3 className="font-semibold">{video.title}</h3>
-                        <p className="mt-1 truncate text-xs text-muted-foreground">{video.url}</p>
-                        {video.url && (
-                          <a
-                            href={videoUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline"
-                          >
-                            Open video
-                            <ArrowRight className="h-4 w-4" />
-                          </a>
-                        )}
-                      </div>
+            <div className="grid gap-5 md:grid-cols-2">
+              {videos.map((video) => (
+                <article key={video.uid} className="card-elevated overflow-hidden rounded-[1rem]">
+                  {/* Cloudflare's player handles adaptive bitrate, so a viewer on mobile data
+                      gets a low-bitrate rendition rather than the multi-gigabyte source. */}
+                  {video.embedUrl ? (
+                    <iframe
+                      src={video.embedUrl}
+                      title={video.title}
+                      allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
+                      allowFullScreen
+                      className="aspect-video w-full border-0 bg-black"
+                    />
+                  ) : (
+                    <div className="flex aspect-video w-full items-center justify-center bg-muted text-center text-sm text-muted-foreground">
+                      {video.status === "error"
+                        ? "This video could not be processed."
+                        : "This video is still being processed."}
                     </div>
-                  </article>
-                );
-              })}
+                  )}
+                  <div className="flex items-start gap-3 p-5">
+                    <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary/15 text-primary">
+                      <PlayCircle className="h-5 w-5" />
+                    </span>
+                    <div className="min-w-0">
+                      <h3 className="font-semibold">{video.title}</h3>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {formatVideoDuration(video.durationSeconds)}
+                      </p>
+                    </div>
+                  </div>
+                </article>
+              ))}
             </div>
           ) : (
             <div className="card-elevated rounded-[1rem] p-6 text-sm text-muted-foreground">

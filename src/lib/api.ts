@@ -79,16 +79,27 @@ export type ApiProduct = {
   lowStockThreshold: number;
 };
 
+export type ApiVideoStatus = "uploading" | "processing" | "ready" | "error";
+
 export type ApiProgramVideo = {
   title: string;
-  /** Stored upload path. Not directly fetchable for videos — play `streamUrl` instead. */
-  url: string;
+  /** Cloudflare Stream video id. Not a credential — playback requires a signed token. */
+  uid: string;
+  status: ApiVideoStatus;
+  durationSeconds?: number | null;
+  thumbnailUrl?: string | null;
+  sizeBytes?: number | null;
   /**
-   * Short-lived signed URL, attached by the API only for entitled viewers. Videos are no
-   * longer served from the public /uploads mount, so this is the playable source.
+   * Short-lived signed Cloudflare embed URL. Attached by the API only for entitled viewers,
+   * and only once the video is `ready`, so its presence is the signal that it can be played.
    */
-  streamUrl?: string;
-  type?: string | null;
+  embedUrl?: string;
+};
+
+export type CreateVideoUploadInput = {
+  title: string;
+  sizeBytes: number;
+  durationSeconds?: number;
 };
 
 export type ApiProgramAccessReason = "free" | "staff" | "purchase" | "subscription" | "none";
@@ -701,25 +712,29 @@ export const trainerPortalApi = {
     return response.data.program;
   },
 
-  async uploadVideos(programRef: string, files: File[]) {
-    const body = new FormData();
-    files.forEach((file) => body.append("videos", file));
+  /** Reserves a one-time Cloudflare tus endpoint; the browser uploads to it directly. */
+  async createVideoUpload(programRef: string, input: CreateVideoUploadInput) {
+    const response = await apiRequest<{ program: ApiProgram; uid: string; uploadUrl: string }>(
+      `/trainers/me/programs/${encodeURIComponent(programRef)}/videos/upload-url`,
+      { method: "POST", body: input },
+    );
+    return response.data;
+  },
+
+  async confirmVideo(programRef: string, uid: string) {
     const response = await apiRequest<{ program: ApiProgram }>(
-      `/trainers/me/programs/${encodeURIComponent(programRef)}/videos`,
-      {
-        method: "POST",
-        body,
-      },
+      `/trainers/me/programs/${encodeURIComponent(programRef)}/videos/${uid}/confirm`,
+      { method: "POST" },
     );
     return response.data.program;
   },
 
-  async removeVideo(programRef: string, url: string) {
+  async removeVideo(programRef: string, uid: string) {
     const response = await apiRequest<{ program: ApiProgram }>(
       `/trainers/me/programs/${encodeURIComponent(programRef)}/videos`,
       {
         method: "DELETE",
-        body: { url },
+        body: { uid },
       },
     );
     return response.data.program;
